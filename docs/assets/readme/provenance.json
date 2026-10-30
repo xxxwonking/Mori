@@ -1,0 +1,57 @@
+{
+  "description": "Mori UI README assets. SVG covers reuse the existing logo geometry and DESIGN.md tokens. PNGs are real H5 workbench captures; mobile assets are top crops, not native device screenshots.",
+  "covers": [
+    "cover-light.svg",
+    "cover-dark.svg",
+    "cover-mobile-light.svg",
+    "cover-mobile-dark.svg"
+  ],
+  "screenshots": [
+    {
+      "file": "workbench-light.png",
+      "type": "existing H5 browser screenshot",
+      "source": ".impeccable/review/desktop.png",
+      "sourceCommit": "0b1e6bb",
+      "sourceModified": "2026-10-30T03:25:10.702Z",
+      "sourceSha256": "ca71b4910a646f088dbf581aff3b900f07f81e2b94d42495c0b9d88e1511650b",
+      "crop": null
+    },
+    {
+      "file": "workbench-dark.png",
+      "type": "existing H5 browser screenshot",
+      "source": ".impeccable/review/desktop-dark.png",
+      "sourceCommit": "0b1e6bb",
+      "sourceModified": "2026-10-30T03:25:07.173Z",
+      "sourceSha256": "96d73f5d304bd3593d9567af292b780254e98a8f6a9ffd8d0ce97bae79272c23",
+      "crop": null
+    },
+    {
+      "file": "mobile-input.png",
+      "type": "existing H5 browser screenshot",
+      "source": ".impeccable/review/mobile-input.png",
+      "sourceCommit": "0b1e6bb",
+      "sourceModified": "2026-10-30T03:25:10.439Z",
+      "sourceSha256": "c0b51db6791711a12e93658c6ad2ff263bfebd7a8990d862179937cb301c68cb",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 900
+      }
+    },
+    {
+      "file": "mobile-switch.png",
+      "type": "existing H5 browser screenshot",
+      "source": ".impeccable/review/mobile-switch.png",
+      "sourceCommit": "0b1e6bb",
+      "sourceModified": "2026-10-30T03:25:10.550Z",
+      "sourceSha256": "38861a83c9669a243231e885de80bbce29ee849d7efc940e738dc16aa3501f03",
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 900
+      }
+    }
+  ]
+}

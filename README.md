@@ -1,70 +1,133 @@
-# Mori UI
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="docs/assets/readme/cover-mobile-dark.svg">
+    <source media="(max-width: 600px)" srcset="docs/assets/readme/cover-mobile-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/cover-dark.svg">
+    <img src="docs/assets/readme/cover-light.svg" alt="Mori UI — 小而精，恰好好用。" width="100%">
+  </picture>
+</p>
 
-一套从基础开始的个人移动端组件库。基于 **uni-app x + Vue + TypeScript/UTS**，以 `uni_modules` 方式复用。
+<p align="center">
+  <strong>从一个按钮，到每一次恰好的交互。</strong><br>
+  基于 uni-app x 的移动端组件库，为自己的每一个项目打好基础。
+</p>
 
-包含 Button、Input、Switch、Checkbox、Form、FormItem、Radio、RadioGroup、CheckboxGroup、Textarea、Toast、Popup、Dialog，共十三个组件。提供组件实验室、表单基础和反馈弹层示例。
+<p align="center">
+  <a href="https://doc.dcloud.net.cn/uni-app-x/"><img src="https://img.shields.io/badge/uni--app_x-UVUE_%2B_UTS-0066d6?style=flat-square" alt="uni-app x · UVUE + UTS"></a>
+  <a href="package.json"><img src="https://img.shields.io/badge/Node.js-%E2%89%A5_22.13-1d2430?style=flat-square" alt="Node.js 22.13 或更高版本"></a>
+  <a href="docs/progress.md"><img src="https://img.shields.io/badge/0.1.0-%E5%BC%80%E5%8F%91%E4%B8%AD-616e82?style=flat-square" alt="0.1.0 开发中"></a>
+</p>
 
-## 文档入口
+<p align="center">
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#组件一览">组件一览</a> ·
+  <a href="#主题随你">主题配置</a>
+</p>
 
-下次 agent 接手请从 [AGENTS.md](AGENTS.md) 和 [交接说明](docs/agent-handoff.md) 开始；后续任务按 [当前进度](docs/progress.md) 衔接。
+## 好用，藏在细节里
 
-| 文档 | 用途 |
-|---|---|
-| [使用手册](docs/user-guide.md) | 安装、运行、跨项目接入、主题、组件组合示例 |
-| [设计规范](DESIGN.md) | 配色、字号、尺寸、圆角、图标、选中态与动画 |
-| [组件 API](docs/components.md) | 现有组件的属性、事件和使用边界 |
-| [当前进度](docs/progress.md) | 已完成、未完成、实际验证结果与下一步建议 |
-| [架构说明](docs/architecture.md) | 代码位置、主题数据流、维护规则与已知陷阱 |
-| [验证与排障](docs/testing.md) | 按改动选择检查、构建步骤、证据与常见问题 |
-| [兼容记录](docs/compatibility.md) | H5、微信、iOS、Android、鸿蒙的真实验证范围 |
-| [设计参考](docs/design-references.md) | Vant／Wot 参考与 Lucide 图标来源 |
+**Mori UI** 偏爱清晰的蓝色、安静的灰阶和熟悉的系统字体。以 Apple 风格为设计参考，把空间留给内容，让输入、选择和确认各有分寸。
 
-当前版本未发布；各批组件的构建、浏览器及真机验证范围以 [兼容记录](docs/compatibility.md) 为准，不能用旧组件的历史结果代替新增组件验证。
+- **紧凑的尺寸** — 按钮与输入默认 **36px** 高，控件文字 **13px**，小圆角收住边界。
+- **连贯的反馈** — 开关 **180ms** 平移，复选框 **160ms** 渐变；切换状态保持尺寸稳定。
+- **自然的主题** — 默认跟随系统或宿主；全局固定浅色、深色，也能随时恢复自动。
 
-## 运行项目
+输入框始终是一条闭合边框，显隐和清空使用图标。Switch 可分别设置开关颜色，也能在轨道里显示状态文字。H5 尊重系统的“减少动态效果”偏好。
 
-环境：Node.js 22.13+、HBuilderX 5.31+、HBuilderX 的 Vue3 编译器插件。此前基础版使用 HBuilderX 5.34；每次构建的实际环境见验证记录。
+## 先看一眼
 
-```powershell
-cd C:\Users\Administrator\Desktop\mori-ui
-npm install
+真实 H5 工作台截图。组件预览、API 参考和组合表单放在一起，边看边试。
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/workbench-dark.png">
+  <img src="docs/assets/readme/workbench-light.png" alt="Mori UI 桌面工作台：左侧组件导航，中间按钮变体与状态，右侧可操作的组合表单" width="100%">
+</picture>
+
+封面与工作台预览随浏览器的浅深色偏好切换。也可以分别查看 [浅色原图](docs/assets/readme/workbench-light.png) / [深色原图](docs/assets/readme/workbench-dark.png)。
+
+<details>
+<summary><strong>展开查看移动端：输入与选择</strong></summary>
+
+<p>390px 视口的 H5 截图，截取顶部区域展示控件细节。</p>
+<p align="center">
+  <a href="docs/assets/readme/mobile-input.png"><img src="docs/assets/readme/mobile-input.png" alt="移动端 Input：普通输入、校验反馈、密码显隐、图标清空和禁用状态" width="46%"></a>
+  <a href="docs/assets/readme/mobile-switch.png"><img src="docs/assets/readme/mobile-switch.png" alt="移动端 Switch：独立开关配色、轨道状态文字和尺寸选择" width="46%"></a>
+</p>
+
+截图展示的是浏览器运行效果；各平台实际验证范围见下方兼容表。
+
+</details>
+
+## 组件一览
+
+已提供十三个基础、表单与反馈组件，配套组件工作台、表单示例和反馈弹层示例。
+
+| 组件 | 已实现的能力 | API |
+| :--- | :--- | :--- |
+| **Button** 按钮 | 实心 / 柔和 / 描边 / 文字，三种尺寸，加载、禁用、自定义颜色 | [mori-button](docs/components.md#mori-button) |
+| **Input** 输入框 | 双向绑定、校验反馈、图标清空、密码显隐、前缀、三种尺寸 | [mori-input](docs/components.md#mori-input) |
+| **Switch** 开关 | 独立开关颜色、轨道文字、三种尺寸、平滑过渡 | [mori-switch](docs/components.md#mori-switch) |
+| **Checkbox** 复选框 | 自绘圆角方框、整行点选、禁用、选中动画 | [mori-checkbox](docs/components.md#mori-checkbox) |
+| **Form** 表单 | 同步规则校验、分字段校验、清除错误 | [mori-form](docs/components.md#mori-form) |
+| **FormItem** 表单项 | 标签、必填、错误信息与无障碍关联 | [mori-form-item](docs/components.md#mori-form-item) |
+| **Radio** 单选框 | 选中与禁用、自绘状态 | [mori-radio](docs/components.md#mori-radio) |
+| **RadioGroup** 单选组 | 统一模型、键盘切换 | [mori-radio-group](docs/components.md#mori-radio-group) |
+| **CheckboxGroup** 多选组 | 数组模型、选择数量限制 | [mori-checkbox-group](docs/components.md#mori-checkbox-group) |
+| **Textarea** 多行输入 | 长度限制、字数统计、表单错误关联 | [mori-textarea](docs/components.md#mori-textarea) |
+| **Toast** 轻提示 | 文字、成功、失败、加载与计时替换 | [mori-toast](docs/components.md#mori-toast) |
+| **Popup** 弹出层 | 五方向、嵌套、滑入淡入、H5 焦点和滚动管理 | [mori-popup](docs/components.md#mori-popup) |
+| **Dialog** 对话框 | 确认、取消与异步等待防重复 | [mori-dialog](docs/components.md#mori-dialog) |
+
+通过 `uni_modules` 整包复用，组件按 easycom 规则自动导入。当前是 **uni-app x / `.uvue` / UTS** 工程。
+
+## 快速开始
+
+准备 **Node.js 22.13+**、**HBuilderX 及其 Vue3 编译器插件**。此前基础版使用 HBuilderX 5.34；最新 macOS 验证环境见 [兼容记录](docs/compatibility.md)。App 蒸汽模式建议 5.31+。
+
+```sh
+git clone https://github.com/xxxwonking/Mori.git
+cd Mori
+npm ci
 npm run dev
 ```
 
-默认打开 `http://127.0.0.1:5173`。脚本自动检测 `D:\HBuilderX`、`C:\HBuilderX` 或 macOS 的 `/Applications/HBuilderX.app/Contents/HBuilderX`，也可自行指定安装目录：
+打开终端显示的地址，默认请求 `http://127.0.0.1:5173`。
+
+<details>
+<summary><strong>找不到 HBuilderX？</strong></summary>
+
+脚本自动查找 Windows 的 `D:\HBuilderX`、`C:\HBuilderX`，以及 macOS 的默认安装目录。自定义安装位置可设置环境变量：
 
 ```powershell
+# Windows PowerShell
 $env:HBUILDERX_HOME = 'D:\HBuilderX'
 npm run dev
 ```
 
-也可以直接在 HBuilderX 中导入 **mori-ui 根目录**，选择「运行 → 运行到浏览器 / 小程序 / 手机」。原生 App 使用 `manifest.json` 中配置的蒸汽模式；H5 / 小程序由编译器选择对应渲染路径。
-
-```powershell
-npm run build:h5      # H5 发行构建
-npm run build:weixin  # 微信小程序构建
-npm run preview       # 预览 H5 构建产物
-npm run check         # 工程配置、easycom 目录和浏览器依赖边界检查
-npm test              # 需先启动预览；运行真实浏览器交互检查
-npm run test:unit     # 按钮文字对比度、表单校验与选择逻辑回归
-npm run test:motion   # 检查实际动画中间帧、连续切换及减少动态效果设置
-npm run test:forms    # 需先启动预览；表单校验、选择组、多行输入和主题交互
-npm run test:feedback # 需先启动预览；Toast 计时、弹层、焦点和 Dialog 交互
+```sh
+# macOS shell
+export HBUILDERX_HOME='/Applications/HBuilderX.app/Contents/HBuilderX'
+npm run dev
 ```
 
-测试使用 Playwright。如果电脑没有浏览器运行时，先执行 `npx playwright install chromium`。
+也可以直接在 HBuilderX 中导入仓库根目录，通过「运行」菜单选择浏览器、小程序或手机。App 的运行与打包目前通过 HBuilderX 操作。
 
-从工作台进入表单基础示例，或访问 `http://127.0.0.1:5173/#/pages/forms/forms`。示例包含必填校验、单选、分组多选和多行输入；提交只展示本地结果。接入代码见 [使用手册](docs/user-guide.md#8-使用表单基础组件)。
+</details>
 
-反馈与弹层示例位于 `http://127.0.0.1:5173/#/pages/feedback/feedback`，可操作 Toast、不同位置和嵌套 Popup、确认及等待中的 Dialog。接入代码见 [反馈组件用法](docs/user-guide.md#9-使用反馈与弹层)。
+### 体验组合示例
 
-`manifest.json` 的 DCloud AppID 与微信 AppID 留空，请使用自己的 ID。App 签名、发行配置与真机验证尚未完成。本项目不依赖云服务，不开启统计。
+从工作台进入「表单基础」或「反馈组件」，也可访问：
 
-## 在其他项目中复用
+- `http://127.0.0.1:5173/#/pages/forms/forms`：必填校验、单选、多选、多行输入与本地提交。
+- `http://127.0.0.1:5173/#/pages/feedback/feedback`：Toast、不同位置与嵌套 Popup、确认及等待中的 Dialog。
 
-将 `uni_modules/mori-ui` 整个目录复制到另一个 **uni-app x** 项目的 `uni_modules` 目录。保留整个目录（含 components、styles、platform、static、theme.uts、contrast.uts、validation.uts、form-context.uts、selection.uts、feedback.uts、overlay.uts 及图标许可）；组件按 easycom 规则自动导入。
+端口以终端实际输出为准。接入代码见 [使用手册](docs/user-guide.md)。
 
-在目标项目的 `App.uvue` 初始化一次主题监听：
+### 放进你的项目
+
+将 [`uni_modules/mori-ui`](uni_modules/mori-ui) **整个目录**复制到目标 uni-app x 项目的 `uni_modules` 中，保留校验、选择、反馈与弹层逻辑，以及样式、平台适配、图标和许可文件。
+
+在目标 `App.uvue` 的启动回调中初始化主题：
 
 ```vue
 <script setup lang="uts">
@@ -76,7 +139,7 @@ onLaunch(() => {
 </script>
 ```
 
-目标项目的 `manifest.json` 设置：
+将这些字段合并到目标 `manifest.json`，保留项目原有配置与 AppID：
 
 ```json
 {
@@ -87,79 +150,165 @@ onLaunch(() => {
 }
 ```
 
-如果需要页面背景、原生导航栏一起适配，参考本项目的 `theme.json` 和 `pages.json` 配置。只复制组件目录不能自动修改目标应用的配置。
+接下来，在页面里直接使用：
 
 ```vue
 <template>
-  <view>
-    <mori-input v-model="name" label="你的名字" placeholder="请输入" clearable />
-    <mori-button label="保存" :loading="saving" block @click="save" />
+  <view class="settings">
+    <view class="settings-field">
+      <mori-input v-model="name" label="你的名字" placeholder="怎么称呼你？" clearable />
+    </view>
+    <mori-switch v-model="notifications" label="消息通知"
+      active-text="开启" inactive-text="关闭" />
+    <mori-checkbox v-model="accepted" label="我已阅读使用说明" />
+    <mori-button label="继续" :disabled="!accepted" block @click="submit" />
   </view>
 </template>
 
 <script setup lang="uts">
 import { ref } from 'vue'
+
 const name = ref('')
-const saving = ref(false)
-function save() {
-  // 在这里执行自己的校验与业务逻辑。
+const notifications = ref(true)
+const accepted = ref(false)
+
+function submit() {
+  uni.showToast({ title: '你好，' + (name.value.trim() || '朋友'), icon: 'none' })
 }
 </script>
+
+<style>
+.settings { padding: 16px; }
+.settings-field { margin-bottom: 12px; }
+</style>
 ```
 
-## 全局主题
+这个示例只展示交互，不发送数据。页面背景和原生导航栏的主题适配参考 [`theme.json`](theme.json) / [`pages.json`](pages.json)；完整接入与校验示例见 [使用手册](docs/user-guide.md)。
 
-**默认 `auto`**。App 跟随 OS 主题；H5 与小程序跟随浏览器或微信宿主主题。
+## 主题，随你
+
+默认 `auto`，跟随系统或宿主。一个配置项，就能固定全局主题：
 
 ```ts
 import { setMoriConfig } from '@/uni_modules/mori-ui/theme.uts'
 
-setMoriConfig({ theme: 'auto' })  // 跟随系统 / 宿主（默认）
-setMoriConfig({ theme: 'light' }) // 固定浅色，关闭自动跟随
-setMoriConfig({ theme: 'dark' })  // 固定深色，关闭自动跟随
+setMoriConfig({ theme: 'dark' })  // 固定深色，停止自动跟随
+setMoriConfig({ theme: 'light' }) // 固定浅色，停止自动跟随
+setMoriConfig({ theme: 'auto' })  // 恢复跟随，立即采用当前系统 / 宿主主题
 ```
 
-切换配置会更新已显示的所有组件。手动固定后，系统变化不会覆盖选择；重新切回 `auto` 时，会立即采用当前系统主题。
+也可以同时定义浅色与深色品牌色，更新所有组件：
 
 ```ts
 setMoriConfig({
-  color: '#465ba3',        // 浅色主题中的品牌色
-  darkColor: '#b1bfff',    // 深色主题中的品牌色
-  softColor: '#edf0fb',    // 浅色柔和背景
-  darkSoftColor: '#2a324d' // 深色柔和背景
+  color: '#0066d6',
+  darkColor: '#8cb6ff',
+  softColor: '#eaf2ff',
+  darkSoftColor: '#243450'
 })
 ```
 
-`setMoriConfig` 只修改传入项，未传入的配置保持原值。实例的 `color` / `softColor` 属性优先于全局值。不要只设置浅色品牌色而忽略深色配色的可读性。
+Switch 的开启色、关闭色与文字可以单独设置。下面使用 `moriIsDark` 为两套主题分别配色：
 
-配置不自动持久化。需要记住用户选择时，由业务使用 `uni.setStorageSync` 保存，并在启动时读出调用 `setMoriConfig`。系统键盘、文件选择器等系统 UI 不由组件库控制。
+```vue
+<template>
+  <mori-switch v-model="enabled" label="同步设置"
+    :active-color="moriIsDark ? '#b1bfff' : '#465ba3'"
+    :inactive-color="moriIsDark ? '#444b58' : '#d8dce3'"
+    active-text="开启" inactive-text="关闭" />
+</template>
 
-## 目录
+<script setup lang="uts">
+import { ref } from 'vue'
+import { moriIsDark } from '@/uni_modules/mori-ui/theme.uts'
 
-```text
-mori-ui/
-├─ App.uvue / main.uts / manifest.json / pages.json / theme.json
-├─ uni_modules/mori-ui/      # 可复制复用的组件库
-│  ├─ components/           # 十三个基础、表单与反馈组件
-│  ├─ styles/tokens.scss    # 尺寸、间距、基础样式
-│  ├─ validation.uts        # 同步表单校验与公开类型
-│  ├─ form-context.uts      # 表单错误与字段无障碍上下文
-│  ├─ selection.uts         # 单选、多选与输入长度逻辑
-│  ├─ feedback.uts          # Toast 类型与计时逻辑
-│  ├─ overlay.uts           # 弹层栈与生命周期逻辑
-│  └─ theme.uts             # 全局配置、亮暗配色、系统主题监听
-├─ pages/index/             # 组件实验室，响应式布局
-├─ pages/forms/             # 表单基础示例页
-├─ pages/feedback/          # Toast、Popup、Dialog 示例页
-├─ components/demo-form/    # 组合示例，不属于核心组件库
-├─ components/demo-foundation/ # 新表单组合，不属于核心组件库
-├─ scripts/                 # 开发、构建、预览与验证
-├─ docs/components.md       # 组件 API
-├─ docs/compatibility.md    # 真实验证范围
-├─ PRODUCT.md               # 产品约束
-└─ DESIGN.md                # 设计规范
+const enabled = ref(true)
+</script>
 ```
 
-默认采用偏 Apple 风格的中性灰 + 蓝色、系统字体与紧凑尺寸。按钮和输入框默认 36px 高、13px 文字，字段标签 12px。输入采用单一闭合焦点边框与 Lucide 操作图标。Switch 支持 activeColor / inactiveColor、activeText / inactiveText 和三种尺寸；Checkbox 使用 16px 圆角方框。开关滑块与复选框选中状态有 160–180ms 过渡，H5 尊重减少动态效果偏好。H5 优先使用系统 SF / 苹方；其他设备回退到自己的系统字体。
+配置只更新传入项；需要记住用户选择时，由业务保存。实例颜色优先于全局配置。系统键盘与系统选择器由平台控制。更多边界见 [主题接口](docs/components.md#主题接口)。
 
-未发布 npm 或插件市场，项目名称 Mori UI 暂定，可随时调整。
+## 一份组件，多端打磨
+
+当前版本 **0.1.0，开发中**。以下记录截至 **2026-10-30**；完整证据见 [兼容记录](docs/compatibility.md)。
+
+| 平台 | 构建进度 | 运行进度 |
+| :--- | :--- | :--- |
+| **H5** | 发行构建通过 | Chromium 交互与布局已验证，Safari 待验证 |
+| **微信小程序** | 发行构建通过 | 开发者工具与真机待验证 |
+| **Android App** | 已配置蒸汽模式，原生编译待验证 | 真机待验证 |
+| **iOS App** | 已配置蒸汽模式，原生编译待验证 | 真机待验证 |
+| **HarmonyOS NEXT** | 工具链待配置 | 按组件尽力支持，尚未验证 |
+
+基础组件的 H5 记录覆盖 **9 组功能检查**与 **5 项动画检查**，布局覆盖 360–1440px 的六档视口。新增表单与反馈组件另有专用回归，最新 Chrome 证据覆盖校验、选择、Toast 生命周期、嵌套弹层、焦点与滚动管理，以及底部滑入淡入的实际坐标。编译、浏览器与真机分别记录。项目 AppID、签名需要使用方配置；当前尚未发布 npm 包、插件市场包或 Release。
+
+## 开发与验证
+
+| 命令 | 用途 |
+| :--- | :--- |
+| `npm run dev` | 启动 H5 开发服务器 |
+| `npm run build:h5` | H5 发行构建 |
+| `npm run build:weixin` | 微信小程序发行构建 |
+| `npm run preview` | 预览已构建的 H5 产物 |
+| `npm run check` | 配置、easycom 目录与浏览器依赖边界检查 |
+| `npm run test:unit` | 颜色对比度、校验、选择、反馈生命周期和构建环境回归 |
+| `npm test` | 浏览器交互与布局检查 |
+| `npm run test:motion` | 动画中间帧、快速反向切换与减少动态效果检查 |
+| `npm run test:forms` | 表单校验、选择组、多行输入和主题交互 |
+| `npm run test:feedback` | Toast 计时、弹层方向与淡入、焦点和 Dialog 交互 |
+
+浏览器测试需先完成 H5 构建，并在另一个终端保持 `npm run preview` 运行。首次使用 Playwright 时执行 `npx playwright install chromium`。具体步骤见 [验证与排障](docs/testing.md)。
+
+<details>
+<summary><strong>查看项目结构</strong></summary>
+
+```text
+Mori/
+├── uni_modules/mori-ui/    # 可复用组件库
+│   ├── components/        # 十三个基础、表单与反馈组件
+│   ├── styles/            # 尺寸与间距基础
+│   ├── platform/          # 平台适配
+│   ├── static/icons/      # 随包分发的 SVG 图标
+│   └── theme.uts          # 主题、语义颜色与全局配置
+├── pages/index/           # 组件工作台
+├── pages/forms/           # 表单基础示例
+├── pages/feedback/        # Toast、Popup、Dialog 示例
+├── components/demo-form/  # 可操作的组合示例
+├── scripts/               # 开发、构建、预览与验证
+├── tests/                 # 颜色、表单、选择、反馈与构建环境回归
+├── docs/                  # 使用、架构、进度与兼容说明
+├── AGENTS.md              # Agent 接手入口
+└── DESIGN.md              # 设计规范
+```
+
+</details>
+
+## 接下来，慢慢长成体系
+
+- [x] Button / Input / Switch / Checkbox 基础组件
+- [x] 系统主题跟随、全局覆盖与浅深品牌色
+- [x] 紧凑尺寸、图标操作与选择态过渡
+- [x] H5 工作台、组合表单、基础验证与接手文档
+- [ ] 微信运行、iOS / Android 与 Safari 实际验证
+- [x] Form / FormItem、Radio / RadioGroup、CheckboxGroup、Textarea
+- [x] Toast / Popup / Dialog 与反馈示例
+- [ ] 按需求评估 Cell、ActionSheet、Notify 等后续组件
+- [ ] 鸿蒙工具链与逐组件验证、分发方式和最低系统版本
+
+后续清单是候选方向，按项目需要逐步推进。详细记录见 [当前进度](docs/progress.md)。
+
+## 文档地图
+
+| 想了解什么 | 从这里开始 |
+| :--- | :--- |
+| 怎么接入、怎么用 | [使用手册](docs/user-guide.md) · [组件 API](docs/components.md) |
+| 为什么长这样 | [设计规范](DESIGN.md) · [设计参考](docs/design-references.md) |
+| 代码放在哪里、怎么维护 | [架构说明](docs/architecture.md) · [验证与排障](docs/testing.md) |
+| 哪些已经完成 | [当前进度](docs/progress.md) · [兼容记录](docs/compatibility.md) |
+| 让下一位 Agent 继续 | [AGENTS.md](AGENTS.md) · [交接说明](docs/agent-handoff.md) |
+
+## 参考与致谢
+
+基于 [uni-app x](https://doc.dcloud.net.cn/uni-app-x/) 和 [Vue](https://vuejs.org/) 构建；交互设计参考 [Vant](https://vant-ui.github.io/vant/) 与 [Wot Design Uni](https://wot-design-uni.cn/)。输入与选择图标来自 [Lucide](https://lucide.dev/)，授权说明随模块保存在 [THIRD_PARTY_NOTICES.md](uni_modules/mori-ui/THIRD_PARTY_NOTICES.md)。
+
+<p align="center"><sub>Mori UI · 把基础打磨好，让每个项目都有好的开始。</sub></p>
