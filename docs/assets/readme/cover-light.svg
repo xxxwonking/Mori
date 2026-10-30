@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Mori UI — 小而精，恰好好用。</title>
+  <desc id="desc">中性灰蓝的移动组件库封面，沿用 Mori 的三枚斜胶囊标识。uni-app x、Vue 3、UTS；默认 36px 按钮和输入，13px 控件文字。</desc>
+  <defs><clipPath id="frame"><rect width="1200" height="400" rx="16"/></clipPath></defs>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="400" fill="#f6f7f9"/>
+    <rect x="792" width="408" height="400" fill="#0066d6"/>
+    <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+      <text x="60" y="165" fill="#1d2430" font-size="112" font-weight="800" letter-spacing="-3">mori<tspan fill="#0066d6" font-size="48" font-weight="500" dx="18">UI</tspan></text>
+      <text x="66" y="229" fill="#1d2430" font-size="30" font-weight="500">小而精，恰好好用。</text>
+      <text x="66" y="272" fill="#616e82" font-size="21">36px 控件 · 13px 文字 · 自适应主题</text>
+      <path d="M66 316H726" stroke="#d2dae6"/>
+      <text x="66" y="355" fill="#616e82" font-size="19">uni-app x</text>
+      <text x="217" y="355" fill="#616e82" font-size="19">Vue 3</text>
+      <text x="322" y="355" fill="#616e82" font-size="19">UTS</text>
+      <text x="726" y="355" text-anchor="end" fill="#0066d6" font-size="19">为细节而生。</text>
+    </g>
+    <g transform="translate(830 35) scale(5.2)">
+      <g fill="#ffffff" transform="rotate(28 32 32)">
+        <rect x="15" y="16" width="9" height="36" rx="4.5"/>
+        <rect x="29" y="16" width="9" height="28" rx="4.5"/>
+        <rect x="43" y="16" width="9" height="20" rx="4.5"/>
+      </g>
+    </g>
+  </g>
+</svg>
