@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，首版包含 Button、Input、Switch、Checkbox、组件工作台和组合表单。代码尚未发布。
+Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，首版包含 Button、Input、Switch、Checkbox、组件工作台和组合表单。源码保存在 [GitHub 仓库](https://github.com/xxxwonking/Mori)，尚未发布组件包。
 
 本机目录为 `C:\Users\Administrator\Desktop\mori-ui`，HBuilderX 在 `D:\HBuilderX`。迁移机器时重新定位项目与 HBuilderX，不照搬本机路径。当前技术路线是 `.uvue` + UTS，通过 `uni_modules` 整包复制复用。
 
@@ -54,7 +54,7 @@ npm --version
 - iOS／Android 原生编译与真机、微信运行、Safari 和鸿蒙验证尚未完成。
 - 原始验证资料保存在 `.impeccable/review/`，该目录被 Git 忽略；缺失时按测试脚本重新生成。
 - 最后五项视觉修复的独立续审因服务限流未完成，改由原线程逐项复核；`ship` 仅指那五项修复。用户尚未明确对最后一版视觉作正式验收。
-- 已建立本地 Git 首次提交，分支为 `master`，源码、配置、测试与文档纳入版本管理，未配置远程仓库。接手时用 `git log -1 --oneline` 查看最新提交，并用 `git status --short` 核实工作区状态。
+- 已建立 Git 首次提交 `0b1e6bb`，源码、配置、测试与文档纳入版本管理；远程 `origin` 为 `https://github.com/xxxwonking/Mori.git`，本地 `master` 跟踪 `origin/master`。接手时用 `git log -1 --oneline` 查看最新提交，并用 `git status --short --branch` 核实工作区与分支状态；需确认远程最新进度时先执行 `git fetch origin`。
 
 ## 如果用户下次只说“继续”
 
