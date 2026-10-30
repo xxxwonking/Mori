@@ -1,0 +1,16 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "Mori UI",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "@navigationText",
+    "navigationBarBackgroundColor": "@pageBackground",
+    "backgroundColor": "@pageBackground"
+  }
+}

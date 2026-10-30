@@ -1,0 +1,43 @@
+export type ApiRow = { name: string; valueType: string; initial: string; description: string }
+
+export const buttonApi: ApiRow[] = [
+  { name: 'variant', valueType: 'string', initial: 'solid', description: 'solid / soft / outline / text' },
+  { name: 'size', valueType: 'string', initial: 'md', description: 'sm 28px / md 36px / lg 40px' },
+  { name: 'color', valueType: 'string', initial: '继承全局', description: '主题色，建议 #RGB / #RRGGBB / rgb()' },
+  { name: 'softColor', valueType: 'string', initial: '继承全局', description: '柔和按钮的背景色' },
+  { name: 'textColor', valueType: 'string', initial: '自动', description: '实心按钮自动选黑/白；特殊颜色格式可显式设置' },
+  { name: 'loading', valueType: 'boolean', initial: 'false', description: '显示加载状态并阻止重复点击' },
+  { name: 'disabled', valueType: 'boolean', initial: 'false', description: '禁用交互' },
+  { name: 'block / round', valueType: 'boolean', initial: 'false', description: '通栏宽度 / 胶囊圆角' },
+  { name: '@click', valueType: 'event', initial: '—', description: '可操作时触发，不携带业务数据' }
+]
+export const inputApi: ApiRow[] = [
+  { name: 'v-model', valueType: 'string', initial: "''", description: '受控输入值' },
+  { name: 'label', valueType: 'string', initial: "''", description: '字段名称及无障碍标签' },
+  { name: 'size', valueType: 'string', initial: 'md', description: 'sm 30px / md 36px / lg 40px' },
+  { name: 'type', valueType: 'string', initial: 'text', description: 'text / password / number 等平台输入类型' },
+  { name: 'error', valueType: 'string', initial: "''", description: '非空时显示错误状态与提示' },
+  { name: 'hint', valueType: 'string', initial: "''", description: '辅助说明，错误信息优先展示' },
+  { name: 'clearable', valueType: 'boolean', initial: 'false', description: '显示清空图标；密码显隐使用眼睛图标' },
+  { name: 'disabled', valueType: 'boolean', initial: 'false', description: '禁用输入和附加操作' },
+  { name: '@change / @confirm', valueType: 'event', initial: 'value', description: '输入变化 / 键盘确认时返回当前字符串' }
+]
+export const switchApi: ApiRow[] = [
+  { name: 'v-model', valueType: 'boolean', initial: 'false', description: '当前开关状态' },
+  { name: 'label', valueType: 'string', initial: "''", description: '开关名称' },
+  { name: 'description', valueType: 'string', initial: "''", description: '可选的补充说明' },
+  { name: 'activeColor', valueType: 'string', initial: '继承全局', description: '开启背景色，优先于 color' },
+  { name: 'inactiveColor', valueType: 'string', initial: '主题灰色', description: '关闭背景色，可独立自定义' },
+  { name: 'activeText / inactiveText', valueType: 'string', initial: "''", description: '轨道内的开启 / 关闭文字；为空不展示' },
+  { name: 'size', valueType: 'string', initial: 'md', description: 'sm 20px / md 22px / lg 26px 轨道高度' },
+  { name: 'color', valueType: 'string', initial: '继承全局', description: '兼容原属性，作为 activeColor 的后备值' },
+  { name: 'disabled', valueType: 'boolean', initial: 'false', description: '禁用交互' },
+  { name: '@change', valueType: 'event', initial: 'boolean', description: '返回新的开关状态' }
+]
+export const checkboxApi: ApiRow[] = [
+  { name: 'v-model', valueType: 'boolean', initial: 'false', description: '当前选中状态' },
+  { name: 'label', valueType: 'string', initial: "''", description: '可点击的选项文字' },
+  { name: 'color', valueType: 'string', initial: '继承全局', description: '选中时的主题色' },
+  { name: 'disabled', valueType: 'boolean', initial: 'false', description: '禁用交互' },
+  { name: '@change', valueType: 'event', initial: 'boolean', description: '返回新的选中状态' }
+]

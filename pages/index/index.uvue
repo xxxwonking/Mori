@@ -1,0 +1,149 @@
+<template>
+  <!-- #ifdef APP -->
+  <scroll-view scroll-y class="app-scroll" :style="'background-color:' + moriPalette.ground">
+  <!-- #endif -->
+    <view class="workbench" :class="{ 'workbench--dark': moriIsDark }">
+      <view class="sidebar">
+        <view class="brand"><view class="brand-symbol"><view class="brand-stroke brand-stroke--one"></view><view class="brand-stroke brand-stroke--two"></view><view class="brand-stroke brand-stroke--three"></view></view><text class="brand-word">mori</text><text class="brand-ui">UI</text></view>
+        <text class="sidebar-intro">小而精，恰好好用。</text>
+        <button class="guide-link" :class="{ 'guide-link--active': current == 'guide' }" @click="selectComponent('guide')"><text class="guide-link-text">开始使用</text><text class="guide-link-arrow">指南</text></button>
+        <text class="nav-group-title">基础组件</text>
+        <button class="nav-item" :class="{ 'nav-item--active': current == 'button' }" @click="selectComponent('button')"><text class="nav-item-text">Button</text><text class="nav-item-cn">按钮</text></button>
+        <text class="nav-group-title nav-group-title--second">表单组件</text>
+        <button class="nav-item" :class="{ 'nav-item--active': current == 'input' }" @click="selectComponent('input')"><text class="nav-item-text">Input</text><text class="nav-item-cn">输入框</text></button>
+        <button class="nav-item" :class="{ 'nav-item--active': current == 'switch' }" @click="selectComponent('switch')"><text class="nav-item-text">Switch</text><text class="nav-item-cn">开关</text></button>
+        <button class="nav-item" :class="{ 'nav-item--active': current == 'checkbox' }" @click="selectComponent('checkbox')"><text class="nav-item-text">Checkbox</text><text class="nav-item-cn">复选框</text></button>
+        <view class="sidebar-bottom"><view class="sidebar-line"></view><text class="sidebar-note">从基础，慢慢长成体系。</text><text class="sidebar-version">Mori UI · v0.1.0</text></view>
+      </view>
+
+      <view class="workspace">
+        <view class="topbar"><view class="topbar-title-wrap"><text class="topbar-mobile-brand">mori UI</text><text class="topbar-title">组件实验室</text><text class="version-label">0.1.0</text></view><view class="topbar-right"><text class="appearance-label">外观</text><view class="appearance-options"><button v-for="mode in appearanceModes" :key="mode.id" class="appearance-option" :class="{ 'appearance-option--active': moriThemeMode == mode.id }" @click="setAppearance(mode.id)"><text class="appearance-option-text">{{ mode.label }}</text></button></view></view></view>
+        <view class="mobile-nav"><button v-for="item in navItems" :key="item.id" class="mobile-nav-item" :class="{ 'mobile-nav-item--active': current == item.id }" @click="selectComponent(item.id)"><text class="mobile-nav-text">{{ item.label }}</text></button></view>
+
+        <view class="workspace-body">
+          <view class="page-heading"><view class="page-heading-copy"><view class="page-title-row"><text class="page-title">{{ currentTitle }}</text><text v-if="current != 'guide'" class="page-title-cn">{{ currentChinese }}</text></view><text class="page-description">{{ currentDescription }}</text></view><view class="theme-control"><text class="theme-label">主题色</text><button v-for="theme in themes" :key="theme.name" class="theme-swatch" :class="{ 'theme-swatch--active': themeName == theme.name }" :aria-label="theme.name + '主题'" :style="'background-color:' + theme.color" @click="setTheme(theme.name, theme.color, theme.soft)"><view v-if="themeName == theme.name" class="swatch-dot"></view></button></view></view>
+
+          <view v-if="current == 'guide'" class="guide-content">
+            <view class="guide-section"><text class="section-title">把好用的基础，带到下一个项目。</text><text class="guide-paragraph">Mori UI 从按钮和表单出发，为你的多个移动项目提供一致的交互与可调整的视觉。组件位于 uni_modules/mori-ui，可直接复制到 uni-app x 项目。</text><view class="guide-code"><text class="code-text">{{ installCode }}</text></view><text class="guide-paragraph">组件遵循 easycom 目录规范，模板中直接使用 mori-button、mori-input 等标签即可。所有字段都通过 v-model 同步，业务校验由使用方决定。</text></view>
+            <view class="guide-section"><text class="section-title">默认跟随系统，也能由你决定。</text><text class="guide-paragraph">在 App.uvue 的 onLaunch 中调用一次 initMoriTheme，再在 manifest 中启用主题能力。然后通过全局 setMoriConfig 设置 auto、light 或 dark；固定主题后，系统变化不会覆盖你的选择。</text><view class="guide-code"><text class="code-text">{{ themeSetupCode }}</text></view><view class="guide-code"><text class="code-text">{{ themeManifestCode }}</text></view><view class="guide-code"><text class="code-text">{{ themeCode }}</text></view><text class="guide-paragraph">全局品牌色支持 color / darkColor，柔和背景支持 softColor / darkSoftColor。所有已显示的组件会立即更新，实例属性可以覆盖全局品牌色。完整接入步骤见项目 README。</text></view>
+            <view class="guide-section"><text class="section-title">兼容状态透明可查</text><text class="guide-paragraph">H5、微信小程序、iOS 和 Android 是正式支持目标；鸿蒙逐项适配。编译通过、浏览器验证、真机验证分别记录，详见项目 docs/compatibility.md。</text><mori-button label="从 Button 开始" size="sm" :color="themeColor" @click="selectComponent('button')" /></view>
+          </view>
+
+          <view v-else class="content-columns">
+            <view class="component-column">
+              <view class="section-tabs"><button class="section-tab" :class="{ 'section-tab--active': activeTab == 'preview' }" @click="activeTab = 'preview'"><text class="section-tab-text">组件预览</text></button><button class="section-tab" :class="{ 'section-tab--active': activeTab == 'api' }" @click="activeTab = 'api'"><text class="section-tab-text">API 参考</text></button><text class="section-tabs-note">{{ current == 'button' ? '4 种样式 · 3 种尺寸' : '支持 v-model' }}</text></view>
+
+              <view v-if="activeTab == 'api'" class="api-panel"><view class="api-table-head"><text class="api-name">属性 / 事件</text><text class="api-type">类型 · 默认值</text><text class="api-description">说明</text></view><view v-for="row in currentApi" :key="row.name" class="api-table-row"><text class="api-name api-name--code">{{ row.name }}</text><text class="api-type">{{ row.valueType }} · {{ row.initial }}</text><text class="api-description">{{ row.description }}</text></view><text class="api-footnote">完整用法见项目 docs/components.md。所有组件均支持实例级主题色。</text></view>
+
+              <view v-else>
+                <view class="specimen-panel">
+                  <view class="specimen-toolbar"><text class="specimen-label">{{ current == 'button' ? '基础用法' : current == 'input' ? '输入与反馈' : '选择与偏好' }}</text><view v-if="current == 'button'" class="size-selector"><button v-for="size in sizes" :key="size.value" class="size-option" :class="{ 'size-option--active': selectedSize == size.value }" @click="selectedSize = size.value"><text class="size-option-text">{{ size.label }}</text></button></view><text v-else class="specimen-toolbar-note">可以直接操作</text></view>
+
+                  <view v-if="current == 'button'" class="button-stage"><view class="button-example"><mori-button label="主要按钮" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" :loading="demoLoading" @click="buttonFeedback('主要按钮')" /><text class="example-caption">Solid</text></view><view class="button-example"><mori-button label="柔和按钮" variant="soft" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" @click="buttonFeedback('柔和按钮')" /><text class="example-caption">Soft</text></view><view class="button-example"><mori-button label="描边按钮" variant="outline" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" @click="buttonFeedback('描边按钮')" /><text class="example-caption">Outline</text></view><view class="button-example"><mori-button label="文字按钮" variant="text" :size="selectedSize" :color="themeColor" :disabled="demoDisabled" @click="buttonFeedback('文字按钮')" /><text class="example-caption">Text</text></view></view>
+
+                  <view v-if="current == 'input'" class="input-stage"><view class="input-example"><mori-input v-model="sampleName" label="普通输入" placeholder="试着输入一些内容" :color="themeColor" clearable hint="输入后可一键清空" /></view><view class="input-example"><mori-input v-model="sampleEmail" label="校验反馈" placeholder="name@example.com" :color="themeColor" :error="sampleEmailError" hint="邮箱格式正确" /></view><view class="input-example"><mori-input v-model="samplePassword" label="密码输入" type="password" placeholder="输入密码" :color="themeColor" clearable hint="眼睛图标切换显隐，关闭图标清空内容" /></view><view class="input-example"><mori-input model-value="当前字段不可编辑" label="禁用状态" disabled hint="保持内容可读，禁止修改" /></view></view>
+
+                  <view v-if="current == 'switch'" class="selection-stage">
+                    <mori-switch v-model="sampleSwitch" label="消息通知" description="默认跟随全局主题色" :color="themeColor" />
+                    <view class="selection-divider"></view>
+                    <mori-switch v-model="sampleSwitchOff" label="自动保存" description="轨道内显示开关状态" :color="themeColor" active-text="开" inactive-text="关" />
+                    <view class="selection-divider"></view>
+                    <mori-switch :model-value="true" label="只读设置" :color="themeColor" active-text="开启" inactive-text="关闭" disabled />
+                    <view class="selection-divider"></view>
+                    <text class="switch-examples-title">自定义颜色与文字</text>
+                    <view class="switch-color-examples"><view v-for="item in switchColors" :key="item.name" class="switch-color-example"><mori-switch v-model="item.enabled" :label="item.name" :active-color="item.active" :inactive-color="item.inactive" active-text="ON" inactive-text="OFF" /></view></view>
+                    <view class="selection-divider"></view>
+                    <text class="switch-examples-title">小 / 中 / 大</text>
+                    <view class="switch-size-examples"><view v-for="item in sizes" :key="item.value" class="switch-size-example"><mori-switch v-model="sampleSwitchSizes" :label="item.label" :size="item.value" /></view></view>
+                  </view>
+
+                  <view v-if="current == 'checkbox'" class="selection-stage"><mori-checkbox v-model="sampleCheck" label="接收每月设计灵感" :color="themeColor" /><mori-checkbox v-model="sampleCheckTwo" label="订阅组件更新日志" :color="themeColor" /><mori-checkbox :model-value="true" label="已锁定的选项" :color="themeColor" disabled /><mori-checkbox :model-value="false" label="暂不可选的项目" :color="themeColor" disabled /><view class="selection-summary"><text class="selection-summary-text">已选择 {{ (sampleCheck ? 1 : 0) + (sampleCheckTwo ? 1 : 0) }} 个可选项目</text></view></view>
+
+                  <view v-if="current == 'button'" class="stage-settings"><view class="stage-setting"><mori-switch v-model="demoLoading" label="加载中" size="sm" :color="themeColor" /></view><view class="stage-setting"><mori-switch v-model="demoDisabled" label="禁用状态" size="sm" :color="themeColor" /></view><text class="stage-result">{{ clickMessage.length > 0 ? clickMessage : '点击按钮，感受反馈' }}</text></view>
+                  <view v-if="current == 'switch'" class="stage-settings"><text class="stage-result stage-result--full">消息通知 {{ sampleSwitch ? '已开启' : '已关闭' }} · 自动保存 {{ sampleSwitchOff ? '已开启' : '已关闭' }}</text></view>
+                </view>
+
+                <view class="code-panel"><view class="code-panel-top"><text class="code-language">Vue / uni-app x</text><button class="copy-button" @click="copyCode"><text class="copy-button-text">{{ copied ? '已复制' : '复制代码' }}</text></button></view><text class="code-text">{{ currentCode }}</text></view>
+
+                <view v-if="current == 'button'" class="detail-section"><view class="detail-heading"><text class="section-title">每一种状态，都有回应。</text><text class="section-note">明确反馈，安心操作</text></view><view class="state-examples"><view class="state-example"><mori-button label="正在处理" :color="themeColor" loading size="sm" /><text class="state-title">加载状态</text><text class="state-description">避免重复提交</text></view><view class="state-example"><mori-button label="暂不可用" :color="themeColor" disabled size="sm" /><text class="state-title">禁用状态</text><text class="state-description">保留清晰的操作预期</text></view><view class="state-example"><mori-button label="删除内容" color="#b63d37" soft-color="#fff0ed" variant="soft" size="sm" @click="buttonFeedback('危险操作示例')" /><text class="state-title">危险操作</text><text class="state-description">用语义色提示风险</text></view></view></view>
+
+                <view v-if="current != 'button'" class="detail-section"><text class="section-title">让输入自然发生。</text><text class="detail-paragraph">名称说明用途，状态说明结果。把输入值和校验规则留给业务，组件负责清楚地呈现；在真实表单中组合使用，体验会更完整。</text></view>
+
+                <view class="principles-strip"><view class="principle"><view class="principle-mark"></view><text class="principle-text">统一的交互状态</text></view><view class="principle"><view class="principle-mark"></view><text class="principle-text">主题随项目调整</text></view><view class="principle"><view class="principle-mark"></view><text class="principle-text">从移动端出发</text></view></view>
+              </view>
+            </view>
+
+            <view class="phone-column"><view class="phone-column-heading"><text class="phone-heading">放进真实的界面</text><text class="sample-tag">组合示例</text></view><view class="phone-frame"><demo-form :color="themeColor" :soft-color="themeSoft" /></view><view class="phone-caption"><view class="phone-caption-line"></view><text class="phone-caption-text">同一套组件，自然组合。</text><view class="phone-caption-line"></view></view></view>
+          </view>
+
+          <view class="footer"><text class="footer-brand">mori UI</text><text class="footer-text">精心打磨基础，让每个项目都有好的开始。</text><text class="footer-platforms">H5 · 微信小程序 · App</text></view>
+        </view>
+      </view>
+    </view>
+  <!-- #ifdef APP -->
+  </scroll-view>
+  <!-- #endif -->
+</template>
+
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { buttonApi, inputApi, switchApi, checkboxApi, ApiRow } from './catalogue.uts'
+import { moriPalette, moriIsDark, moriThemeMode, setMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
+const current = ref('button')
+const activeTab = ref('preview')
+const selectedSize = ref('md')
+const sampleSwitchSizes = ref(true)
+const switchColors = ref([
+  { name: '绿色', active: '#238653', inactive: '#dce9e1', enabled: true },
+  { name: '橙色', active: '#b65b13', inactive: '#eee1d7', enabled: true },
+  { name: '紫色', active: '#7852c7', inactive: '#e7e0f0', enabled: true },
+  { name: '双色', active: '#0066d6', inactive: '#b63d37', enabled: false }
+])
+const demoDisabled = ref(false)
+const demoLoading = ref(false)
+const clickMessage = ref('')
+const copied = ref(false)
+const themeName = ref('清晰蓝')
+const themeColor = computed((): string => moriPalette.value.primary)
+const themeSoft = computed((): string => moriPalette.value.soft)
+const sampleName = ref('')
+const sampleEmail = ref('mori@example')
+const samplePassword = ref('hello-mori')
+const sampleSwitch = ref(true)
+const sampleSwitchOff = ref(false)
+const sampleCheck = ref(true)
+const sampleCheckTwo = ref(false)
+const navItems = [{ id: 'button', label: '按钮' }, { id: 'input', label: '输入框' }, { id: 'switch', label: '开关' }, { id: 'checkbox', label: '复选框' }, { id: 'guide', label: '指南' }]
+const sizes = [{ value: 'sm', label: '小' }, { value: 'md', label: '中' }, { value: 'lg', label: '大' }]
+const themes = [{ name: '清晰蓝', color: '#0066d6', soft: '#eaf2ff' }, { name: '靛蓝', color: '#465ba3', soft: '#edf0fb' }, { name: '陶土', color: '#a6543c', soft: '#faeee8' }]
+const appearanceModes = [{ id: 'auto', label: '自动' }, { id: 'light', label: '浅色' }, { id: 'dark', label: '深色' }]
+const currentTitle = computed((): string => current.value == 'button' ? 'Button' : current.value == 'input' ? 'Input' : current.value == 'switch' ? 'Switch' : current.value == 'checkbox' ? 'Checkbox' : '开始使用')
+const currentChinese = computed((): string => current.value == 'button' ? '按钮' : current.value == 'input' ? '输入框' : current.value == 'switch' ? '开关' : '复选框')
+const currentDescription = computed((): string => current.value == 'button' ? '承载每一个明确的行动，让指尖的选择有回应。' : current.value == 'input' ? '清晰的标签，恰好的反馈，让填写少一些犹豫。' : current.value == 'switch' ? '轻轻一触，决定你的偏好。' : current.value == 'checkbox' ? '让每一项选择，都清晰而确定。' : '从一组好用的基础组件，开始你的下一个项目。')
+const currentApi = computed((): ApiRow[] => current.value == 'button' ? buttonApi : current.value == 'input' ? inputApi : current.value == 'switch' ? switchApi : checkboxApi)
+const sampleEmailError = computed((): string => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sampleEmail.value) ? '' : '请输入完整的邮箱地址')
+const currentCode = computed((): string => {
+  if (current.value == 'button') return '<mori-button\n  label="立即开始"\n  variant="solid"  size="' + selectedSize.value + '"\n  @click="handleClick"\n/>'
+  if (current.value == 'input') return '<mori-input\n  v-model="name"\n  label="你的名字"\n  placeholder="请输入"\n  clearable\n/>'
+  if (current.value == 'switch') return '<mori-switch\n  v-model="notifications"\n  label="消息通知"\n  active-color="#238653"\n  inactive-color="#dce9e1"\n  active-text="开启"  inactive-text="关闭"\n  size="md"\n/>'
+  return '<mori-checkbox\n  v-model="accepted"\n  label="我已阅读并同意使用说明"\n/>'
+})
+const installCode = 'your-project/\n└─ uni_modules/\n   └─ mori-ui/\n      ├─ components/\n      └─ styles/'
+const themeCode = "import { setMoriConfig } from '@/uni_modules/mori-ui/theme.uts'\n\nsetMoriConfig({ theme: 'auto' })  // 默认：跟随系统\nsetMoriConfig({ theme: 'light' }) // 固定浅色，关闭跟随\nsetMoriConfig({ theme: 'dark' })  // 固定深色"
+const themeSetupCode = "// App.uvue\nimport { initMoriTheme } from '@/uni_modules/mori-ui/theme.uts'\n\nonLaunch(() => { initMoriTheme() })"
+const themeManifestCode = '// manifest.json（合并到已有配置）\n{\n  "app": { "defaultAppTheme": "auto" },\n  "web": { "darkmode": true },\n  "mp-weixin": { "darkmode": true }\n}'
+function selectComponent(value: string) { current.value = value; activeTab.value = 'preview'; copied.value = false; clickMessage.value = '' }
+function setTheme(name: string, color: string, soft: string) {
+  themeName.value = name
+  const darkColor = name == '靛蓝' ? '#b1bfff' : name == '陶土' ? '#edb29c' : '#8cb6ff'
+  const darkSoftColor = name == '靛蓝' ? '#2a324d' : name == '陶土' ? '#483126' : '#243450'
+  setMoriConfig({ color: color, softColor: soft, darkColor: darkColor, darkSoftColor: darkSoftColor })
+}
+function setAppearance(mode: string) { setMoriConfig({ theme: mode }) }
+function buttonFeedback(label: string) { clickMessage.value = label + '已点击' }
+function copyCode() { uni.setClipboardData({ data: currentCode.value, showToast: false, success: () => { copied.value = true } }) }
+</script>
+
+<style lang="scss">
+@import './workbench.scss';
+</style>

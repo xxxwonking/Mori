@@ -1,0 +1,93 @@
+# 验证、构建与排障
+
+先根据改动范围选检查。以下是可复现流程，不要求每个任务重复全部执行。已经取得的平台证据见 [兼容记录](compatibility.md)。
+
+## 按改动选择检查
+
+| 改动 | 建议验证 |
+|---|---|
+| 文档／注释 | 文件链接、命令、API 参数和事实来源核对 |
+| 颜色推导 | `npm run test:unit`；影响主题时再看浅深效果 |
+| 组件目录／配置 | `npm run check` 和目标平台构建 |
+| 控件行为／主题／工作台 | H5 构建 + `npm test`，查看相关截图 |
+| Switch／Checkbox 动画 | 以上检查加 `npm run test:motion` |
+| 跨端样式／UTS／原生行为 | H5／微信相关检查，加目标原生构建与设备验证 |
+
+`npm run check` 只检查部分配置、目录和核心组件的浏览器全局依赖，不能替代编译。静态截图不能证明动画顺畅，动画采样也不能保证所有设备的帧率。
+
+## 一次完整的本机 H5 检查
+
+在项目根目录、终端 A 中：
+
+```powershell
+npm ci
+npm run check
+npm run test:unit
+npm run build:h5
+npm run preview
+```
+
+逐条执行并检查退出码；某一步失败时先定位原因。`npm run preview` 是常驻服务，保留终端 A，在终端 B 执行：
+
+```powershell
+npm test
+npm run test:motion
+```
+
+Playwright 缺少浏览器时执行 `npx playwright install chromium`。截图由 `npm test` 更新，默认使用 Chromium、减少动态效果；动画脚本另开无减弱动画的页面进行采样。
+
+不要同时用开发服务器与静态预览占用 5173。静态预览可改用 5174，在终端 A 启动前设置：
+
+```powershell
+$env:PORT = '5174'
+npm run preview
+```
+
+终端 B 对应设置：
+
+```powershell
+$env:MORI_BASE_URL = 'http://127.0.0.1:5174'
+npm test
+npm run test:motion
+```
+
+环境变量只需在当前终端设置。改源码后重新构建静态产物，浏览器刷新后再验证；不要对旧产物报告“新代码通过”。
+
+## 微信和原生
+
+`npm run build:weixin` 输出到 `unpackage/dist/build/mp-weixin`。导入微信开发者工具后，使用自己的项目身份与运行配置，逐项操作四组件、主题、图标、文字、禁用及连续切换。
+
+App 通过 HBuilderX 的运行菜单处理。分别记录 Android、iOS、鸿蒙的编译器／系统／设备与结果，检查软键盘、确认键、密码显隐、光标、安全区、字体缩放、主题切换和 SVG／动画。当前仓库没有已验证的原生自动化脚本或可复用签名。
+
+## 产物和证据
+
+| 路径 | 内容 |
+|---|---|
+| `unpackage/dist/build/h5/` | H5 发行构建 |
+| `unpackage/dist/build/mp-weixin/` | 微信发行构建 |
+| `.impeccable/review/verification.json` | 9 组功能检查、错误列表、浏览器版本、生成时间 |
+| `.impeccable/review/motion-verification.json` | 动画采样、布局尺寸和通过项目 |
+| `.impeccable/review/*.png` | 桌面／手机、浅／深、Input／Switch／Checkbox 等截图 |
+| `.impeccable/review/verdict.md` | 最近五项修复的替代复核与范围说明 |
+
+`review/` 被 Git 忽略。报告中的 `generated` 使用 UTC ISO 时间，面向用户说明时转换到所在时区。后续执行测试会覆盖同名证据，若需保留前后对比，应在修改前另存已核实的基线。
+
+本机 `.impeccable/build-h5.log` / `build-weixin.log` 是此前手动重定向生成的日志，并非 npm 命令一定会自动写出的文件。需要新日志时在构建命令后使用 PowerShell 重定向，并检查该次进程退出码，不能只读旧日志尾部。
+
+## 常见情况
+
+| 现象 | 定位与处理 |
+|---|---|
+| 找不到 HBuilderX 编译器 | 确认 Vue3 编译器插件已安装；设置 `HBUILDERX_HOME` 后重试。不要把普通 Vite 启动当作 uni-app x 编译替代 |
+| 5173 被占用 | 核对占用进程；复用正确服务或使用备用端口，不直接结束未知进程 |
+| 页面与刚修改的源码不一致 | 确认是 dev 还是 preview；后者需要重新 build，测试地址也要匹配 |
+| 测试等待禁用控件超时 | Playwright 默认拒绝点禁用元素；只有验证“不响应”时才使用强制点击，之后必须断言状态未变 |
+| 新组件导致目录检查失败 | 核对 easycom 目录和 `check.mjs` 的明确列表；同步预期而不是移除检查 |
+| 清空／密码图标消失 | 检查整个模块是否复制完整、SVG 路径及请求结果；核对浅深版本 |
+| 输入出现两层或断裂焦点框 | 检查外框、uni-input 外壳、内部 input 是否同时绘制轮廓，以及上层容器是否裁切 |
+| Sass 弃用／withKeys 类型提示 | 查看完整日志与退出码；当前版本曾构建通过，但升级后需要重新确认实际影响 |
+| 独立审查服务限流 | 明确报告该环节未完成或改用当前环境允许的替代核对；不能冒充独立审查通过，也不要反复等待拖住已完成工作 |
+
+## 验证后记录
+
+在 [当前进度](progress.md) 写明日期、改动范围、实际执行命令、结果、未覆盖的平台和下一步。只把真实新增证据更新进 [兼容记录](compatibility.md)。视觉或交互修改查看当前产物，保留用户截图对应的复现状态。

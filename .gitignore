@@ -1,0 +1,13 @@
+node_modules/
+unpackage/
+dist/
+.hbuilderx/
+.env
+.env.*
+!.env.example
+.impeccable/review/
+.impeccable/questions/
+*.log
+test-results/
+playwright-report/
+.tools/

@@ -1,0 +1,67 @@
+import { reactive, computed } from 'vue'
+import { getMoriButtonTextColor } from './contrast.uts'
+
+export type MoriConfig = {
+  theme?: string;
+  color?: string;
+  darkColor?: string;
+  softColor?: string;
+  darkSoftColor?: string;
+}
+
+const config = reactive({
+  theme: 'auto',
+  color: '#0066d6',
+  darkColor: '#8cb6ff',
+  softColor: '#eaf2ff',
+  darkSoftColor: '#243450',
+  sourceDark: false
+})
+let initialized = false
+
+export const moriThemeMode = computed((): string => config.theme)
+export const moriIsDark = computed((): boolean => config.theme == 'auto' ? config.sourceDark : config.theme == 'dark')
+export const moriPalette = computed(() => ({
+  primary: moriIsDark.value ? config.darkColor : config.color,
+  soft: moriIsDark.value ? config.darkSoftColor : config.softColor,
+  onPrimary: getMoriButtonTextColor(moriIsDark.value ? config.darkColor : config.color),
+  surface: moriIsDark.value ? '#1c2028' : '#ffffff',
+  ground: moriIsDark.value ? '#111318' : '#f6f7f9',
+  text: moriIsDark.value ? '#e8edf5' : '#1d2430',
+  muted: moriIsDark.value ? '#afb9ca' : '#616e82',
+  border: moriIsDark.value ? '#3d485a' : '#d2dae6',
+  danger: moriIsDark.value ? '#f1a39c' : '#b63d37',
+  dangerSoft: moriIsDark.value ? '#3c2725' : '#fff2ef'
+}))
+
+/** Set theme to auto to resume following the host/OS; light/dark stop following. */
+export function setMoriConfig(options: MoriConfig) {
+  if (options.theme != null) {
+    if (options.theme != 'auto' && options.theme != 'light' && options.theme != 'dark') {
+      throw new Error('Mori UI: theme must be auto, light or dark')
+    }
+    config.theme = options.theme!
+    // #ifdef APP
+    uni.setAppTheme({ theme: config.theme })
+    // #endif
+  }
+  if (options.color != null) config.color = options.color!
+  if (options.darkColor != null) config.darkColor = options.darkColor!
+  if (options.softColor != null) config.softColor = options.softColor!
+  if (options.darkSoftColor != null) config.darkSoftColor = options.darkSoftColor!
+}
+
+/** Call once in App.uvue onLaunch. A single listener serves all components. */
+export function initMoriTheme() {
+  if (initialized) return
+  initialized = true
+  // #ifdef WEB || MP-WEIXIN
+  config.sourceDark = uni.getAppBaseInfo().hostTheme == 'dark'
+  uni.onHostThemeChange((result) => { config.sourceDark = result.hostTheme == 'dark' })
+  // #endif
+  // #ifdef APP
+  config.sourceDark = uni.getDeviceInfo().osTheme == 'dark'
+  uni.onOsThemeChange((result) => { config.sourceDark = result.osTheme == 'dark' })
+  uni.setAppTheme({ theme: config.theme })
+  // #endif
+}

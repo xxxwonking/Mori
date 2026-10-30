@@ -1,0 +1,84 @@
+<template>
+  <button
+    class="mori-button"
+    :class="['mori-button--' + variant, 'mori-button--' + size, { 'mori-button--block': block, 'mori-button--disabled': disabled, 'mori-button--round': round }]"
+    :style="buttonStyle"
+    :disabled="disabled || loading"
+    :loading="loading"
+    role="button"
+    :tabindex="disabled || loading ? -1 : 0"
+    :aria-disabled="disabled || loading"
+    :aria-busy="loading"
+    :hover-class="disabled || loading ? 'none' : 'mori-button--pressed'"
+    :hover-stay-time="90"
+    @click="handleClick"
+    @keydown.enter.prevent="handleClick"
+    @keydown.space.prevent="handleClick"
+  >
+    <text class="mori-button__label" :style="labelStyle"><slot>{{ label }}</slot></text>
+  </button>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+
+const props = defineProps({
+  label: { type: String, default: '' },
+  variant: { type: String, default: 'solid' },
+  size: { type: String, default: 'md' },
+  color: { type: String, default: '' },
+  softColor: { type: String, default: '' },
+  textColor: { type: String, default: '' },
+  block: { type: Boolean, default: false },
+  round: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
+  loading: { type: Boolean, default: false }
+})
+const emit = defineEmits(['click'])
+const resolvedColor = computed((): string => props.color.length > 0 ? props.color : moriPalette.value.primary)
+const foreground = computed((): string => props.textColor.length > 0 ? props.textColor : props.variant == 'solid' ? getMoriButtonTextColor(resolvedColor.value) : resolvedColor.value)
+const buttonStyle = computed((): string => {
+  let background = resolvedColor.value
+  let border = resolvedColor.value
+  if (props.variant == 'soft') { background = props.softColor.length > 0 ? props.softColor : moriPalette.value.soft; border = background }
+  if (props.variant == 'outline') { background = moriPalette.value.surface }
+  if (props.variant == 'text') { background = 'transparent'; border = 'transparent' }
+  return 'background-color:' + background + ';border-color:' + border + ';color:' + foreground.value + ';'
+})
+const labelStyle = computed((): string => 'color:' + foreground.value + ';font-size:' + (props.size == 'sm' ? '12px' : props.size == 'lg' ? '14px' : '13px') + ';')
+function handleClick() {
+  if (!props.disabled && !props.loading) emit('click')
+}
+</script>
+
+<style lang="scss">
+@import '../../styles/tokens.scss';
+.mori-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: $mori-control-height;
+  padding: 0 14px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: $mori-radius;
+  font-size: $mori-font-size;
+  line-height: 34px;
+}
+.mori-button__label { font-weight: 500; line-height: 20px; }
+.mori-button--sm { height: 28px; padding: 0 10px; border-radius: 6px; line-height: 26px; }
+.mori-button--lg { height: 40px; padding: 0 18px; line-height: 38px; }
+.mori-button--block { width: 100%; }
+.mori-button--round { border-radius: 28px; }
+.mori-button--disabled { opacity: 0.4; }
+.mori-button--pressed { opacity: 0.8; }
+/* #ifdef WEB */
+.mori-button { transition: background-color 160ms ease, opacity 160ms ease, transform 160ms ease; }
+.mori-button::after { border: none; }
+.mori-button:not([disabled]):active { transform: translateY(1px); }
+@media (prefers-reduced-motion: reduce) { .mori-button { transition: none; } }
+/* #endif */
+</style>

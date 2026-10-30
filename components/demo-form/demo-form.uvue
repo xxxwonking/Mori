@@ -1,0 +1,80 @@
+<template>
+  <view class="demo-form" :class="{ 'demo-form--dark': moriIsDark }">
+    <view class="demo-form__top"><text class="demo-form__page-name">个人资料</text><button class="demo-form__reset" @click="resetForm"><text class="demo-form__reset-text">重置</text></button></view>
+    <view class="demo-form__avatar" :style="'background-color:' + softColor"><text class="demo-form__initial" :style="'color:' + color">M</text></view>
+    <text class="demo-form__title">很高兴认识你。</text>
+    <text class="demo-form__intro">用几个简单的信息，开启新的体验。</text>
+    <view class="demo-form__field"><mori-input v-model="name" label="怎么称呼你" placeholder="输入你的名字" :color="color" :error="nameError" clearable required @change="clearSaved" /></view>
+    <view class="demo-form__field"><mori-input v-model="email" label="电子邮箱" placeholder="name@example.com" :color="color" :error="emailError" required @change="clearSaved" /></view>
+    <view class="demo-form__preference"><mori-switch v-model="notifications" label="接收产品动态" description="偶尔来信，只聊有用的。" :color="color" @change="clearSaved" /></view>
+    <mori-checkbox v-model="accepted" label="我同意将这些示例资料保留在本页" :color="color" @change="clearSaved" />
+    <text v-if="consentError.length > 0" class="demo-form__error">{{ consentError }}</text>
+    <view class="demo-form__submit"><mori-button :label="saving ? '正在保存' : '保存资料'" :color="color" :soft-color="softColor" :loading="saving" block @click="submitForm" /></view>
+    <view v-if="saved" class="demo-form__success" :style="'background-color:' + softColor"><text class="demo-form__success-text" :style="'color:' + color">已保存。本页示例不会上传你的资料。</text></view>
+    <text v-else class="demo-form__footnote">交互演示 · 不会向服务器提交</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, onUnmounted } from 'vue'
+import { moriIsDark } from '../../uni_modules/mori-ui/theme.uts'
+defineProps({ color: { type: String, default: '#0066d6' }, softColor: { type: String, default: '#eaf2ff' } })
+const name = ref('')
+const email = ref('')
+const accepted = ref(false)
+const notifications = ref(true)
+const attempted = ref(false)
+const saving = ref(false)
+const saved = ref(false)
+let timer = 0
+const nameError = computed((): string => attempted.value && name.value.trim().length == 0 ? '请填写你的名字' : '')
+const emailError = computed((): string => {
+  if (!attempted.value) return ''
+  if (email.value.trim().length == 0) return '请填写电子邮箱'
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()) ? '' : '邮箱格式不正确，例如 name@example.com'
+})
+const consentError = computed((): string => attempted.value && !accepted.value ? '请先勾选示例资料使用说明' : '')
+function clearSaved() { saved.value = false }
+function submitForm() {
+  if (saving.value) return
+  attempted.value = true
+  saved.value = false
+  if (nameError.value.length > 0 || emailError.value.length > 0 || consentError.value.length > 0) return
+  saving.value = true
+  timer = setTimeout(() => { saving.value = false; saved.value = true }, 700)
+}
+function resetForm() {
+  clearTimeout(timer)
+  name.value = ''; email.value = ''; accepted.value = false; notifications.value = true
+  attempted.value = false; saving.value = false; saved.value = false
+}
+onUnmounted(() => clearTimeout(timer))
+</script>
+
+<style lang="scss">
+@import '../../uni_modules/mori-ui/styles/tokens.scss';
+.demo-form { padding: 16px; background-color: #ffffff; display: flex; flex-direction: column; }
+.demo-form__top { display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.demo-form__page-name { font-size: 14px; color: $mori-ink; font-weight: 600; }
+.demo-form__reset { background-color: transparent; margin: 0; padding: 0 4px; border-radius: 0; height: 36px; line-height: 36px; }
+.demo-form__reset-text { font-size: 12px; color: $mori-muted; }
+.demo-form__avatar { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.demo-form__initial { font-size: 24px; font-weight: 700; }
+.demo-form__title { font-size: 20px; font-weight: 600; color: $mori-ink; line-height: 28px; }
+.demo-form__intro { font-size: 12px; line-height: 19px; color: $mori-muted; margin-top: 5px; margin-bottom: 20px; }
+.demo-form__field { margin-bottom: 12px; }
+.demo-form__preference { margin-top: 1px; margin-bottom: 8px; padding-bottom: 10px; border-bottom: 1px solid #e8ecf2; }
+.demo-form__submit { margin-top: 12px; }
+.demo-form__error { font-size: 12px; line-height: 18px; color: $mori-danger; margin-top: 4px; }
+.demo-form__footnote { font-size: 11px; color: $mori-muted; text-align: center; margin-top: 14px; line-height: 18px; }
+.demo-form__success { margin-top: 12px; padding: 10px 12px; border-radius: 9px; }
+.demo-form__success-text { font-size: 12px; line-height: 20px; }
+.demo-form--dark { background-color: #1c2028; }
+.demo-form--dark .demo-form__page-name, .demo-form--dark .demo-form__title { color: #e8edf5; }
+.demo-form--dark .demo-form__reset-text, .demo-form--dark .demo-form__intro, .demo-form--dark .demo-form__footnote { color: #afb9ca; }
+.demo-form--dark .demo-form__preference { border-bottom-color: #354154; }
+.demo-form--dark .demo-form__error { color: #f1a39c; }
+/* #ifdef WEB */
+.demo-form__reset::after { border: none; }
+/* #endif */
+</style>

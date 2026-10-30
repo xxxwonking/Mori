@@ -1,0 +1,112 @@
+<template>
+  <view class="mori-field" :class="['mori-field--' + size, { 'mori-field--dark': moriIsDark }]">
+    <view v-if="label.length > 0" class="mori-field__heading">
+      <text class="mori-field__label">{{ label }}</text>
+      <text v-if="required" class="mori-field__required">必填</text>
+    </view>
+    <view class="mori-field__control" :class="{ 'mori-field__control--disabled': disabled, 'mori-field__control--error': error.length > 0, 'mori-field__control--focused': focused }" :style="controlStyle">
+      <text v-if="prefix.length > 0" class="mori-field__prefix">{{ prefix }}</text>
+      <input
+        class="mori-field__input"
+        :id="fieldId"
+        :value="modelValue"
+        :type="type == 'password' ? 'text' : type"
+        :password="type == 'password' && !passwordVisible"
+        :placeholder="placeholder"
+        :placeholder-style="'color:' + moriPalette.muted + ';font-size:' + inputFontSize + 'px;'"
+        :style="'color:' + moriPalette.text"
+        :disabled="disabled"
+        :maxlength="maxlength"
+        :confirm-type="confirmType"
+        :aria-label="label.length > 0 ? label : placeholder"
+        :aria-required="required"
+        :aria-invalid="error.length > 0"
+        :aria-describedby="error.length > 0 || hint.length > 0 ? fieldId + '-message' : ''"
+        @input="handleInput"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        @confirm="handleConfirm"
+      />
+      <button v-if="clearable && modelValue.length > 0 && !disabled" class="mori-field__action" role="button" tabindex="0" aria-label="清空输入" @mousedown.prevent @click="clearValue" @keydown.enter.prevent="clearValue" @keydown.space.prevent="clearValue"><image class="mori-field__icon" :src="iconBase + 'circle-x-' + iconTheme + '.svg'" mode="aspectFit" aria-hidden="true" /></button>
+      <button v-if="type == 'password'" class="mori-field__action" role="button" :tabindex="disabled ? -1 : 0" :aria-label="passwordVisible ? '隐藏密码' : '显示密码'" :aria-pressed="passwordVisible" :aria-disabled="disabled" :disabled="disabled" @mousedown.prevent @click="togglePassword" @keydown.enter.prevent="togglePassword" @keydown.space.prevent="togglePassword"><image class="mori-field__icon" :src="iconBase + (passwordVisible ? 'eye-off-' : 'eye-') + iconTheme + '.svg'" mode="aspectFit" aria-hidden="true" /></button>
+    </view>
+    <text v-if="error.length > 0" :id="fieldId + '-message'" class="mori-field__message mori-field__message--error" role="alert" aria-live="polite">{{ error }}</text>
+    <text v-else-if="hint.length > 0" :id="fieldId + '-message'" class="mori-field__message">{{ hint }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, onMounted, onUpdated, nextTick } from 'vue'
+import { moriIsDark, moriPalette } from '../../theme.uts'
+import { createMoriFieldId, syncMoriInputAccessibility } from '../../platform/accessibility.uts'
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  label: { type: String, default: '' },
+  placeholder: { type: String, default: '请输入' },
+  type: { type: String, default: 'text' },
+  prefix: { type: String, default: '' },
+  hint: { type: String, default: '' },
+  error: { type: String, default: '' },
+  color: { type: String, default: '' },
+  size: { type: String, default: 'md' },
+  required: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
+  clearable: { type: Boolean, default: false },
+  maxlength: { type: Number, default: 140 },
+  confirmType: { type: String, default: 'done' }
+})
+const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur', 'confirm', 'clear'])
+const focused = ref(false)
+const fieldId = createMoriFieldId()
+const passwordVisible = ref(false)
+const iconBase = '/uni_modules/mori-ui/static/icons/'
+const iconTheme = computed((): string => moriIsDark.value ? 'dark' : 'light')
+const inputFontSize = computed((): number => props.size == 'sm' ? 12 : props.size == 'lg' ? 14 : 13)
+const controlStyle = computed((): string => 'border-color:' + (focused.value ? (props.color.length > 0 ? props.color : moriPalette.value.primary) : props.error.length > 0 ? moriPalette.value.danger : moriPalette.value.border) + ';background-color:' + (props.disabled ? moriPalette.value.ground : moriPalette.value.surface) + ';')
+function handleInput(event: UniInputEvent) { emit('update:modelValue', event.detail.value); emit('change', event.detail.value) }
+function handleFocus() { focused.value = true; emit('focus') }
+function handleBlur() { focused.value = false; emit('blur') }
+function handleConfirm() { emit('confirm', props.modelValue) }
+function togglePassword() { if (!props.disabled) passwordVisible.value = !passwordVisible.value }
+function clearValue() { if (props.disabled) return; emit('update:modelValue', ''); emit('change', ''); emit('clear') }
+function syncAccessibility() { syncMoriInputAccessibility(fieldId, props.label.length > 0 ? props.label : props.placeholder, props.required, props.error.length > 0, props.error.length > 0 || props.hint.length > 0) }
+function scheduleAccessibility() { nextTick(() => { syncAccessibility() }) }
+onMounted(scheduleAccessibility)
+onUpdated(scheduleAccessibility)
+</script>
+
+<style lang="scss">
+@import '../../styles/tokens.scss';
+.mori-field { width: 100%; display: flex; flex-direction: column; }
+.mori-field__heading { display: flex; flex-direction: row; align-items: center; margin-bottom: 5px; }
+.mori-field__label { font-size: 12px; line-height: 18px; font-weight: 500; color: $mori-ink; }
+.mori-field__required { font-size: 11px; line-height: 16px; color: $mori-muted; margin-left: 6px; }
+.mori-field__control { height: $mori-control-height; border: 1px solid $mori-border; background-color: $mori-surface; border-radius: $mori-radius; display: flex; flex-direction: row; align-items: center; padding: 0 9px; }
+.mori-field__control--disabled { background-color: #eef1f5; opacity: 0.65; }
+.mori-field__input { flex: 1; height: 32px; font-size: 13px; line-height: 20px; color: $mori-ink; }
+.mori-field__prefix { font-size: 13px; color: $mori-muted; padding-right: 8px; }
+.mori-field__action { margin: 0 0 0 2px; padding: 0; width: 28px; height: 32px; border: 0; border-radius: 5px; background-color: transparent; display: flex; flex-direction: row; align-items: center; justify-content: center; }
+.mori-field__icon { width: 16px; height: 16px; }
+.mori-field__message { margin-top: 4px; font-size: 11px; line-height: 16px; color: $mori-muted; }
+.mori-field--sm .mori-field__control { height: 30px; border-radius: 6px; }
+.mori-field--sm .mori-field__input, .mori-field--sm .mori-field__action { height: 26px; font-size: 12px; }
+.mori-field--lg .mori-field__control { height: 40px; }
+.mori-field--lg .mori-field__input, .mori-field--lg .mori-field__action { height: 36px; font-size: 14px; }
+.mori-field__message--error { color: $mori-danger; }
+.mori-field--dark .mori-field__label { color: #e8edf5; }
+.mori-field--dark .mori-field__required, .mori-field--dark .mori-field__prefix, .mori-field--dark .mori-field__message { color: #afb9ca; }
+.mori-field--dark .mori-field__message--error { color: #f1a39c; }
+/* #ifdef WEB */
+.mori-field__input { min-width: 0; caret-color: #0066d6; }
+.mori-field__control { transition: border-color 160ms ease, background-color 160ms ease; }
+.mori-field__action::after { border: none; }
+.mori-field__input, .mori-field__input input { font-family: inherit; }
+/* The containing border owns focus, including uni-input's native HTML input. */
+.mori-field__input:focus, .mori-field__input:focus-visible, .mori-field__input input:focus, .mori-field__input input:focus-visible { outline: none; box-shadow: none; }
+.mori-field__action { flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+.mori-field__action:hover { background-color: rgba(120, 120, 128, 0.08); }
+.mori-field__action:focus-visible { outline: 2px solid #0066d6; outline-offset: -3px; }
+.mori-field--dark .mori-field__action:focus-visible { outline-color: #8cb6ff; }
+@media (prefers-reduced-motion: reduce) { .mori-field__control { transition: none; } }
+/* #endif */
+</style>

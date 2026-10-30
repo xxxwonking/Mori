@@ -1,0 +1,19 @@
+{
+  "name": "Mori UI",
+  "appid": "",
+  "description": "可复用的移动端基础组件",
+  "versionName": "0.1.0",
+  "versionCode": 100,
+  "locale": "zh-Hans",
+  "uniStatistics": { "enable": false },
+  "uni-app-x": {
+    "vapor": true,
+    "styleIsolationVersion": "2"
+  },
+  "app": { "defaultAppTheme": "auto" },
+  "app-android": {},
+  "app-ios": {},
+  "app-harmony": {},
+  "web": { "title": "Mori UI · 组件实验室", "darkmode": true, "router": { "mode": "hash" } },
+  "mp-weixin": { "appid": "", "darkmode": true, "setting": { "urlCheck": false } }
+}

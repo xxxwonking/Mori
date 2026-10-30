@@ -1,0 +1,14 @@
+import { chromium } from '@playwright/test';
+import { mkdirSync, writeFileSync } from 'node:fs';
+const out = new URL('../.impeccable/review/', import.meta.url);
+mkdirSync(out, { recursive: true });
+const browser = await chromium.launch({ channel: 'chromium', headless: true });
+const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light' });
+const errors = [];
+page.on('pageerror', error => errors.push(error.message));
+page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+await page.goto('http://127.0.0.1:5173', { waitUntil: 'networkidle' });
+await page.screenshot({ path: new URL('desktop.png', out).pathname.replace(/^\/(\w:)/, '$1'), fullPage: true });
+console.log(JSON.stringify({ errors, title: await page.title(), text: (await page.locator('body').innerText()).slice(0,2500), controls: await page.locator('button,input,[role=switch]').count() }, null, 2));
+writeFileSync(new URL('initial-inspect.json', out), JSON.stringify({ errors }, null, 2));
+await browser.close();

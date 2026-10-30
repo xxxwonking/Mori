@@ -1,0 +1,21 @@
+<script setup lang="uts">
+import { initMoriTheme } from './uni_modules/mori-ui/theme.uts'
+onLaunch(() => { initMoriTheme() })
+</script>
+
+<style>
+/* #ifdef WEB */
+html, body, uni-page-body { min-height: 100%; }
+body { margin: 0; }
+* { box-sizing: border-box; }
+::selection { background: #d7e7ff; color: #123a6a; }
+::-webkit-scrollbar { width: 6px; height: 4px; }
+::-webkit-scrollbar-thumb { background: #cdd4df; border-radius: 6px; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid #0066d6;
+  outline-offset: 3px;
+}
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+/* #endif */
+</style>

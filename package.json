@@ -1,0 +1,26 @@
+{
+  "name": "mori-ui-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mori UI — a personal uni-app x mobile component library",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/uni.mjs dev h5",
+    "build:h5": "node scripts/uni.mjs build h5",
+    "build:weixin": "node scripts/uni.mjs build mp-weixin",
+    "preview": "node scripts/serve.mjs",
+    "test": "node scripts/verify.mjs",
+    "test:unit": "node tests/contrast.mjs",
+    "test:motion": "node scripts/verify-motion.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-app-x": "^0.7.138",
+    "@playwright/test": "1.58.2",
+    "sass": "^1.86.0",
+    "vue": "^3.5.42"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

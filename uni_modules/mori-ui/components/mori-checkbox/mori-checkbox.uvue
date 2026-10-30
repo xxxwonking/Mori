@@ -1,0 +1,43 @@
+<template>
+  <view class="mori-checkbox" :class="{ 'mori-checkbox--disabled': disabled, 'mori-checkbox--dark': moriIsDark }" role="checkbox" :aria-label="label.length > 0 ? label : '复选框'" :aria-checked="modelValue" :aria-disabled="disabled" :tabindex="disabled ? -1 : 0" @click="toggleValue" @keydown.enter.prevent="toggleValue" @keydown.space.prevent="toggleValue">
+    <view class="mori-checkbox__box" :style="boxStyle">
+      <image class="mori-checkbox__check" :class="{ 'mori-checkbox__check--visible': modelValue }" :src="checkIcon" mode="aspectFit" aria-hidden="true" />
+    </view>
+    <text v-if="label.length > 0" class="mori-checkbox__label">{{ label }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette, moriIsDark } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  label: { type: String, default: '' },
+  color: { type: String, default: '' },
+  disabled: { type: Boolean, default: false }
+})
+const emit = defineEmits(['update:modelValue', 'change'])
+const activeColor = computed((): string => props.color.length > 0 ? props.color : moriPalette.value.primary)
+const boxStyle = computed((): string => 'background-color:' + (props.modelValue ? activeColor.value : moriPalette.value.surface) + ';border-color:' + (props.modelValue ? activeColor.value : moriPalette.value.border) + ';')
+const checkIcon = computed((): string => '/uni_modules/mori-ui/static/icons/check-' + (getMoriButtonTextColor(activeColor.value) == '#ffffff' ? 'light' : 'dark') + '.svg')
+function toggleValue() { if (!props.disabled) { emit('update:modelValue', !props.modelValue); emit('change', !props.modelValue) } }
+</script>
+
+<style lang="scss">
+@import '../../styles/tokens.scss';
+.mori-checkbox { min-height: 36px; display: flex; flex-direction: row; align-items: center; border-radius: 5px; }
+.mori-checkbox__box { width: 16px; height: 16px; flex-shrink: 0; border: 1px solid $mori-border; border-radius: 5px; display: flex; align-items: center; justify-content: center; transition-property: background-color, border-color; transition-duration: 160ms; transition-timing-function: ease; }
+.mori-checkbox__check { width: 12px; height: 12px; opacity: 0; transform: scale(0.7); transition-property: opacity, transform; transition-duration: 160ms; transition-timing-function: ease; }
+.mori-checkbox__check--visible { opacity: 1; transform: scale(1); }
+.mori-checkbox__label { flex: 1; margin-left: 8px; font-size: 12px; line-height: 19px; color: $mori-muted; }
+.mori-checkbox--disabled { opacity: 0.45; }
+.mori-checkbox--dark .mori-checkbox__label { color: #afb9ca; }
+/* #ifdef WEB */
+.mori-checkbox { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.mori-checkbox--disabled { cursor: not-allowed; }
+.mori-checkbox:focus-visible { outline: 2px solid #0066d6; outline-offset: -2px; }
+.mori-checkbox--dark:focus-visible { outline-color: #8cb6ff; }
+@media (prefers-reduced-motion: reduce) { .mori-checkbox__box, .mori-checkbox__check { transition: none; } }
+/* #endif */
+</style>

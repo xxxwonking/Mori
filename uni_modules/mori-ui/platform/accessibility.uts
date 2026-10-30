@@ -1,0 +1,19 @@
+let nextFieldId = 0
+export function createMoriFieldId(): string { nextFieldId += 1; return 'mori-field-' + nextFieldId }
+
+/** uni-input wraps its native HTML input. Keep the accessibility attributes on the focus target. */
+export function syncMoriInputAccessibility(id: string, name: string, required: boolean, invalid: boolean, hasMessage: boolean) {
+  // #ifdef WEB
+  const wrapper = document.getElementById(id)
+  if (wrapper == null) return
+  // Query the actual focus target inside uni-input's wrapper.
+  // UniElement reports the normalized tagName "INPUT" for <uni-input>; instanceof distinguishes the actual HTML control.
+  const input = wrapper instanceof HTMLInputElement ? wrapper : Element.prototype.querySelector.call(wrapper, 'input')
+  if (input == null) return
+  input.setAttribute('aria-label', name)
+  input.setAttribute('aria-required', required ? 'true' : 'false')
+  input.setAttribute('aria-invalid', invalid ? 'true' : 'false')
+  if (hasMessage) input.setAttribute('aria-describedby', id + '-message')
+  else input.removeAttribute('aria-describedby')
+  // #endif
+}

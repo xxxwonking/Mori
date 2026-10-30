@@ -1,0 +1,68 @@
+<template>
+  <view class="mori-switch" :class="{ 'mori-switch--disabled': disabled, 'mori-switch--dark': moriIsDark }">
+    <view class="mori-switch__copy" v-if="label.length > 0">
+      <text class="mori-switch__label">{{ label }}</text>
+      <text v-if="description.length > 0" class="mori-switch__description">{{ description }}</text>
+    </view>
+    <view class="mori-switch__control" role="switch" :aria-label="label.length > 0 ? label : '开关'" :aria-checked="modelValue" :aria-disabled="disabled" :tabindex="disabled ? -1 : 0" @click="toggleValue" @keydown.enter.prevent="toggleValue" @keydown.space.prevent="toggleValue">
+      <view class="mori-switch__track" :style="trackStyle">
+        <text v-if="hasStateText" class="mori-switch__state" :style="stateStyle" aria-hidden="true">{{ modelValue ? activeText : inactiveText }}</text>
+        <view class="mori-switch__thumb" :style="thumbStyle"></view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette, moriIsDark } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  label: { type: String, default: '' },
+  description: { type: String, default: '' },
+  color: { type: String, default: '' },
+  activeColor: { type: String, default: '' },
+  inactiveColor: { type: String, default: '' },
+  activeText: { type: String, default: '' },
+  inactiveText: { type: String, default: '' },
+  size: { type: String, default: 'md' },
+  disabled: { type: Boolean, default: false }
+})
+const emit = defineEmits(['update:modelValue', 'change'])
+const hasStateText = computed((): boolean => props.activeText.length > 0 || props.inactiveText.length > 0)
+const trackHeight = computed((): number => props.size == 'sm' ? 20 : props.size == 'lg' ? 26 : 22)
+const trackWidth = computed((): number => {
+  const width = props.size == 'sm' ? 34 : props.size == 'lg' ? 46 : 38
+  return hasStateText.value ? Math.max(width, Math.max(props.activeText.length, props.inactiveText.length) * 11 + trackHeight.value + 10) : width
+})
+const trackColor = computed((): string => props.modelValue ? (props.activeColor.length > 0 ? props.activeColor : props.color.length > 0 ? props.color : moriPalette.value.primary) : (props.inactiveColor.length > 0 ? props.inactiveColor : moriIsDark.value ? '#444b58' : '#d8dce3'))
+const trackStyle = computed((): string => 'width:' + trackWidth.value + 'px;height:' + trackHeight.value + 'px;border-radius:' + trackHeight.value + 'px;background-color:' + trackColor.value + ';')
+const thumbStyle = computed((): string => 'width:' + (trackHeight.value - 4) + 'px;height:' + (trackHeight.value - 4) + 'px;transform:translateX(' + (props.modelValue ? trackWidth.value - trackHeight.value : 0) + 'px);')
+const stateStyle = computed((): string => 'left:' + (props.modelValue ? 2 : trackHeight.value - 2) + 'px;width:' + (trackWidth.value - trackHeight.value) + 'px;line-height:' + trackHeight.value + 'px;color:' + getMoriButtonTextColor(trackColor.value) + ';')
+function toggleValue() { if (!props.disabled) { emit('update:modelValue', !props.modelValue); emit('change', !props.modelValue) } }
+</script>
+
+<style lang="scss">
+@import '../../styles/tokens.scss';
+.mori-switch { min-height: 36px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+.mori-switch__copy { flex: 1; display: flex; flex-direction: column; padding-right: 12px; }
+.mori-switch__label { font-size: 12px; line-height: 18px; color: $mori-ink; }
+.mori-switch__description { font-size: 11px; line-height: 16px; color: $mori-muted; margin-top: 2px; }
+.mori-switch__control { min-height: 36px; padding: 0 4px; display: flex; flex-direction: row; align-items: center; justify-content: center; flex-shrink: 0; border-radius: 8px; }
+.mori-switch__track { position: relative; transition-property: background-color; transition-duration: 180ms; transition-timing-function: ease; }
+.mori-switch__thumb { position: absolute; left: 2px; top: 2px; background-color: #ffffff; border-radius: 20px; transition-property: transform; transition-duration: 180ms; transition-timing-function: ease; }
+.mori-switch__state { position: absolute; top: 0; text-align: center; font-size: 11px; font-weight: 500; }
+.mori-switch--disabled { opacity: 0.45; }
+.mori-switch--dark .mori-switch__label { color: #e8edf5; }
+.mori-switch--dark .mori-switch__description { color: #afb9ca; }
+/* #ifdef WEB */
+.mori-switch__control { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.mori-switch__control:focus-visible { outline: none; }
+.mori-switch__control:focus-visible .mori-switch__track { outline: 2px solid #0066d6; outline-offset: 2px; }
+.mori-switch--disabled .mori-switch__control { cursor: not-allowed; }
+.mori-switch__thumb { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14); }
+.mori-switch--dark .mori-switch__control:focus-visible .mori-switch__track { outline-color: #8cb6ff; }
+@media (prefers-reduced-motion: reduce) { .mori-switch__thumb, .mori-switch__track { transition: none; } }
+/* #endif */
+</style>

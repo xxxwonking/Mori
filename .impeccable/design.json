@@ -1,0 +1,447 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-30T03:23:36.990Z",
+  "title": "Design System: Mori UI",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "清晰蓝",
+        "tonalRamp": [
+          "oklch(15% 0.0332 257.2)",
+          "oklch(26% 0.0854 257.2)",
+          "oklch(38% 0.1424 257.2)",
+          "oklch(50% 0.1899 257.2)",
+          "oklch(62% 0.1899 257.2)",
+          "oklch(74% 0.1763 257.2)",
+          "oklch(86% 0.0949 257.2)",
+          "oklch(95% 0.0339 257.2)"
+        ]
+      },
+      "primary-soft": {
+        "role": "primary",
+        "displayName": "柔和蓝底",
+        "tonalRamp": [
+          "oklch(15% 0.0034 260.2)",
+          "oklch(26% 0.0088 260.2)",
+          "oklch(38% 0.0146 260.2)",
+          "oklch(50% 0.0195 260.2)",
+          "oklch(62% 0.0195 260.2)",
+          "oklch(74% 0.0181 260.2)",
+          "oklch(86% 0.0097 260.2)",
+          "oklch(95% 0.0035 260.2)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "正文墨色",
+        "tonalRamp": [
+          "oklch(15% 0.0044 261.1)",
+          "oklch(26% 0.0112 261.1)",
+          "oklch(38% 0.0186 261.1)",
+          "oklch(50% 0.0249 261.1)",
+          "oklch(62% 0.0249 261.1)",
+          "oklch(74% 0.0231 261.1)",
+          "oklch(86% 0.0124 261.1)",
+          "oklch(95% 0.0044 261.1)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "辅助灰",
+        "tonalRamp": [
+          "oklch(15% 0.0062 258.9)",
+          "oklch(26% 0.0158 258.9)",
+          "oklch(38% 0.0264 258.9)",
+          "oklch(50% 0.0352 258.9)",
+          "oklch(62% 0.0352 258.9)",
+          "oklch(74% 0.0327 258.9)",
+          "oklch(86% 0.0176 258.9)",
+          "oklch(95% 0.0063 258.9)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "细边界",
+        "tonalRamp": [
+          "oklch(15% 0.0033 258.4)",
+          "oklch(26% 0.0084 258.4)",
+          "oklch(38% 0.0140 258.4)",
+          "oklch(50% 0.0186 258.4)",
+          "oklch(62% 0.0186 258.4)",
+          "oklch(74% 0.0173 258.4)",
+          "oklch(86% 0.0093 258.4)",
+          "oklch(95% 0.0033 258.4)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "内容表面",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.0)",
+          "oklch(26% 0.0000 0.0)",
+          "oklch(38% 0.0000 0.0)",
+          "oklch(50% 0.0000 0.0)",
+          "oklch(62% 0.0000 0.0)",
+          "oklch(74% 0.0000 0.0)",
+          "oklch(86% 0.0000 0.0)",
+          "oklch(95% 0.0000 0.0)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "中性灰地",
+        "tonalRamp": [
+          "oklch(15% 0.0005 264.5)",
+          "oklch(26% 0.0013 264.5)",
+          "oklch(38% 0.0022 264.5)",
+          "oklch(50% 0.0029 264.5)",
+          "oklch(62% 0.0029 264.5)",
+          "oklch(74% 0.0027 264.5)",
+          "oklch(86% 0.0014 264.5)",
+          "oklch(95% 0.0005 264.5)"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "错误红",
+        "tonalRamp": [
+          "oklch(15% 0.0276 26.7)",
+          "oklch(26% 0.0710 26.7)",
+          "oklch(38% 0.1183 26.7)",
+          "oklch(50% 0.1577 26.7)",
+          "oklch(62% 0.1577 26.7)",
+          "oklch(74% 0.1465 26.7)",
+          "oklch(86% 0.0789 26.7)",
+          "oklch(95% 0.0282 26.7)"
+        ]
+      },
+      "danger-soft": {
+        "role": "neutral",
+        "displayName": "错误浅底",
+        "tonalRamp": [
+          "oklch(15% 0.0026 33.1)",
+          "oklch(26% 0.0066 33.1)",
+          "oklch(38% 0.0110 33.1)",
+          "oklch(50% 0.0146 33.1)",
+          "oklch(62% 0.0146 33.1)",
+          "oklch(74% 0.0136 33.1)",
+          "oklch(86% 0.0073 33.1)",
+          "oklch(95% 0.0026 33.1)"
+        ]
+      },
+      "dark-primary": {
+        "role": "primary",
+        "displayName": "深色浅蓝",
+        "tonalRamp": [
+          "oklch(15% 0.0201 261.1)",
+          "oklch(26% 0.0516 261.1)",
+          "oklch(38% 0.0860 261.1)",
+          "oklch(50% 0.1146 261.1)",
+          "oklch(62% 0.1146 261.1)",
+          "oklch(74% 0.1064 261.1)",
+          "oklch(86% 0.0573 261.1)",
+          "oklch(95% 0.0205 261.1)"
+        ]
+      },
+      "dark-primary-soft": {
+        "role": "primary",
+        "displayName": "深色柔和蓝底",
+        "tonalRamp": [
+          "oklch(15% 0.0095 261.1)",
+          "oklch(26% 0.0245 261.1)",
+          "oklch(38% 0.0409 261.1)",
+          "oklch(50% 0.0545 261.1)",
+          "oklch(62% 0.0545 261.1)",
+          "oklch(74% 0.0506 261.1)",
+          "oklch(86% 0.0272 261.1)",
+          "oklch(95% 0.0097 261.1)"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "深色正文",
+        "tonalRamp": [
+          "oklch(15% 0.0021 259.8)",
+          "oklch(26% 0.0054 259.8)",
+          "oklch(38% 0.0090 259.8)",
+          "oklch(50% 0.0120 259.8)",
+          "oklch(62% 0.0120 259.8)",
+          "oklch(74% 0.0112 259.8)",
+          "oklch(86% 0.0060 259.8)",
+          "oklch(95% 0.0022 259.8)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "深色辅助灰",
+        "tonalRamp": [
+          "oklch(15% 0.0047 261.1)",
+          "oklch(26% 0.0120 261.1)",
+          "oklch(38% 0.0200 261.1)",
+          "oklch(50% 0.0266 261.1)",
+          "oklch(62% 0.0266 261.1)",
+          "oklch(74% 0.0247 261.1)",
+          "oklch(86% 0.0133 261.1)",
+          "oklch(95% 0.0048 261.1)"
+        ]
+      },
+      "dark-border": {
+        "role": "neutral",
+        "displayName": "深色边界",
+        "tonalRamp": [
+          "oklch(15% 0.0059 260.2)",
+          "oklch(26% 0.0152 260.2)",
+          "oklch(38% 0.0253 260.2)",
+          "oklch(50% 0.0337 260.2)",
+          "oklch(62% 0.0337 260.2)",
+          "oklch(74% 0.0313 260.2)",
+          "oklch(86% 0.0169 260.2)",
+          "oklch(95% 0.0060 260.2)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "石墨表面",
+        "tonalRamp": [
+          "oklch(15% 0.0029 264.2)",
+          "oklch(26% 0.0074 264.2)",
+          "oklch(38% 0.0123 264.2)",
+          "oklch(50% 0.0164 264.2)",
+          "oklch(62% 0.0164 264.2)",
+          "oklch(74% 0.0153 264.2)",
+          "oklch(86% 0.0082 264.2)",
+          "oklch(95% 0.0029 264.2)"
+        ]
+      },
+      "dark-ground": {
+        "role": "neutral",
+        "displayName": "石墨地",
+        "tonalRamp": [
+          "oklch(15% 0.0019 268.1)",
+          "oklch(26% 0.0048 268.1)",
+          "oklch(38% 0.0080 268.1)",
+          "oklch(50% 0.0107 268.1)",
+          "oklch(62% 0.0107 268.1)",
+          "oklch(74% 0.0099 268.1)",
+          "oklch(86% 0.0053 268.1)",
+          "oklch(95% 0.0019 268.1)"
+        ]
+      },
+      "dark-danger": {
+        "role": "neutral",
+        "displayName": "深色错误红",
+        "tonalRamp": [
+          "oklch(15% 0.0164 25.1)",
+          "oklch(26% 0.0423 25.1)",
+          "oklch(38% 0.0704 25.1)",
+          "oklch(50% 0.0939 25.1)",
+          "oklch(62% 0.0939 25.1)",
+          "oklch(74% 0.0872 25.1)",
+          "oklch(86% 0.0470 25.1)",
+          "oklch(95% 0.0168 25.1)"
+        ]
+      },
+      "dark-danger-soft": {
+        "role": "neutral",
+        "displayName": "深色错误底",
+        "tonalRamp": [
+          "oklch(15% 0.0056 25.2)",
+          "oklch(26% 0.0145 25.2)",
+          "oklch(38% 0.0241 25.2)",
+          "oklch(50% 0.0322 25.2)",
+          "oklch(62% 0.0322 25.2)",
+          "oklch(74% 0.0299 25.2)",
+          "oklch(86% 0.0161 25.2)",
+          "oklch(95% 0.0057 25.2)"
+        ]
+      },
+      "on-primary-black": {
+        "role": "neutral",
+        "displayName": "实心按钮黑色前景",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.0)",
+          "oklch(26% 0.0000 0.0)",
+          "oklch(38% 0.0000 0.0)",
+          "oklch(50% 0.0000 0.0)",
+          "oklch(62% 0.0000 0.0)",
+          "oklch(74% 0.0000 0.0)",
+          "oklch(86% 0.0000 0.0)",
+          "oklch(95% 0.0000 0.0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "control": {
+        "displayName": "control",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "control-sm": {
+        "displayName": "control-sm",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "control-lg": {
+        "displayName": "control-lg",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "input": {
+        "displayName": "input",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "label": {
+        "displayName": "label",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "support": {
+        "displayName": "support",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "selection-label": {
+        "displayName": "selection-label",
+        "purpose": "对应实际组件文字层级。"
+      },
+      "checkbox-label": {
+        "displayName": "checkbox-label",
+        "purpose": "对应实际组件文字层级。"
+      }
+    },
+    "motion": [
+      {
+        "name": "switch",
+        "value": "180ms ease",
+        "purpose": "滑块 transform 与轨道背景颜色。"
+      },
+      {
+        "name": "checkbox",
+        "value": "160ms ease",
+        "purpose": "勾的 opacity / transform 与方框背景、边框。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "workbench-samples",
+        "value": "640px"
+      },
+      {
+        "name": "workbench-sidebar",
+        "value": "1024px"
+      },
+      {
+        "name": "workbench-wide",
+        "value": "1360px"
+      }
+    ],
+    "shadows": [
+      {
+        "name": "switch-thumb",
+        "value": "0 1px 3px rgba(0,0,0,0.14)",
+        "purpose": "H5 滑块轻微投影。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "实心按钮",
+      "kind": "button",
+      "refersTo": "button-solid",
+      "description": "默认紧凑尺寸。",
+      "html": "<button class=\"ds-button-solid\">实心按钮</button>",
+      "css": ".ds-button-solid{height:36px;padding:0 14px;border-radius:8px;font:500 13px/20px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;border:1px solid transparent;cursor:pointer;transition:background-color 160ms ease,opacity 160ms ease;background:#0066d6;color:#ffffff;border-color:#0066d6}.ds-button-solid:hover{opacity:.92}.ds-button-solid:active{opacity:.8}.ds-button-solid:focus-visible{outline:2px solid #0066d6;outline-offset:2px}"
+    },
+    {
+      "name": "柔和按钮",
+      "kind": "button",
+      "refersTo": "button-soft",
+      "description": "默认紧凑尺寸。",
+      "html": "<button class=\"ds-button-soft\">柔和按钮</button>",
+      "css": ".ds-button-soft{height:36px;padding:0 14px;border-radius:8px;font:500 13px/20px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;border:1px solid transparent;cursor:pointer;transition:background-color 160ms ease,opacity 160ms ease;background:#eaf2ff;color:#0066d6;border-color:#eaf2ff}.ds-button-soft:hover{opacity:.92}.ds-button-soft:active{opacity:.8}.ds-button-soft:focus-visible{outline:2px solid #0066d6;outline-offset:2px}"
+    },
+    {
+      "name": "描边按钮",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "默认紧凑尺寸。",
+      "html": "<button class=\"ds-button-outline\">描边按钮</button>",
+      "css": ".ds-button-outline{height:36px;padding:0 14px;border-radius:8px;font:500 13px/20px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;border:1px solid transparent;cursor:pointer;transition:background-color 160ms ease,opacity 160ms ease;background:#ffffff;color:#0066d6;border-color:#0066d6}.ds-button-outline:hover{opacity:.92}.ds-button-outline:active{opacity:.8}.ds-button-outline:focus-visible{outline:2px solid #0066d6;outline-offset:2px}"
+    },
+    {
+      "name": "文字按钮",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "默认紧凑尺寸。",
+      "html": "<button class=\"ds-button-text\">文字按钮</button>",
+      "css": ".ds-button-text{height:36px;padding:0 14px;border-radius:8px;font:500 13px/20px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;border:1px solid transparent;cursor:pointer;transition:background-color 160ms ease,opacity 160ms ease;background:transparent;color:#0066d6;border-color:transparent}.ds-button-text:hover{opacity:.92}.ds-button-text:active{opacity:.8}.ds-button-text:focus-visible{outline:2px solid #0066d6;outline-offset:2px}"
+    },
+    {
+      "name": "输入框",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "单一闭合焦点边框；图标按钮为静态视觉示例。",
+      "html": "<div class=\"ds-field\"><label for=\"ds-password\">密码</label><div class=\"ds-input-control\"><input id=\"ds-password\" type=\"password\" value=\"mori-demo\"><button type=\"button\" aria-label=\"清空输入\">\n<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"24\"\n  height=\"24\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"#616e82\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <circle cx=\"12\" cy=\"12\" r=\"10\" />\n  <path d=\"m15 9-6 6\" />\n  <path d=\"m9 9 6 6\" />\n</svg>\n</button><button type=\"button\" aria-label=\"显示密码\">\n<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"24\"\n  height=\"24\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"#616e82\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" />\n  <circle cx=\"12\" cy=\"12\" r=\"3\" />\n</svg>\n</button></div></div>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:5px;font:500 12px/18px -apple-system,BlinkMacSystemFont,\"PingFang SC\",\"Segoe UI\",\"Microsoft YaHei\",sans-serif;color:#1d2430}.ds-input-control{box-sizing:border-box;display:flex;align-items:center;height:36px;padding:0 9px;border:1px solid #d2dae6;border-radius:8px;background:#fff;transition:border-color 160ms ease}.ds-input-control:has(input:focus){border-color:#0066d6}.ds-input-control input{flex:1;min-width:0;height:32px;border:0;padding:0;background:transparent;color:#1d2430;font-family:inherit;font-size:13px;font-weight:400;line-height:20px;outline:none}.ds-input-control button{display:flex;align-items:center;justify-content:center;flex:none;width:28px;height:32px;padding:0;margin-left:2px;border:0;border-radius:5px;background:transparent;cursor:pointer}.ds-input-control button:hover{background:rgba(120,120,128,.08)}.ds-input-control button:focus-visible{outline:2px solid #0066d6;outline-offset:-3px}.ds-input-control svg{width:16px;height:16px}"
+    },
+    {
+      "name": "工作台导航",
+      "kind": "nav",
+      "description": "展示页模式，不是组件库导出。",
+      "html": "<nav class=\"ds-nav\"><button aria-current=\"page\">Button</button><button>Input</button><button>Switch</button></nav>",
+      "css": ".ds-nav{display:flex;gap:4px}.ds-nav button{padding:0 13px;height:38px;border:0;border-radius:8px;background:transparent;color:#485569;font:500 13px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;cursor:pointer}.ds-nav button[aria-current],.ds-nav button:hover{background:#e4edfc;color:#0066d6}.ds-nav button:focus-visible{outline:2px solid #0066d6;outline-offset:-2px}"
+    },
+    {
+      "name": "开关",
+      "kind": "custom",
+      "refersTo": "switch-track",
+      "description": "无字默认轨道，可点击体验平移过渡。",
+      "html": "<label class=\"ds-switch\"><input type=\"checkbox\" role=\"switch\" aria-label=\"消息通知\" checked><span class=\"ds-switch-track\"><span class=\"ds-switch-thumb\"></span></span></label>",
+      "css": ".ds-switch{display:inline-flex;position:relative;align-items:center;min-height:36px;padding:0 4px;cursor:pointer}.ds-switch input{position:absolute;opacity:0;width:1px;height:1px}.ds-switch-track{display:block;position:relative;width:38px;height:22px;border-radius:22px;background:#d8dce3;transition:background-color 180ms ease}.ds-switch-thumb{position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:20px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.14);transition:transform 180ms ease}.ds-switch input:checked+.ds-switch-track{background:#0066d6}.ds-switch input:checked+.ds-switch-track .ds-switch-thumb{transform:translateX(16px)}.ds-switch input:focus-visible+.ds-switch-track{outline:2px solid #0066d6;outline-offset:2px}@media(prefers-reduced-motion:reduce){.ds-switch-track,.ds-switch-thumb{transition:none}}"
+    },
+    {
+      "name": "复选框",
+      "kind": "custom",
+      "refersTo": "checkbox-box",
+      "description": "整行选择，勾以透明度和缩放过渡。",
+      "html": "<label class=\"ds-checkbox\"><input type=\"checkbox\" checked><span class=\"ds-checkbox-box\">\n<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"24\"\n  height=\"24\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"#ffffff\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M20 6 9 17l-5-5\" />\n</svg>\n</span><span>接收更新</span></label>",
+      "css": ".ds-checkbox{display:flex;position:relative;align-items:center;gap:8px;min-height:36px;color:#616e82;font:400 12px/19px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;cursor:pointer}.ds-checkbox input{position:absolute;opacity:0;width:1px;height:1px}.ds-checkbox-box{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #d2dae6;border-radius:5px;background:#fff;transition:background-color 160ms ease,border-color 160ms ease}.ds-checkbox-box svg{width:12px;height:12px;opacity:0;transform:scale(.7);transition:opacity 160ms ease,transform 160ms ease}.ds-checkbox input:checked+.ds-checkbox-box{background:#0066d6;border-color:#0066d6}.ds-checkbox input:checked+.ds-checkbox-box svg{opacity:1;transform:scale(1)}.ds-checkbox:has(input:focus-visible){outline:2px solid #0066d6;outline-offset:-2px;border-radius:5px}@media(prefers-reduced-motion:reduce){.ds-checkbox-box,.ds-checkbox-box svg{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "中性灰与清晰蓝的紧凑系统控件",
+    "overview": "Mori UI 采用用户确认的中性灰与清晰蓝、系统字体和紧凑尺寸。颜色说明状态，细边框组织字段；按钮与输入默认 36px，避免高大的控件和宽松的内部留白。\n\n规范以 theme.uts、tokens.scss 和组件源码为准。组件默认跟随系统／宿主主题，light 或 dark 可停止自动跟随。工作台构图不限制业务页面的组织方式。",
+    "keyCharacteristics": [
+      "36px 默认按钮与输入、13px 控件文字、12px 标签。",
+      "输入只显示一个闭合边框，显隐与清空使用 Lucide 图标。",
+      "复选框与开关由组件统一绘制，选中状态平滑过渡。",
+      "浅深主题使用语义颜色；实例可覆盖品牌色。"
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Color Rule",
+        "body": "品牌、内容、边界与错误分别使用语义颜色；切换品牌时同时考虑浅色与深色。",
+        "section": "colors"
+      },
+      {
+        "name": "The System Type Rule",
+        "body": "保留系统字体和紧凑层级，不引入外置展示字体。",
+        "section": "typography"
+      },
+      {
+        "name": "The Stable State Rule",
+        "body": "切换状态不改变控件外部尺寸，动画只改变滑块变换、勾的透明度与缩放以及状态颜色。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do 复用已有大小档位和语义主题色。",
+      "Do 保留图标按钮的可访问名称、输入错误关联和键盘操作。",
+      "Do 检查连续切换与减少动态效果偏好。",
+      "Do 将浏览器验证、微信编译和原生设备验证分别记录。"
+    ],
+    "donts": [
+      "Don't 给输入叠加外置焦点圈或改变聚焦时的边框宽度。",
+      "Don't 依赖宿主 Checkbox / Switch 默认皮肤决定选中效果。",
+      "Don't 用显示、隐藏、清空文字代替已确定的输入操作图标。",
+      "Don't 恢复旧的 40px 默认高度；40px 只作为 lg 档位。",
+      "Don't 把展示页侧栏和手机框推广为所有业务页面的布局规范。"
+    ]
+  }
+}
