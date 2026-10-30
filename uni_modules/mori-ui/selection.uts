@@ -1,0 +1,42 @@
+export type MoriChoiceOption = {
+  label: string;
+  value: string;
+  disabled?: boolean;
+}
+
+export function selectMoriRadio(current: string, value: string, disabled: boolean): string | null {
+  return disabled || current == value ? null : value
+}
+
+/** A null result means the attempted interaction must not emit an update. */
+export function toggleMoriChoice(current: string[], value: string, disabled: boolean, min: number, max: number): string[] | null {
+  if (disabled) return null
+  const values: string[] = []
+  current.forEach((item: string) => { if (values.indexOf(item) < 0) values.push(item) })
+  const index = values.indexOf(value)
+  if (index >= 0) {
+    if (values.length <= Math.max(0, min)) return null
+    values.splice(index, 1)
+  } else {
+    if (max > 0 && values.length >= max) return null
+    values.push(value)
+  }
+  return values
+}
+
+export function nextMoriChoiceIndex(options: MoriChoiceOption[], current: string, direction: number): number {
+  const count = options.length
+  if (count == 0) return -1
+  let start = options.findIndex((option: MoriChoiceOption): boolean => option.value == current)
+  if (start < 0) start = direction > 0 ? -1 : 0
+  for (let step = 1; step <= count; step++) {
+    const index = (start + (direction > 0 ? step : -step) + count) % count
+    if (options[index].disabled != true) return index
+  }
+  return -1
+}
+
+/** Matches native maxlength's UTF-16 code-unit convention; -1 is unlimited. */
+export function limitMoriText(value: string, maxlength: number): string {
+  return maxlength < 0 ? value : value.substring(0, Math.max(0, maxlength))
+}

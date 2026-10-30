@@ -1,0 +1,14 @@
+import { inject, ComputedRef, Ref } from 'vue'
+import { MoriFieldError } from './validation.uts'
+
+export type MoriFormContext = { errors: Ref<MoriFieldError[]> }
+export type MoriFieldContext = {
+  label: ComputedRef<string>;
+  required: ComputedRef<boolean>;
+  error: ComputedRef<string>;
+  descriptionId: ComputedRef<string>;
+}
+export const MORI_FORM_KEY = 'mori-form-context'
+export const MORI_FIELD_KEY = 'mori-field-context'
+export function useMoriForm(): MoriFormContext | null { return inject<MoriFormContext | null>(MORI_FORM_KEY, null) }
+export function useMoriField(): MoriFieldContext | null { return inject<MoriFieldContext | null>(MORI_FIELD_KEY, null) }

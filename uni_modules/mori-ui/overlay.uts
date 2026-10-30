@@ -1,0 +1,22 @@
+export type MoriOverlayEntry = { id: string; zIndex: number }
+export type MoriOverlayGate = { generation: number }
+const overlays: MoriOverlayEntry[] = []
+let nextOverlayId = 0
+export function createMoriOverlayId(): string { nextOverlayId += 1; return 'mori-popup-' + nextOverlayId }
+export function releaseMoriOverlay(id: string) {
+  const index = overlays.findIndex((entry: MoriOverlayEntry): boolean => entry.id == id)
+  if (index >= 0) overlays.splice(index, 1)
+}
+export function acquireMoriOverlay(id: string, requestedZIndex: number): number {
+  releaseMoriOverlay(id)
+  const base = Number.isFinite(requestedZIndex) ? Math.max(0, requestedZIndex) : 1000
+  const zIndex = overlays.length > 0 ? Math.max(base, overlays[overlays.length - 1].zIndex + 2) : base
+  overlays.push({ id, zIndex })
+  return zIndex
+}
+export function topMoriOverlayId(): string { return overlays.length > 0 ? overlays[overlays.length - 1].id : '' }
+export function isTopMoriOverlay(id: string): boolean { return topMoriOverlayId() == id }
+export function createMoriOverlayGate(): MoriOverlayGate { return { generation: 0 } }
+export function advanceMoriOverlayGate(gate: MoriOverlayGate): number { gate.generation += 1; return gate.generation }
+export function isCurrentMoriOverlayGate(gate: MoriOverlayGate, generation: number): boolean { return gate.generation == generation }
+export function moriOverlayDuration(duration: number): number { return Number.isFinite(duration) ? Math.max(0, duration) : 0 }

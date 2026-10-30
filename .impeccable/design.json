@@ -307,6 +307,11 @@
     },
     "motion": [
       {
+        "name": "popup",
+        "value": "280ms ease-in-out for transform and opacity",
+        "purpose": "位移与透明度同步推进，底部面板从屏幕下沿向上浮现，居中面板缩放淡入；H5 聚焦不滚动外壳，退出同步淡出。减少动态效果时取消过渡。"
+      },
+      {
         "name": "switch",
         "value": "180ms ease",
         "purpose": "滑块 transform 与轨道背景颜色。"
@@ -402,6 +407,54 @@
       "description": "整行选择，勾以透明度和缩放过渡。",
       "html": "<label class=\"ds-checkbox\"><input type=\"checkbox\" checked><span class=\"ds-checkbox-box\">\n<svg\n  xmlns=\"http://www.w3.org/2000/svg\"\n  width=\"24\"\n  height=\"24\"\n  viewBox=\"0 0 24 24\"\n  fill=\"none\"\n  stroke=\"#ffffff\"\n  stroke-width=\"2\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n>\n  <path d=\"M20 6 9 17l-5-5\" />\n</svg>\n</span><span>接收更新</span></label>",
       "css": ".ds-checkbox{display:flex;position:relative;align-items:center;gap:8px;min-height:36px;color:#616e82;font:400 12px/19px -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif;cursor:pointer}.ds-checkbox input{position:absolute;opacity:0;width:1px;height:1px}.ds-checkbox-box{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:16px;height:16px;border:1px solid #d2dae6;border-radius:5px;background:#fff;transition:background-color 160ms ease,border-color 160ms ease}.ds-checkbox-box svg{width:12px;height:12px;opacity:0;transform:scale(.7);transition:opacity 160ms ease,transform 160ms ease}.ds-checkbox input:checked+.ds-checkbox-box{background:#0066d6;border-color:#0066d6}.ds-checkbox input:checked+.ds-checkbox-box svg{opacity:1;transform:scale(1)}.ds-checkbox:has(input:focus-visible){outline:2px solid #0066d6;outline-offset:-2px;border-radius:5px}@media(prefers-reduced-motion:reduce){.ds-checkbox-box,.ds-checkbox-box svg{transition:none}}"
+    },
+    {
+      "name": "单选",
+      "kind": "radio",
+      "refersTo": "radio",
+      "description": "16px 圆形标记，36px 操作行；受控字符串选择。",
+      "html": "<label class=\"ds-radio\"><input type=\"radio\" checked>设计师</label>",
+      "css": ".ds-radio{display:flex;align-items:center;min-height:36px;gap:8px;font-size:12px;color:#1d2430}.ds-radio input{width:16px;height:16px;accent-color:#0066d6}"
+    },
+    {
+      "name": "多行输入",
+      "kind": "input",
+      "refersTo": "textarea",
+      "description": "编辑区默认 96px；字数统计和错误由实际组件状态驱动。",
+      "html": "<div class=\"ds-textarea\"><textarea placeholder=\"介绍一下自己\"></textarea><span>0 / 120</span></div>",
+      "css": ".ds-textarea{border:1px solid #d2dae6;border-radius:8px;padding:9px;background:#fff}.ds-textarea textarea{display:block;box-sizing:border-box;width:100%;height:96px;border:0;font:13px/20px sans-serif;resize:none}.ds-textarea span{display:block;text-align:right;font:11px/16px sans-serif;color:#616e82}"
+    },
+    {
+      "name": "表单字段",
+      "kind": "form",
+      "refersTo": "form-item",
+      "description": "FormItem 统一显示标签、必填、提示和校验错误；内部控件继承可访问状态。",
+      "html": "<div class=\"ds-form-item\"><label>称呼 <small>必填</small></label><input placeholder=\"例如 Mori\" aria-invalid=\"true\" aria-describedby=\"ds-form-error\"><span id=\"ds-form-error\">请填写称呼</span></div>",
+      "css": ".ds-form-item{display:flex;flex-direction:column;margin-bottom:16px}.ds-form-item label{font:500 12px/18px sans-serif;margin-bottom:5px}.ds-form-item small{font:11px/16px sans-serif;color:#616e82}.ds-form-item input{box-sizing:border-box;height:36px;border:1px solid #b63d37;border-radius:8px;padding:0 9px;font:13px/20px sans-serif}.ds-form-item span{margin-top:4px;font:11px/16px sans-serif;color:#b63d37}"
+    },
+    {
+      "name": "轻提示",
+      "kind": "feedback",
+      "refersTo": "toast",
+      "description": "高对比的非阻塞提示，连续调用替换并重启计时。",
+      "html": "<div class=\"ds-toast\" role=\"status\">保存成功</div>",
+      "css": ".ds-toast{display:inline-block;padding:12px 18px;border-radius:8px;background:#20252e;color:#fff;font:13px/20px sans-serif}"
+    },
+    {
+      "name": "弹出层",
+      "kind": "feedback",
+      "refersTo": "popup",
+      "description": "共享遮罩、层级、焦点与退出生命周期；支持五个方向。",
+      "html": "<section class=\"ds-popup\"><h3>选择提醒方式</h3><p>在弹层内完成当前操作。</p></section>",
+      "css": ".ds-popup{padding:20px;border-radius:12px;background:#fff;color:#1d2430}.ds-popup h3{margin:0 0 14px;font:600 15px/24px sans-serif}.ds-popup p{margin:0;font:13px/22px sans-serif;color:#616e82}"
+    },
+    {
+      "name": "确认框",
+      "kind": "feedback",
+      "refersTo": "dialog",
+      "description": "确认事件交由业务处理，等待期间禁用重复操作。",
+      "html": "<section class=\"ds-dialog\"><h3>保存本次修改？</h3><p>确认后保存当前偏好。</p><button>确认保存</button></section>",
+      "css": ".ds-dialog{max-width:320px;padding:20px;border-radius:12px;background:#fff;color:#1d2430}.ds-dialog h3{margin:0 0 14px;font:600 15px/24px sans-serif}.ds-dialog p{font:13px/22px sans-serif;color:#616e82}.ds-dialog button{height:36px;border:0;border-radius:8px;padding:0 14px;background:#0066d6;color:#fff;font:500 13px/20px sans-serif}"
     }
   ],
   "narrative": {

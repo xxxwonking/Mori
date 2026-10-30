@@ -1,0 +1,82 @@
+<template>
+  <view class="foundation-demo">
+    <mori-form ref="form" class="foundation-form" :model="model" :rules="rules">
+      <mori-form-item name="name" label="称呼" required hint="至少 2 个字符，方便其他人认识你。">
+        <mori-input v-model="name" placeholder="例如 Mori" clearable @change="changed('name')" @blur="changed('name')" />
+      </mori-form-item>
+      <mori-form-item name="role" label="身份" required>
+        <mori-radio-group v-model="role" :options="roles" @change="changed('role')" />
+      </mori-form-item>
+      <mori-form-item name="interests" label="关注方向" required hint="选择 1–2 项，可以随时调整。">
+        <mori-checkbox-group v-model="interests" :options="topics" :max="2" @change="changed('interests')" />
+      </mori-form-item>
+      <mori-form-item name="bio" label="个人介绍" required hint="至少 6 个字符，介绍你正在做的事情。">
+        <mori-textarea v-model="bio" placeholder="写下你的兴趣或正在进行的项目" :maxlength="120" show-word-limit @change="changed('bio')" @blur="changed('bio')" />
+      </mori-form-item>
+      <view class="foundation-actions">
+        <mori-button label="保存资料" @click="save" />
+        <mori-button label="重置示例" variant="text" @click="reset" />
+      </view>
+    </mori-form>
+    <text class="foundation-feedback" role="status" aria-live="polite" :style="'color:' + (saved ? moriPalette.primary : moriPalette.muted)">{{ feedback }}</text>
+    <view v-if="saved" class="foundation-result" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
+      <text class="foundation-result-title">本次提交</text>
+      <text class="foundation-result-line">{{ name }} · {{ role == 'designer' ? '设计师' : '开发者' }}</text>
+      <text class="foundation-result-line">{{ interests.join(' / ') }}</text>
+      <text class="foundation-result-line">{{ bio }}</text>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, nextTick } from 'vue'
+import { moriPalette } from '../../uni_modules/mori-ui/theme.uts'
+import { MoriFormRule, MoriFormInstance } from '../../uni_modules/mori-ui/validation.uts'
+import { MoriChoiceOption } from '../../uni_modules/mori-ui/selection.uts'
+const form = ref<MoriFormInstance | null>(null)
+const name = ref('')
+const role = ref('')
+const interests = ref<string[]>([])
+const bio = ref('')
+const submitted = ref(false)
+const saved = ref(false)
+const feedback = ref('示例数据仅保留在当前页面。')
+const model = computed((): UTSJSONObject => ({ name: name.value, role: role.value, interests: interests.value, bio: bio.value } as UTSJSONObject))
+const roles: MoriChoiceOption[] = [{ label: '设计师', value: 'designer' }, { label: '开发者', value: 'developer' }, { label: '暂不可选', value: 'later', disabled: true }]
+const topics: MoriChoiceOption[] = [{ label: '界面设计', value: '界面设计' }, { label: '交互体验', value: '交互体验' }, { label: '工程实践', value: '工程实践' }, { label: '即将开放', value: 'later', disabled: true }]
+const rules: MoriFormRule[] = [
+  { name: 'name', required: true, message: '请填写称呼' },
+  { name: 'name', minLength: 2, message: '称呼至少需要 2 个字符' },
+  { name: 'role', required: true, message: '请选择身份' },
+  { name: 'interests', required: true, message: '请选择至少一个关注方向' },
+  { name: 'interests', maxLength: 2, message: '最多选择两个关注方向' },
+  { name: 'bio', required: true, message: '请填写个人介绍' },
+  { name: 'bio', minLength: 6, maxLength: 120, message: '个人介绍需要 6–120 个字符' }
+]
+function changed(field: string) {
+  saved.value = false
+  feedback.value = '示例数据仅保留在当前页面。'
+  if (submitted.value) nextTick(() => { form.value?.validateField(field) })
+}
+function save() {
+  submitted.value = true
+  const result = form.value?.validate()
+  saved.value = result != null && result.valid
+  feedback.value = saved.value ? '校验通过，资料已在本页保存。' : '还有内容需要完善，请查看字段下方的提示。'
+}
+function reset() {
+  name.value = ''; role.value = ''; interests.value = []; bio.value = ''
+  submitted.value = false; saved.value = false
+  form.value?.clearValidate()
+  feedback.value = '示例已重置，可以重新填写。'
+}
+</script>
+
+<style>
+.foundation-demo { width: 100%; }
+.foundation-actions { display: flex; flex-direction: row; align-items: center; margin-top: 4px; }
+.foundation-feedback { display: block; font-size: 12px; line-height: 19px; margin-top: 14px; }
+.foundation-result { display: flex; flex-direction: column; padding: 14px; border-radius: 8px; margin-top: 16px; }
+.foundation-result-title { font-size: 12px; font-weight: 600; line-height: 20px; margin-bottom: 6px; }
+.foundation-result-line { font-size: 12px; line-height: 20px; }
+</style>

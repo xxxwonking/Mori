@@ -1,0 +1,40 @@
+export type MoriToastOptions = {
+  message?: string;
+  type?: string;
+  duration?: number;
+  position?: string;
+}
+export type MoriToastInstance = {
+  show: (options: MoriToastOptions) => void;
+  close: () => void;
+}
+export type MoriToastTimer = {
+  restart: (duration: number, onExpire: () => void) => void;
+  cancel: () => void;
+  dispose: () => void;
+}
+
+/** Generation guards also invalidate callbacks already queued when cancellation occurs. */
+export function createMoriToastTimer(schedule: (callback: () => void, delay: number) => number, unschedule: (id: number) => void): MoriToastTimer {
+  let timerId: number | null = null
+  let generation = 0
+  let disposed = false
+  function cancel() {
+    generation += 1
+    if (timerId != null) unschedule(timerId!)
+    timerId = null
+  }
+  function restart(duration: number, onExpire: () => void) {
+    cancel()
+    if (disposed || duration <= 0 || !isFinite(duration)) return
+    const current = generation
+    timerId = schedule(() => {
+      if (disposed || current != generation) return
+      timerId = null
+      generation += 1
+      onExpire()
+    }, duration)
+  }
+  function dispose() { cancel(); disposed = true }
+  return { restart, cancel, dispose }
+}

@@ -91,3 +91,25 @@ App 通过 HBuilderX 的运行菜单处理。分别记录 Android、iOS、鸿蒙
 ## 验证后记录
 
 在 [当前进度](progress.md) 写明日期、改动范围、实际执行命令、结果、未覆盖的平台和下一步。只把真实新增证据更新进 [兼容记录](compatibility.md)。视觉或交互修改查看当前产物，保留用户截图对应的复现状态。
+
+
+## 表单基础回归与本机浏览器
+
+`npm run test:unit` 同时执行颜色、同步校验、选择／文本长度、构建环境测试。`npm run test:forms` 验证新表单页面；需先构建 H5、启动 preview。若已有系统 Chrome，可设置 `MORI_BROWSER_EXECUTABLE` 为浏览器可执行文件完整路径；三个浏览器脚本均支持此参数。自定义端口继续使用 MORI_BASE_URL。
+
+macOS 示例：
+
+```sh
+MORI_BASE_URL=http://127.0.0.1:5178 MORI_BROWSER_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' npm run test:forms
+```
+
+新证据在 `.impeccable/review/forms-verification.json`、`forms-desktop-light.png`、`forms-mobile-dark.png` 和 `forms-mobile-dark-submit.png`。移动端采用顶部／提交区真实视口截图，避免当前系统 Chrome 全页截图的重复拼接。JSON 记录实际浏览器版本。
+
+构建脚本自动创建并清理临时 HBuilderX 插件映射以使用项目 Sass；微信编译优先匹配 IDE 自带 Node，H5 继续使用调用脚本的 Node。旧编译器在 Node 24／26 下报 `cachedDataRejected` 时，先核实编译器和运行时配对，不能将其误报成组件源码错误。
+
+
+## 反馈组件回归
+
+`npm run test:feedback` 在现有预览服务检查 Toast 自动关闭／覆盖计时、弹层焦点／遮罩／滚动／嵌套／非模态、Dialog 等待与防重复、移动深色及真实过渡中间帧。支持相同 MORI_BASE_URL 和 MORI_BROWSER_EXECUTABLE 参数。输出 feedback-verification.json 与桌面／手机截图。
+
+`npm run test:unit` 同时执行 overlay、feedback 和 feedback-component；最后一项使用已有 Vue 编译器和自定义 renderer 运行真实 Toast setup/watchers，覆盖受控 prop 与 ref 方法的组合，不代替浏览器／原生渲染。

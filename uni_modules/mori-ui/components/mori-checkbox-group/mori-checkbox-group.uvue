@@ -1,0 +1,47 @@
+<template>
+  <view class="mori-checkbox-group" role="group" :aria-label="accessibleLabel" :aria-invalid="fieldInvalid" :aria-describedby="descriptionId" :aria-disabled="disabled">
+    <text v-if="field == null && label.length > 0" class="mori-checkbox-group__label" :style="'color:' + moriPalette.text">{{ label }}</text>
+    <view class="mori-checkbox-group__options" :class="{ 'mori-checkbox-group__options--horizontal': direction == 'horizontal' }">
+      <view v-for="option in options" :key="option.value" class="mori-checkbox-group__option" :class="{ 'mori-checkbox-group__option--horizontal': direction == 'horizontal' }">
+        <mori-checkbox :model-value="modelValue.indexOf(option.value) >= 0" :label="option.label" :color="color" :disabled="isOptionDisabled(option)" @change="toggleValue(option)" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriChoiceOption, toggleMoriChoice } from '../../selection.uts'
+import { useMoriField } from '../../form-context.uts'
+const props = defineProps({
+  modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] },
+  options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] },
+  label: { type: String, default: '' },
+  color: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
+  direction: { type: String, default: 'vertical' },
+  min: { type: Number, default: 0 },
+  max: { type: Number, default: 0 }
+})
+const emit = defineEmits(['update:modelValue', 'change'])
+const field = useMoriField()
+const accessibleLabel = computed((): string => props.label.length > 0 ? props.label : field != null ? field.label.value : '多选组')
+const fieldInvalid = computed((): boolean => field != null ? field.error.value.length > 0 : false)
+const descriptionId = computed((): string => field != null ? field.descriptionId.value : '')
+function isOptionDisabled(option: MoriChoiceOption): boolean {
+  return toggleMoriChoice(props.modelValue, option.value, props.disabled || option.disabled == true, props.min, props.max) == null
+}
+function toggleValue(option: MoriChoiceOption) {
+  const values = toggleMoriChoice(props.modelValue, option.value, props.disabled || option.disabled == true, props.min, props.max)
+  if (values != null) { emit('update:modelValue', values); emit('change', values) }
+}
+</script>
+
+<style lang="scss">
+.mori-checkbox-group { width: 100%; display: flex; flex-direction: column; }
+.mori-checkbox-group__label { font-size: 12px; line-height: 18px; font-weight: 500; margin-bottom: 5px; }
+.mori-checkbox-group__options { display: flex; flex-direction: column; }
+.mori-checkbox-group__options--horizontal { flex-direction: row; flex-wrap: wrap; }
+.mori-checkbox-group__option--horizontal { margin-right: 20px; }
+</style>

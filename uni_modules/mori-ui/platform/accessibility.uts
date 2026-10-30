@@ -2,7 +2,7 @@ let nextFieldId = 0
 export function createMoriFieldId(): string { nextFieldId += 1; return 'mori-field-' + nextFieldId }
 
 /** uni-input wraps its native HTML input. Keep the accessibility attributes on the focus target. */
-export function syncMoriInputAccessibility(id: string, name: string, required: boolean, invalid: boolean, hasMessage: boolean) {
+export function syncMoriInputAccessibility(id: string, name: string, required: boolean, invalid: boolean, hasMessage: boolean, descriptionId: string = '') {
   // #ifdef WEB
   const wrapper = document.getElementById(id)
   if (wrapper == null) return
@@ -13,7 +13,7 @@ export function syncMoriInputAccessibility(id: string, name: string, required: b
   input.setAttribute('aria-label', name)
   input.setAttribute('aria-required', required ? 'true' : 'false')
   input.setAttribute('aria-invalid', invalid ? 'true' : 'false')
-  if (hasMessage) input.setAttribute('aria-describedby', id + '-message')
+  if (hasMessage) input.setAttribute('aria-describedby', descriptionId.length > 0 ? descriptionId : id + '-message')
   else input.removeAttribute('aria-describedby')
   // #endif
 }

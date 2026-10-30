@@ -2,7 +2,7 @@
 
 一套从基础开始的个人移动端组件库。基于 **uni-app x + Vue + TypeScript/UTS**，以 `uni_modules` 方式复用。
 
-第一版包含 Button、Input、Switch、Checkbox，以及可操作的组件实验室和组合表单。
+包含 Button、Input、Switch、Checkbox、Form、FormItem、Radio、RadioGroup、CheckboxGroup、Textarea、Toast、Popup、Dialog，共十三个组件。提供组件实验室、表单基础和反馈弹层示例。
 
 ## 文档入口
 
@@ -19,11 +19,11 @@
 | [兼容记录](docs/compatibility.md) | H5、微信、iOS、Android、鸿蒙的真实验证范围 |
 | [设计参考](docs/design-references.md) | Vant／Wot 参考与 Lucide 图标来源 |
 
-当前版本未发布；H5 已有浏览器验证，微信已编译，原生与微信真机仍待验证。
+当前版本未发布；各批组件的构建、浏览器及真机验证范围以 [兼容记录](docs/compatibility.md) 为准，不能用旧组件的历史结果代替新增组件验证。
 
 ## 运行项目
 
-环境：Node.js 22.13+（本次使用 24）、HBuilderX 5.31+（本次使用 5.34）、HBuilderX 的 Vue3 编译器插件。
+环境：Node.js 22.13+、HBuilderX 5.31+、HBuilderX 的 Vue3 编译器插件。此前基础版使用 HBuilderX 5.34；每次构建的实际环境见验证记录。
 
 ```powershell
 cd C:\Users\Administrator\Desktop\mori-ui
@@ -31,7 +31,7 @@ npm install
 npm run dev
 ```
 
-默认打开 `http://127.0.0.1:5173`。脚本自动检测 `D:\HBuilderX` 或 `C:\HBuilderX`，也可自行指定安装目录：
+默认打开 `http://127.0.0.1:5173`。脚本自动检测 `D:\HBuilderX`、`C:\HBuilderX` 或 macOS 的 `/Applications/HBuilderX.app/Contents/HBuilderX`，也可自行指定安装目录：
 
 ```powershell
 $env:HBUILDERX_HOME = 'D:\HBuilderX'
@@ -46,17 +46,23 @@ npm run build:weixin  # 微信小程序构建
 npm run preview       # 预览 H5 构建产物
 npm run check         # 工程配置、easycom 目录和浏览器依赖边界检查
 npm test              # 需先启动预览；运行真实浏览器交互检查
-npm run test:unit     # 自定义颜色的按钮文字对比度回归
+npm run test:unit     # 按钮文字对比度、表单校验与选择逻辑回归
 npm run test:motion   # 检查实际动画中间帧、连续切换及减少动态效果设置
+npm run test:forms    # 需先启动预览；表单校验、选择组、多行输入和主题交互
+npm run test:feedback # 需先启动预览；Toast 计时、弹层、焦点和 Dialog 交互
 ```
 
 测试使用 Playwright。如果电脑没有浏览器运行时，先执行 `npx playwright install chromium`。
+
+从工作台进入表单基础示例，或访问 `http://127.0.0.1:5173/#/pages/forms/forms`。示例包含必填校验、单选、分组多选和多行输入；提交只展示本地结果。接入代码见 [使用手册](docs/user-guide.md#8-使用表单基础组件)。
+
+反馈与弹层示例位于 `http://127.0.0.1:5173/#/pages/feedback/feedback`，可操作 Toast、不同位置和嵌套 Popup、确认及等待中的 Dialog。接入代码见 [反馈组件用法](docs/user-guide.md#9-使用反馈与弹层)。
 
 `manifest.json` 的 DCloud AppID 与微信 AppID 留空，请使用自己的 ID。App 签名、发行配置与真机验证尚未完成。本项目不依赖云服务，不开启统计。
 
 ## 在其他项目中复用
 
-将 `uni_modules/mori-ui` 整个目录复制到另一个 **uni-app x** 项目的 `uni_modules` 目录。保留整个目录（含 components、styles、platform、static、theme.uts、contrast.uts 及图标许可）；组件按 easycom 规则自动导入。
+将 `uni_modules/mori-ui` 整个目录复制到另一个 **uni-app x** 项目的 `uni_modules` 目录。保留整个目录（含 components、styles、platform、static、theme.uts、contrast.uts、validation.uts、form-context.uts、selection.uts、feedback.uts、overlay.uts 及图标许可）；组件按 easycom 规则自动导入。
 
 在目标项目的 `App.uvue` 初始化一次主题监听：
 
@@ -134,11 +140,19 @@ setMoriConfig({
 mori-ui/
 ├─ App.uvue / main.uts / manifest.json / pages.json / theme.json
 ├─ uni_modules/mori-ui/      # 可复制复用的组件库
-│  ├─ components/           # mori-button/input/switch/checkbox
+│  ├─ components/           # 十三个基础、表单与反馈组件
 │  ├─ styles/tokens.scss    # 尺寸、间距、基础样式
+│  ├─ validation.uts        # 同步表单校验与公开类型
+│  ├─ form-context.uts      # 表单错误与字段无障碍上下文
+│  ├─ selection.uts         # 单选、多选与输入长度逻辑
+│  ├─ feedback.uts          # Toast 类型与计时逻辑
+│  ├─ overlay.uts           # 弹层栈与生命周期逻辑
 │  └─ theme.uts             # 全局配置、亮暗配色、系统主题监听
 ├─ pages/index/             # 组件实验室，响应式布局
+├─ pages/forms/             # 表单基础示例页
+├─ pages/feedback/          # Toast、Popup、Dialog 示例页
 ├─ components/demo-form/    # 组合示例，不属于核心组件库
+├─ components/demo-foundation/ # 新表单组合，不属于核心组件库
 ├─ scripts/                 # 开发、构建、预览与验证
 ├─ docs/components.md       # 组件 API
 ├─ docs/compatibility.md    # 真实验证范围

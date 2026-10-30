@@ -1,6 +1,6 @@
 # 兼容性与验证记录
 
-更新日期：2026-10-30。使用 HBuilderX 5.34.2026102909，Vue3 编译器 5.34.2026102821.2458。
+更新日期：2026-10-30。下方原四组件记录使用 HBuilderX 5.34；最新表单扩展复核使用本机编译器 5.26.2026091411.1611，具体见新增记录。
 
 此表记录已经取得的证据，不把平台目标等同于完成验证。
 
@@ -45,3 +45,23 @@
 - [uni-app x 项目结构](https://doc.dcloud.net.cn/uni-app-x/project.html)
 - [亮暗主题与主题 API](https://doc.dcloud.net.cn/uni-app-x/api/theme-change.html)
 - [manifest 配置](https://doc.dcloud.net.cn/uni-app-x/collocation/manifest.html)
+
+
+## 表单基础扩展：本轮新增证据
+
+Form／FormItem、Radio／RadioGroup、CheckboxGroup、Textarea 已通过 H5 与微信发行构建。H5 采用系统 Chrome 156.0.8078.74 验证：同步校验、错误与 ARIA 关联、单选键盘／禁用、多选上限、字数限制、重置清错、深色及 360／390px 无横向溢出。原四组件功能 9 组与动效 5 项回归通过。
+
+微信只验证构建，未验证开发者工具与真机；Android／iOS／鸿蒙／Safari 仍无新增运行证据。Node 单元测试会剥离 UTS 类型，不等同于原生编译。
+
+本机旧编译器通过临时插件目录读取项目 Sass；微信使用配套 Node 22.22.2 避免 cachedDataRejected，H5 使用 Node 26.6.0。临时目录结束后清理；Windows junction 分支有代码与布局测试，但未在 Windows 实机执行。此处版本记录是复现环境，不是推荐安全版本；更新事项见 progress.md。
+
+
+## 反馈组件：本轮新增证据
+
+Toast／Popup／Dialog 已通过 H5 和微信发行构建。Chrome 156.0.8078.74 验证 Toast 生命周期、模态／非模态弹层、嵌套 Escape、焦点和滚动恢复、Dialog 防重复、390px 深色布局、真实过渡中间帧与减少动态效果。原功能 9 组及表单套件回归通过。结果见 `.impeccable/review/feedback-verification.json`。
+
+微信运行、Safari、App 编译与设备未新增证据。Popup 根级挂载、App 安全区／页面滚动适配及读屏背景隔离限制见组件 API 与 progress.md；不可将 Chrome 键盘测试外推为完整读屏或原生验收。
+
+底部弹层动效调整后再次通过 H5／微信构建与 Chrome 反馈回归。按用户澄清恢复面板淡入后，Chrome 实测 transform 连续、首帧透明、淡入／淡出有连续中间态、尺寸稳定，快速退出后重开和减少动态效果正常；不外推为其他平台帧率或手感结论。
+
+最新 H5 方向回归补充实际屏幕坐标与外壳 scrollTop：修正聚焦滚动抵消位移的问题，面板从视口下沿向上进入。已验证 Chrome；overflow: clip 和焦点 preventScroll 在 Safari／其他 WebView 尚未实际验证。微信构建通过，WEB 适配不进入微信产物。

@@ -6,6 +6,20 @@
         "navigationBarTitleText": "Mori UI",
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/forms/forms",
+      "style": {
+        "navigationBarTitleText": "表单基础",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/feedback/feedback",
+      "style": {
+        "navigationBarTitleText": "反馈组件",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {

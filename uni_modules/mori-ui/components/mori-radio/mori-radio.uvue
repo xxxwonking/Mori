@@ -1,0 +1,47 @@
+<template>
+  <view :id="controlId" class="mori-radio" :class="{ 'mori-radio--disabled': disabled, 'mori-radio--dark': moriIsDark }" role="radio" :aria-label="label.length > 0 ? label : value" :aria-checked="selected" :aria-disabled="disabled" :tabindex="disabled ? -1 : tabIndex" @click="selectValue" @keydown.enter.prevent="selectValue" @keydown.space.prevent="selectValue">
+    <view class="mori-radio__circle" :style="circleStyle"><view class="mori-radio__dot" :class="{ 'mori-radio__dot--selected': selected }" :style="dotStyle"></view></view>
+    <text v-if="label.length > 0" class="mori-radio__label" :style="'color:' + moriPalette.text">{{ label }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette, moriIsDark } from '../../theme.uts'
+import { selectMoriRadio } from '../../selection.uts'
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  value: { type: String, required: true },
+  label: { type: String, default: '' },
+  color: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
+  controlId: { type: String, default: '' },
+  tabIndex: { type: Number, default: 0 }
+})
+const emit = defineEmits(['update:modelValue', 'change'])
+const selected = computed((): boolean => props.modelValue == props.value)
+const activeColor = computed((): string => props.color.length > 0 ? props.color : moriPalette.value.primary)
+const circleStyle = computed((): string => 'border-color:' + (selected.value ? activeColor.value : moriPalette.value.border) + ';background-color:' + moriPalette.value.surface + ';')
+const dotStyle = computed((): string => 'background-color:' + activeColor.value + ';')
+function selectValue() {
+  const value = selectMoriRadio(props.modelValue, props.value, props.disabled)
+  if (value != null) { emit('update:modelValue', value); emit('change', value) }
+}
+</script>
+
+<style lang="scss">
+.mori-radio { min-height: 36px; display: flex; flex-direction: row; align-items: center; border-radius: 5px; }
+.mori-radio__circle { width: 16px; height: 16px; border: 1px solid transparent; border-radius: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition-property: border-color; transition-duration: 160ms; transition-timing-function: ease; }
+.mori-radio__dot { width: 8px; height: 8px; border-radius: 8px; opacity: 0; transform: scale(0.7); transition-property: opacity, transform; transition-duration: 160ms; transition-timing-function: ease; }
+.mori-radio__dot--selected { opacity: 1; transform: scale(1); }
+.mori-radio__label { flex: 1; margin-left: 8px; font-size: 12px; line-height: 19px; }
+.mori-radio--disabled { opacity: 0.45; }
+/* #ifdef WEB */
+.mori-radio { cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.mori-radio__circle { box-sizing: border-box; }
+.mori-radio--disabled { cursor: not-allowed; }
+.mori-radio:focus-visible { outline: 2px solid #0066d6; outline-offset: -2px; }
+.mori-radio--dark:focus-visible { outline-color: #8cb6ff; }
+@media (prefers-reduced-motion: reduce) { .mori-radio__circle, .mori-radio__dot { transition: none; } }
+/* #endif */
+</style>

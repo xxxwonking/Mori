@@ -1,0 +1,136 @@
+<template>
+  <view v-if="rendered" class="mori-popup" :class="'mori-popup--' + resolvedPosition" :style="'z-index:' + effectiveZIndex + ';'">
+    <view v-if="overlay" class="mori-popup__overlay" :style="maskStyle" aria-hidden="true" @click.stop="handleOverlay" />
+    <view :id="popupId" class="mori-popup__panel" :class="['mori-popup__panel--' + resolvedPosition, { 'mori-popup__panel--safe': safeAreaInsetBottom }]" :style="panelStyle" role="dialog" :aria-modal="overlay" :aria-label="title.length > 0 ? title : '弹出层'" tabindex="-1" @click.stop>
+      <view v-if="title.length > 0 || closable" class="mori-popup__header">
+        <text v-if="title.length > 0" class="mori-popup__title" :style="'color:' + moriPalette.text">{{ title }}</text>
+        <view v-else class="mori-popup__title" />
+        <button v-if="closable" class="mori-popup__close" role="button" tabindex="0" aria-label="关闭弹出层" @click="requestClose('close')" @keydown.enter.prevent="requestClose('close')" @keydown.space.prevent="requestClose('close')"><image class="mori-popup__close-icon" :src="'/uni_modules/mori-ui/static/icons/circle-x-' + (moriIsDark ? 'dark' : 'light') + '.svg'" mode="aspectFit" aria-hidden="true" /></button>
+      </view>
+      <view class="mori-popup__content"><slot /></view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
+import { moriPalette, moriIsDark } from '../../theme.uts'
+import { createMoriOverlayId, acquireMoriOverlay, releaseMoriOverlay, isTopMoriOverlay, createMoriOverlayGate, advanceMoriOverlayGate, isCurrentMoriOverlayGate, moriOverlayDuration } from '../../overlay.uts'
+import { activateMoriOverlayAccessibility, releaseMoriOverlayAccessibility, moriOverlayReducedMotion } from '../../platform/overlay-accessibility.uts'
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  position: { type: String, default: 'bottom' },
+  title: { type: String, default: '' },
+  closable: { type: Boolean, default: true },
+  overlay: { type: Boolean, default: true },
+  closeOnOverlayClick: { type: Boolean, default: true },
+  closeOnEscape: { type: Boolean, default: true },
+  duration: { type: Number, default: 280 },
+  zIndex: { type: Number, default: 1000 },
+  safeAreaInsetBottom: { type: Boolean, default: true }
+})
+const emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed'])
+const popupId = createMoriOverlayId()
+const rendered = ref(false)
+const shown = ref(false)
+const effectiveZIndex = ref(1000)
+const transitionDuration = ref(280)
+const gate = createMoriOverlayGate()
+let transitionTimer = 0
+let frameTimer = 0
+let disposed = false
+let requestedClose = false
+const resolvedPosition = computed((): string => ['center', 'bottom', 'top', 'left', 'right'].includes(props.position) ? props.position : 'bottom')
+const maskStyle = computed((): string => 'opacity:' + (shown.value ? '1' : '0') + ';transition-duration:' + transitionDuration.value + 'ms;')
+const panelStyle = computed((): string => {
+  let transform = 'translateY(0)'
+  if (!shown.value) {
+    if (resolvedPosition.value == 'center') transform = 'scale(0.96)'
+    if (resolvedPosition.value == 'bottom') transform = 'translateY(100%)'
+    if (resolvedPosition.value == 'top') transform = 'translateY(-100%)'
+    if (resolvedPosition.value == 'left') transform = 'translateX(-100%)'
+    if (resolvedPosition.value == 'right') transform = 'translateX(100%)'
+  }
+  const opacity = shown.value ? '1' : '0'
+  // Keep visibility and travel in step, so the sheet emerges from its screen edge.
+  return 'background-color:' + moriPalette.value.surface + ';color:' + moriPalette.value.text + ';transform:' + transform + ';opacity:' + opacity + ';transition-duration:' + transitionDuration.value + 'ms;transition-timing-function:ease-in-out;'
+})
+function cancelTimers() { clearTimeout(frameTimer); clearTimeout(transitionTimer) }
+function requestClose(reason: string) {
+  if (!props.modelValue || requestedClose || !isTopMoriOverlay(popupId)) return
+  requestedClose = true
+  emit('close', reason)
+  emit('update:modelValue', false)
+  // If the consumer refuses the request, allow a later gesture to request it again.
+  nextTick(() => { if (props.modelValue) requestedClose = false })
+}
+function handleOverlay() { if (props.closeOnOverlayClick) requestClose('overlay') }
+function handleEscape() { if (props.closeOnEscape) requestClose('escape') }
+function release() { releaseMoriOverlay(popupId); releaseMoriOverlayAccessibility(popupId) }
+function changeVisibility(open: boolean) {
+  cancelTimers()
+  const generation = advanceMoriOverlayGate(gate)
+  transitionDuration.value = moriOverlayReducedMotion() ? 0 : moriOverlayDuration(props.duration)
+  requestedClose = false
+  if (open) {
+    rendered.value = true
+    effectiveZIndex.value = acquireMoriOverlay(popupId, props.zIndex)
+    emit('open')
+    nextTick(() => {
+      if (disposed || !isCurrentMoriOverlayGate(gate, generation) || !props.modelValue) return
+      activateMoriOverlayAccessibility(popupId, handleEscape, props.overlay)
+      frameTimer = setTimeout(() => {
+        if (disposed || !isCurrentMoriOverlayGate(gate, generation)) return
+        shown.value = true
+        transitionTimer = setTimeout(() => {
+          if (!disposed && isCurrentMoriOverlayGate(gate, generation) && props.modelValue) emit('opened')
+        }, transitionDuration.value)
+      }, transitionDuration.value > 0 ? 20 : 0)
+    })
+  } else if (rendered.value) {
+    shown.value = false
+    transitionTimer = setTimeout(() => {
+      if (disposed || !isCurrentMoriOverlayGate(gate, generation) || props.modelValue) return
+      release()
+      rendered.value = false
+      emit('closed')
+    }, transitionDuration.value)
+  }
+}
+watch((): boolean => props.modelValue, changeVisibility, { immediate: true })
+watch((): boolean => props.overlay, () => { if (rendered.value && props.modelValue) nextTick(() => { if (!disposed && props.modelValue) activateMoriOverlayAccessibility(popupId, handleEscape, props.overlay) }) })
+onBeforeUnmount(() => { disposed = true; advanceMoriOverlayGate(gate); cancelTimers(); release() })
+</script>
+
+<style>
+.mori-popup { position: fixed; left: 0; right: 0; top: 0; bottom: 0; display: flex; flex-direction: column; pointer-events: none; }
+.mori-popup--center { justify-content: center; align-items: center; padding: 20px; }
+.mori-popup--bottom { justify-content: flex-end; }
+.mori-popup--top { justify-content: flex-start; }
+.mori-popup--left { align-items: flex-start; }
+.mori-popup--right { align-items: flex-end; }
+.mori-popup__overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.42); pointer-events: auto; transition-property: opacity; transition-timing-function: ease; }
+.mori-popup__panel { position: relative; width: 100%; max-height: 85vh; pointer-events: auto; transition-property: transform, opacity; transition-timing-function: ease; }
+.mori-popup__panel--center { max-width: 360px; border-radius: 12px; }
+.mori-popup__panel--bottom { border-radius: 12px 12px 0 0; }
+.mori-popup__panel--top { border-radius: 0 0 12px 12px; }
+.mori-popup__panel--left, .mori-popup__panel--right { width: 82%; max-width: 360px; height: 100%; max-height: 100%; }
+.mori-popup__header { display: flex; flex-direction: row; align-items: center; padding: 12px 12px 0 16px; }
+.mori-popup__title { flex: 1; font-size: 15px; line-height: 22px; font-weight: 600; }
+.mori-popup__close { width: 36px; height: 36px; padding: 0; margin: 0 0 0 8px; border: 0; background-color: transparent; display: flex; align-items: center; justify-content: center; }
+.mori-popup__close-icon { width: 18px; height: 18px; }
+.mori-popup__content { padding: 16px; }
+/* #ifdef WEB */
+/* The shell must not scroll to a focused child while that child is sliding in. */
+.mori-popup { overflow: clip; }
+.mori-popup__panel { overflow-y: auto; box-sizing: border-box; }
+.mori-popup__panel:focus { outline: none; }
+.mori-popup__close::after { border: none; }
+.mori-popup__close:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; border-radius: 6px; }
+.mori-popup__panel--safe { padding-bottom: env(safe-area-inset-bottom); }
+@media (prefers-reduced-motion: reduce) { .mori-popup__overlay, .mori-popup__panel { transition: none; } }
+/* #endif */
+/* #ifdef MP-WEIXIN */
+.mori-popup__panel--safe { padding-bottom: env(safe-area-inset-bottom); }
+/* #endif */
+</style>

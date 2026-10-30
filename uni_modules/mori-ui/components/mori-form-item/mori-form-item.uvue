@@ -1,0 +1,46 @@
+<template>
+  <view class="mori-form-item">
+    <view v-if="label.length > 0" class="mori-form-item__heading">
+      <text class="mori-form-item__label" :style="'color:' + moriPalette.text">{{ label }}</text>
+      <text v-if="required" class="mori-form-item__required" :style="'color:' + moriPalette.muted">必填</text>
+    </view>
+    <slot />
+    <text v-if="resolvedError.length > 0" :id="messageId" class="mori-form-item__message" :style="'color:' + moriPalette.danger" role="alert" aria-live="polite">{{ resolvedError }}</text>
+    <text v-else-if="hint.length > 0" :id="messageId" class="mori-form-item__message" :style="'color:' + moriPalette.muted">{{ hint }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, provide } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MORI_FIELD_KEY, MoriFieldContext, useMoriForm } from '../../form-context.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+const props = defineProps({
+  name: { type: String, default: '' },
+  label: { type: String, default: '' },
+  required: { type: Boolean, default: false },
+  hint: { type: String, default: '' },
+  error: { type: String, default: '' }
+})
+const form = useMoriForm()
+const messageId = createMoriFieldId() + '-message'
+const resolvedError = computed((): string => {
+  if (props.error.length > 0) return props.error
+  if (form == null) return ''
+  const errors = form.errors.value
+  for (let i = 0; i < errors.length; i++) { if (errors[i].name == props.name) return errors[i].message }
+  return ''
+})
+const fieldLabel = computed((): string => props.label)
+const fieldRequired = computed((): boolean => props.required)
+const descriptionId = computed((): string => resolvedError.value.length > 0 || props.hint.length > 0 ? messageId : '')
+provide(MORI_FIELD_KEY, { label: fieldLabel, required: fieldRequired, error: resolvedError, descriptionId } as MoriFieldContext)
+</script>
+
+<style>
+.mori-form-item { width: 100%; display: flex; flex-direction: column; margin-bottom: 16px; }
+.mori-form-item__heading { display: flex; flex-direction: row; align-items: center; margin-bottom: 5px; }
+.mori-form-item__label { font-size: 12px; line-height: 18px; font-weight: 500; }
+.mori-form-item__required { font-size: 11px; line-height: 16px; margin-left: 6px; }
+.mori-form-item__message { margin-top: 4px; font-size: 11px; line-height: 16px; }
+</style>

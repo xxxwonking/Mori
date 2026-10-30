@@ -1,0 +1,7 @@
+/** Focus the actual H5 radio after roving selection; no DOM dependency on other platforms. */
+export function focusMoriRadio(id: string) {
+  // #ifdef WEB
+  const control = document.getElementById(id)
+  if (control != null) control.focus()
+  // #endif
+}

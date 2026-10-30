@@ -7,6 +7,8 @@
         <view class="brand"><view class="brand-symbol"><view class="brand-stroke brand-stroke--one"></view><view class="brand-stroke brand-stroke--two"></view><view class="brand-stroke brand-stroke--three"></view></view><text class="brand-word">mori</text><text class="brand-ui">UI</text></view>
         <text class="sidebar-intro">小而精，恰好好用。</text>
         <button class="guide-link" :class="{ 'guide-link--active': current == 'guide' }" @click="selectComponent('guide')"><text class="guide-link-text">开始使用</text><text class="guide-link-arrow">指南</text></button>
+        <button class="guide-link" @click="openForms"><text class="guide-link-text">表单基础</text><text class="guide-link-arrow">组合体验</text></button>
+        <button class="guide-link" @click="openFeedback"><text class="guide-link-text">反馈组件</text><text class="guide-link-arrow">Toast / Popup</text></button>
         <text class="nav-group-title">基础组件</text>
         <button class="nav-item" :class="{ 'nav-item--active': current == 'button' }" @click="selectComponent('button')"><text class="nav-item-text">Button</text><text class="nav-item-cn">按钮</text></button>
         <text class="nav-group-title nav-group-title--second">表单组件</text>
@@ -21,6 +23,8 @@
         <view class="mobile-nav"><button v-for="item in navItems" :key="item.id" class="mobile-nav-item" :class="{ 'mobile-nav-item--active': current == item.id }" @click="selectComponent(item.id)"><text class="mobile-nav-text">{{ item.label }}</text></button></view>
 
         <view class="workspace-body">
+          <view style="margin-bottom:12px"><mori-button label="体验反馈组件" variant="soft" size="sm" @click="openFeedback" /></view>
+          <view style="margin-bottom:16px"><mori-button label="体验表单基础" variant="soft" size="sm" @click="openForms" /></view>
           <view class="page-heading"><view class="page-heading-copy"><view class="page-title-row"><text class="page-title">{{ currentTitle }}</text><text v-if="current != 'guide'" class="page-title-cn">{{ currentChinese }}</text></view><text class="page-description">{{ currentDescription }}</text></view><view class="theme-control"><text class="theme-label">主题色</text><button v-for="theme in themes" :key="theme.name" class="theme-swatch" :class="{ 'theme-swatch--active': themeName == theme.name }" :aria-label="theme.name + '主题'" :style="'background-color:' + theme.color" @click="setTheme(theme.name, theme.color, theme.soft)"><view v-if="themeName == theme.name" class="swatch-dot"></view></button></view></view>
 
           <view v-if="current == 'guide'" class="guide-content">
@@ -89,6 +93,8 @@
 import { ref, computed } from 'vue'
 import { buttonApi, inputApi, switchApi, checkboxApi, ApiRow } from './catalogue.uts'
 import { moriPalette, moriIsDark, moriThemeMode, setMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
+function openFeedback() { uni.navigateTo({ url: '/pages/feedback/feedback' }) }
+function openForms() { uni.navigateTo({ url: '/pages/forms/forms' }) }
 const current = ref('button')
 const activeTab = ref('preview')
 const selectedSize = ref('md')

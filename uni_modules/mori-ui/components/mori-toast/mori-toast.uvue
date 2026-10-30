@@ -1,0 +1,79 @@
+<template>
+  <view v-if="visible" class="mori-toast" :class="'mori-toast--' + currentPosition" :role="currentType == 'error' ? 'alert' : 'status'" :aria-live="currentType == 'error' ? 'assertive' : 'polite'" aria-atomic="true">
+    <view class="mori-toast__content" :style="contentStyle">
+      <image v-if="currentType == 'success' || currentType == 'error'" class="mori-toast__icon" :src="iconSource" mode="aspectFit" aria-hidden="true" />
+      <view v-if="currentType == 'loading'" class="mori-toast__spinner" :style="spinnerStyle" aria-hidden="true"></view>
+      <text class="mori-toast__message" :style="'color:' + foreground">{{ currentMessage }}</text>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, onUnmounted } from 'vue'
+import { moriIsDark } from '../../theme.uts'
+import { MoriToastOptions, createMoriToastTimer } from '../../feedback.uts'
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  message: { type: String, default: '' },
+  type: { type: String, default: 'text' },
+  duration: { type: Number, default: 2000 },
+  position: { type: String, default: 'middle' }
+})
+const emit = defineEmits(['update:modelValue', 'close'])
+const visible = ref(false)
+const currentMessage = ref(props.message)
+const currentType = ref(props.type)
+const currentDuration = ref(props.duration)
+const currentPosition = ref(props.position)
+const timer = createMoriToastTimer((callback: () => void, delay: number): number => setTimeout(callback, delay), (id: number) => clearTimeout(id))
+const foreground = computed((): string => moriIsDark.value ? '#1d2430' : '#ffffff')
+const contentStyle = computed((): string => 'background-color:' + (moriIsDark.value ? '#e8edf5' : '#1c2028') + ';')
+const spinnerStyle = computed((): string => 'border-color:' + (moriIsDark.value ? '#afb9ca' : '#616e82') + ';border-top-color:' + foreground.value + ';')
+const iconSource = computed((): string => '/uni_modules/mori-ui/static/icons/' + (currentType.value == 'success' ? 'check-' : 'circle-x-') + (moriIsDark.value ? 'dark' : 'light') + '.svg')
+function restart() { if (visible.value) timer.restart(currentDuration.value, close) }
+function close() {
+  timer.cancel()
+  if (!visible.value) return
+  visible.value = false
+  emit('update:modelValue', false)
+  emit('close')
+}
+function show(options: MoriToastOptions) {
+  currentMessage.value = options.message != null ? options.message! : props.message
+  currentType.value = options.type != null ? options.type! : props.type
+  currentDuration.value = options.duration != null ? options.duration! : props.duration
+  currentPosition.value = options.position != null ? options.position! : props.position
+  visible.value = true
+  restart()
+  emit('update:modelValue', true)
+}
+watch(() => props.modelValue, (value: boolean) => {
+  if (!value) { close(); return }
+  // A v-model acknowledgement of show() must retain its imperative options and timer.
+  if (!visible.value) show({})
+}, { immediate: true })
+watch(() => props.message, (value: string) => { currentMessage.value = value; restart() })
+watch(() => props.type, (value: string) => { currentType.value = value; restart() })
+watch(() => props.duration, (value: number) => { currentDuration.value = value; restart() })
+watch(() => props.position, (value: string) => { currentPosition.value = value; restart() })
+onUnmounted(() => { timer.dispose() })
+defineExpose({ show, close })
+</script>
+
+<style>
+.mori-toast { position: fixed; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); z-index: 2000; display: flex; flex-direction: row; justify-content: center; pointer-events: none; }
+.mori-toast--top { top: 72px; transform: translateY(0); }
+.mori-toast--bottom { top: auto; bottom: 72px; transform: translateY(0); }
+.mori-toast__content { max-width: 320px; padding: 12px 16px; border-radius: 8px; display: flex; flex-direction: row; align-items: center; }
+.mori-toast__message { font-size: 13px; line-height: 20px; flex-shrink: 1; }
+.mori-toast__icon { width: 20px; height: 20px; flex-shrink: 0; margin-right: 8px; }
+.mori-toast__spinner { width: 18px; height: 18px; border: 2px solid; border-radius: 18px; flex-shrink: 0; margin-right: 8px; }
+/* #ifdef WEB */
+.mori-toast__content { box-sizing: border-box; overflow-wrap: anywhere; }
+.mori-toast--top { top: max(72px, calc(env(safe-area-inset-top) + 24px)); }
+.mori-toast--bottom { bottom: max(72px, calc(env(safe-area-inset-bottom) + 24px)); }
+.mori-toast__spinner { box-sizing: border-box; animation: mori-toast-spin 800ms linear infinite; }
+@keyframes mori-toast-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .mori-toast__spinner { animation: none; } }
+/* #endif */
+</style>

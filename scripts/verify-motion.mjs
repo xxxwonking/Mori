@@ -1,7 +1,7 @@
 import { chromium, expect } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 
-const browser = await chromium.launch({ channel: 'chromium', headless: true });
+const browser = await chromium.launch({ channel: process.env.MORI_BROWSER_EXECUTABLE ? undefined : 'chromium', executablePath: process.env.MORI_BROWSER_EXECUTABLE || undefined, headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference', colorScheme: 'light' });
 const evidence = {};
 const nav = name => page.locator('.mobile-nav-item').filter({ hasText: name }).click();

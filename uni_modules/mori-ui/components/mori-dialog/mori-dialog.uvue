@@ -1,0 +1,51 @@
+<template>
+  <mori-popup :model-value="modelValue" position="center" :title="title" :closable="false" :close-on-overlay-click="closeOnOverlayClick && !confirmLoading" :close-on-escape="!confirmLoading" @close="cancel">
+    <view class="mori-dialog" :aria-busy="confirmLoading">
+      <view class="mori-dialog__body"><slot><text v-if="message.length > 0" class="mori-dialog__message" :style="'color:' + moriPalette.muted">{{ message }}</text></slot></view>
+      <view class="mori-dialog__actions">
+        <view v-if="showCancelButton" class="mori-dialog__action"><mori-button :label="cancelText" variant="outline" block :disabled="confirmLoading" @click="cancel" /></view>
+        <view class="mori-dialog__action" :class="{ 'mori-dialog__action--last': showCancelButton }"><mori-button :label="confirmText" block :loading="confirmLoading" @click="confirm" /></view>
+      </view>
+    </view>
+  </mori-popup>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({
+  modelValue: { type: Boolean, default: false },
+  title: { type: String, default: '' },
+  message: { type: String, default: '' },
+  confirmText: { type: String, default: '确认' },
+  cancelText: { type: String, default: '取消' },
+  showCancelButton: { type: Boolean, default: true },
+  confirmLoading: { type: Boolean, default: false },
+  closeOnOverlayClick: { type: Boolean, default: false }
+})
+const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
+const cancelRequested = ref(false)
+let confirmRequested = false
+watch(() => props.modelValue, (value: boolean) => { if (value) { cancelRequested.value = false; confirmRequested = false } })
+function confirm() {
+  if (!props.modelValue || props.confirmLoading || cancelRequested.value || confirmRequested) return
+  confirmRequested = true
+  emit('confirm')
+  nextTick(() => { confirmRequested = false })
+}
+function cancel() {
+  if (!props.modelValue || props.confirmLoading || cancelRequested.value) return
+  cancelRequested.value = true
+  emit('cancel')
+  emit('update:modelValue', false)
+}
+</script>
+
+<style>
+.mori-dialog { width: 100%; display: flex; flex-direction: column; }
+.mori-dialog__body { display: flex; flex-direction: column; }
+.mori-dialog__message { font-size: 13px; line-height: 22px; }
+.mori-dialog__actions { display: flex; flex-direction: row; margin-top: 22px; }
+.mori-dialog__action { flex: 1; }
+.mori-dialog__action--last { margin-left: 10px; }
+</style>

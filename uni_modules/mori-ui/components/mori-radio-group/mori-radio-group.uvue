@@ -1,0 +1,60 @@
+<template>
+  <view class="mori-radio-group" role="radiogroup" :aria-label="accessibleLabel" :aria-required="fieldRequired" :aria-invalid="fieldInvalid" :aria-describedby="descriptionId" :aria-disabled="disabled" @keydown.right.prevent="moveSelection(1)" @keydown.down.prevent="moveSelection(1)" @keydown.left.prevent="moveSelection(-1)" @keydown.up.prevent="moveSelection(-1)">
+    <text v-if="field == null && label.length > 0" class="mori-radio-group__label" :style="'color:' + moriPalette.text">{{ label }}</text>
+    <view class="mori-radio-group__options" :class="{ 'mori-radio-group__options--horizontal': direction == 'horizontal' }">
+      <view v-for="(option, index) in options" :key="option.value" class="mori-radio-group__option" :class="{ 'mori-radio-group__option--horizontal': direction == 'horizontal' }">
+        <mori-radio :control-id="groupId + '-' + index" :model-value="modelValue" :value="option.value" :label="option.label" :color="color" :disabled="disabled || option.disabled == true" :tab-index="index == tabStop ? 0 : -1" @update:modelValue="selectValue" />
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, nextTick, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriChoiceOption, nextMoriChoiceIndex, selectMoriRadio } from '../../selection.uts'
+import { useMoriField } from '../../form-context.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { focusMoriRadio } from '../../platform/selection-accessibility.uts'
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] },
+  label: { type: String, default: '' },
+  color: { type: String, default: '' },
+  disabled: { type: Boolean, default: false },
+  direction: { type: String, default: 'vertical' }
+})
+const emit = defineEmits(['update:modelValue', 'change'])
+const field = useMoriField()
+const groupId = createMoriFieldId()
+const accessibleLabel = computed((): string => props.label.length > 0 ? props.label : field != null ? field.label.value : '单选组')
+const fieldRequired = computed((): boolean => field != null ? field.required.value : false)
+const fieldInvalid = computed((): boolean => field != null ? field.error.value.length > 0 : false)
+const descriptionId = computed((): string => field != null ? field.descriptionId.value : '')
+const tabStop = computed((): number => {
+  if (props.disabled) return -1
+  const selected = props.options.findIndex((option: MoriChoiceOption): boolean => option.value == props.modelValue && option.disabled != true)
+  return selected >= 0 ? selected : props.options.findIndex((option: MoriChoiceOption): boolean => option.disabled != true)
+})
+function selectValue(value: string) {
+  const option = props.options.find((item: MoriChoiceOption): boolean => item.value == value)
+  if (option == null) return
+  const next = selectMoriRadio(props.modelValue, value, props.disabled || option.disabled == true)
+  if (next != null) { emit('update:modelValue', next); emit('change', next) }
+}
+function moveSelection(direction: number) {
+  if (props.disabled) return
+  const index = nextMoriChoiceIndex(props.options, props.modelValue, direction)
+  if (index < 0) return
+  selectValue(props.options[index].value)
+  nextTick(() => { focusMoriRadio(groupId + '-' + index) })
+}
+</script>
+
+<style lang="scss">
+.mori-radio-group { width: 100%; display: flex; flex-direction: column; }
+.mori-radio-group__label { font-size: 12px; line-height: 18px; font-weight: 500; margin-bottom: 5px; }
+.mori-radio-group__options { display: flex; flex-direction: column; }
+.mori-radio-group__options--horizontal { flex-direction: row; flex-wrap: wrap; }
+.mori-radio-group__option--horizontal { margin-right: 20px; }
+</style>

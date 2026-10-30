@@ -4,7 +4,7 @@
 
 ## 项目是什么
 
-Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，首版包含 Button、Input、Switch、Checkbox、组件工作台和组合表单。源码保存在 [GitHub 仓库](https://github.com/xxxwonking/Mori)，尚未发布组件包。
+Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，现有 Button、Input、Switch、Checkbox，以及 Form、FormItem、Radio、RadioGroup、CheckboxGroup、Textarea，以及 Toast、Popup、Dialog，共十三个组件、组件工作台和组合示例。源码保存在 [GitHub 仓库](https://github.com/xxxwonking/Mori)，尚未发布组件包。
 
 本机目录为 `C:\Users\Administrator\Desktop\mori-ui`，HBuilderX 在 `D:\HBuilderX`。迁移机器时重新定位项目与 HBuilderX，不照搬本机路径。当前技术路线是 `.uvue` + UTS，通过 `uni_modules` 整包复制复用。
 
@@ -68,3 +68,7 @@ docs/progress.md 和 DESIGN.md，核对当前源码与运行环境，然后执�
 保留中性灰蓝、系统字体、36px 默认控件、图标输入操作、可配置且平滑过渡的选择控件。
 完成后按改动范围验证，并更新进度、API、设计或兼容文档；不要重复初始化项目。
 ```
+
+最新本轮工作位于 macOS `/Users/others/Desktop/Mori-form-foundation` 的 `feat/form-foundation` 工作区，未推送；旧 Windows 路径属于历史环境。表单 API 与新验证证据见 progress.md、components.md；下一步应优先补微信运行及原生证据。
+
+最新反馈扩展已实现，入口 pages/feedback/feedback；验证、平台限制和待办见 progress.md 最后记录。

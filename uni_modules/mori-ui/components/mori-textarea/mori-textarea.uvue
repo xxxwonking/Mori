@@ -1,0 +1,86 @@
+<template>
+  <view class="mori-textarea" :class="{ 'mori-textarea--disabled': disabled }">
+    <view v-if="field == null && label.length > 0" class="mori-textarea__heading">
+      <text class="mori-textarea__label" :style="'color:' + moriPalette.text">{{ label }}</text>
+      <text v-if="required" class="mori-textarea__required" :style="'color:' + moriPalette.muted">必填</text>
+    </view>
+    <view class="mori-textarea__control" :style="controlStyle">
+      <textarea :id="fieldId" class="mori-textarea__input" :value="modelValue" :placeholder="placeholder" :placeholder-style="'color:' + moriPalette.muted + ';font-size:13px;'" :disabled="disabled" :maxlength="maxlength" :auto-height="autoHeight" :style="inputStyle" :aria-label="accessibleLabel" :aria-required="accessibleRequired" :aria-invalid="resolvedError.length > 0" :aria-describedby="descriptionId" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @confirm="handleConfirm" />
+      <text v-if="showWordLimit" class="mori-textarea__count" :style="'color:' + moriPalette.muted" aria-hidden="true">{{ countText }}</text>
+    </view>
+    <text v-if="field == null && resolvedError.length > 0" :id="fieldId + '-message'" class="mori-textarea__message" :style="'color:' + moriPalette.danger" role="alert" aria-live="polite">{{ resolvedError }}</text>
+    <text v-else-if="field == null && hint.length > 0" :id="fieldId + '-message'" class="mori-textarea__message" :style="'color:' + moriPalette.muted">{{ hint }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { computed, ref, onMounted, watchEffect, nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { limitMoriText } from '../../selection.uts'
+import { useMoriField } from '../../form-context.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { syncMoriTextareaAccessibility } from '../../platform/textarea-accessibility.uts'
+const props = defineProps({
+  modelValue: { type: String, default: '' },
+  label: { type: String, default: '' },
+  placeholder: { type: String, default: '请输入' },
+  hint: { type: String, default: '' },
+  error: { type: String, default: '' },
+  color: { type: String, default: '' },
+  required: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
+  maxlength: { type: Number, default: 200 },
+  showWordLimit: { type: Boolean, default: false },
+  height: { type: Number, default: 96 },
+  autoHeight: { type: Boolean, default: false }
+})
+const emit = defineEmits(['update:modelValue', 'change', 'focus', 'blur', 'confirm'])
+const field = useMoriField()
+const fieldId = createMoriFieldId()
+const focused = ref(false)
+const accessibleLabel = computed((): string => props.label.length > 0 ? props.label : field != null && field.label.value.length > 0 ? field.label.value : props.placeholder)
+const accessibleRequired = computed((): boolean => props.required || (field != null && field.required.value))
+const resolvedError = computed((): string => field != null ? field.error.value : props.error)
+const descriptionId = computed((): string => field != null ? field.descriptionId.value : props.error.length > 0 || props.hint.length > 0 ? fieldId + '-message' : '')
+const countText = computed((): string => props.maxlength >= 0 ? props.modelValue.length + ' / ' + props.maxlength : props.modelValue.length.toString())
+const controlStyle = computed((): string => 'border-color:' + (focused.value ? (props.color.length > 0 ? props.color : moriPalette.value.primary) : resolvedError.value.length > 0 ? moriPalette.value.danger : moriPalette.value.border) + ';background-color:' + (props.disabled ? moriPalette.value.ground : moriPalette.value.surface) + ';')
+const inputStyle = computed((): string => 'color:' + moriPalette.value.text + ';' + (props.autoHeight ? 'min-height:' : 'height:') + Math.max(36, props.height) + 'px;')
+function handleInput(event: UniInputEvent) {
+  if (props.disabled) return
+  const value = limitMoriText(event.detail.value, props.maxlength)
+  emit('update:modelValue', value)
+  emit('change', value)
+}
+function handleFocus() { focused.value = true; emit('focus') }
+function handleBlur() { focused.value = false; emit('blur') }
+function handleConfirm() { if (!props.disabled) emit('confirm', props.modelValue) }
+function syncAccessibility() {
+  // Read dependencies before nextTick so Vapor tracks inherited field-state changes.
+  const name = accessibleLabel.value
+  const required = accessibleRequired.value
+  const invalid = resolvedError.value.length > 0
+  const description = descriptionId.value
+  nextTick(() => { syncMoriTextareaAccessibility(fieldId, name, required, invalid, description) })
+}
+onMounted(syncAccessibility)
+watchEffect(syncAccessibility)
+</script>
+
+<style lang="scss">
+.mori-textarea { width: 100%; display: flex; flex-direction: column; }
+.mori-textarea__heading { display: flex; flex-direction: row; align-items: center; margin-bottom: 5px; }
+.mori-textarea__label { font-size: 12px; line-height: 18px; font-weight: 500; }
+.mori-textarea__required { font-size: 11px; line-height: 16px; margin-left: 6px; }
+.mori-textarea__control { display: flex; flex-direction: column; border: 1px solid transparent; border-radius: 8px; padding: 9px; }
+.mori-textarea__input { width: 100%; font-size: 13px; line-height: 20px; }
+.mori-textarea__count { text-align: right; font-size: 11px; line-height: 16px; margin-top: 5px; }
+.mori-textarea__message { font-size: 11px; line-height: 16px; margin-top: 4px; }
+.mori-textarea--disabled .mori-textarea__control { opacity: 0.65; }
+/* #ifdef WEB */
+.mori-textarea__control { box-sizing: border-box; transition: border-color 160ms ease, background-color 160ms ease; }
+.mori-textarea__input, .mori-textarea__input textarea { font-family: inherit; }
+.mori-textarea__input:focus, .mori-textarea__input:focus-visible, .mori-textarea__input textarea:focus, .mori-textarea__input textarea:focus-visible { outline: none; box-shadow: none; }
+.mori-textarea__input textarea { resize: none; }
+@media (prefers-reduced-motion: reduce) { .mori-textarea__control { transition: none; } }
+/* #endif */
+</style>

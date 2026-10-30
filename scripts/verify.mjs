@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const out = new URL('../.impeccable/review/', import.meta.url);
 mkdirSync(out, { recursive: true });
 const baseURL = process.env.MORI_BASE_URL || 'http://127.0.0.1:5173';
-const browser = await chromium.launch({ channel: 'chromium', headless: true });
+const browser = await chromium.launch({ channel: process.env.MORI_BROWSER_EXECUTABLE ? undefined : 'chromium', executablePath: process.env.MORI_BROWSER_EXECUTABLE || undefined, headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, colorScheme: 'light', reducedMotion: 'reduce' });
 const errors = [];
 const checks = [];
@@ -193,7 +193,7 @@ try {
     await mode('自动');
     await page.locator('.section-tab').filter({ hasText: 'API 参考' }).click();
     await expect(page.locator('.api-panel')).toContainText('v-model');
-    await page.locator('.guide-link').click();
+    await page.locator('.guide-link').filter({ hasText: '开始使用' }).click();
     await expect(page.locator('.guide-content')).toContainText('setMoriConfig');
     await expect(page.locator('.guide-content')).toContainText('initMoriTheme');
     await expect(page.locator('.guide-content')).toContainText('darkmode');

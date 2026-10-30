@@ -10,9 +10,11 @@
     "build:weixin": "node scripts/uni.mjs build mp-weixin",
     "preview": "node scripts/serve.mjs",
     "test": "node scripts/verify.mjs",
-    "test:unit": "node tests/contrast.mjs",
+    "test:unit": "node tests/contrast.mjs && node tests/validation.mjs && node tests/selection.mjs && node tests/uni-environment.mjs && node tests/overlay.mjs && node tests/feedback.mjs && node tests/feedback-component.mjs",
     "test:motion": "node scripts/verify-motion.mjs",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test:forms": "node scripts/verify-forms.mjs",
+    "test:feedback": "node scripts/verify-feedback.mjs"
   },
   "devDependencies": {
     "@dcloudio/uni-app-x": "^0.7.138",

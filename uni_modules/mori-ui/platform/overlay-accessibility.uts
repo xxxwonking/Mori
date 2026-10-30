@@ -1,0 +1,105 @@
+import { topMoriOverlayId } from '../overlay.uts'
+// #ifdef WEB
+type BrowserOverlay = { id: string; panel: HTMLElement; restoreTarget: HTMLElement | null; escape: () => void; modal: boolean }
+const browserOverlays: BrowserOverlay[] = []
+let savedBodyOverflow = ''
+let savedRootOverflow = ''
+let scrollLocked = false
+function syncScrollLock() {
+  const needed = browserOverlays.some((entry: BrowserOverlay): boolean => entry.modal)
+  if (needed && !scrollLocked) {
+    savedBodyOverflow = document.body.style.overflow
+    savedRootOverflow = document.documentElement.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+  } else if (!needed && scrollLocked) {
+    document.body.style.overflow = savedBodyOverflow
+    document.documentElement.style.overflow = savedRootOverflow
+  }
+  scrollLocked = needed
+}
+function activeOverlay(): BrowserOverlay | null {
+  const id = topMoriOverlayId()
+  return browserOverlays.find((entry: BrowserOverlay): boolean => entry.id == id) ?? null
+}
+function focusable(panel: HTMLElement): HTMLElement[] {
+  const nodes = Element.prototype.querySelectorAll.call(panel, 'button, input, textarea, select, a[href], [tabindex]') as NodeListOf<HTMLElement>
+  return Array.from(nodes).filter((element: HTMLElement): boolean => element.tabIndex >= 0 && !element.hasAttribute('disabled') && element.getAttribute('aria-disabled') != 'true' && element.getClientRects().length > 0)
+}
+function focusFirst(entry: BrowserOverlay) { const elements = focusable(entry.panel); (elements.length > 0 ? elements[0] : entry.panel).focus({ preventScroll: true }) }
+function handleFocus(event: FocusEvent) {
+  const entry = activeOverlay()
+  if (entry != null && entry.modal && event.target instanceof Node && !entry.panel.contains(event.target)) focusFirst(entry)
+}
+function handleKey(event: KeyboardEvent) {
+  const entry = activeOverlay()
+  if (entry == null) return
+  if (event.key == 'Escape') {
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    entry.escape()
+    return
+  }
+  if (event.key != 'Tab' || !entry.modal) return
+  const elements = focusable(entry.panel)
+  if (elements.length == 0) { event.preventDefault(); entry.panel.focus(); return }
+  const first = elements[0]
+  const last = elements[elements.length - 1]
+  const active = document.activeElement
+  if (event.shiftKey && (active == first || active == entry.panel || !entry.panel.contains(active))) { event.preventDefault(); last.focus() }
+  else if (!event.shiftKey && (active == last || active == entry.panel || !entry.panel.contains(active))) { event.preventDefault(); first.focus() }
+}
+// #endif
+
+export function activateMoriOverlayAccessibility(id: string, escape: () => void, modal: boolean = true) {
+  // #ifdef WEB
+  const existing = browserOverlays.find((entry: BrowserOverlay): boolean => entry.id == id)
+  if (existing != null) { existing.escape = escape; existing.modal = modal; syncScrollLock(); if (modal) focusFirst(existing); return }
+  const element = document.getElementById(id)
+  if (!(element instanceof HTMLElement)) return
+  const restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null
+  if (browserOverlays.length == 0) {
+    document.addEventListener('keydown', handleKey, true)
+    document.addEventListener('focusin', handleFocus, true)
+  }
+  const entry: BrowserOverlay = { id, panel: element, restoreTarget, escape, modal }
+  browserOverlays.push(entry)
+  syncScrollLock()
+  if (modal) focusFirst(entry)
+  // #endif
+}
+
+/** Call after releasing core stack ownership, and only when exit animation ends. */
+export function releaseMoriOverlayAccessibility(id: string) {
+  // #ifdef WEB
+  const index = browserOverlays.findIndex((entry: BrowserOverlay): boolean => entry.id == id)
+  if (index < 0) return
+  const entry = browserOverlays[index]
+  const hadFocus = entry.panel.contains(document.activeElement)
+  browserOverlays.splice(index, 1)
+  browserOverlays.forEach((other: BrowserOverlay) => {
+    if (other.restoreTarget != null && entry.panel.contains(other.restoreTarget)) other.restoreTarget = entry.restoreTarget
+  })
+  if (browserOverlays.length == 0) {
+    document.removeEventListener('keydown', handleKey, true)
+    document.removeEventListener('focusin', handleFocus, true)
+  }
+  syncScrollLock()
+  const top = activeOverlay()
+  if (top != null) {
+    if (hadFocus) {
+      if (entry.restoreTarget != null && entry.restoreTarget.isConnected && top.panel.contains(entry.restoreTarget)) entry.restoreTarget.focus()
+      else focusFirst(top)
+    }
+  } else if ((hadFocus || entry.modal) && entry.restoreTarget != null && entry.restoreTarget.isConnected) entry.restoreTarget.focus()
+  // #endif
+}
+
+export function moriOverlayReducedMotion(): boolean {
+  // #ifdef WEB
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  // #endif
+  // #ifndef WEB
+  return false
+  // #endif
+}

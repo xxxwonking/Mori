@@ -1,0 +1,36 @@
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, realpathSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+import assert from 'node:assert/strict';
+const runtimeHelpers = await import('../scripts/hbuilder-env.mjs');
+assert.equal(typeof runtimeHelpers.resolveCompilerRuntime, 'function', 'Compiler runtime selection must be explicit');
+const hx = mkdtempSync(join(tmpdir(), 'mori-hbuilder-'));
+try {
+  const plugin = join(hx, 'plugins/uniapp-cli-vite');
+  assert.equal(runtimeHelpers.resolveCompilerRuntime(hx, 'mp-weixin'), process.execPath, 'Missing bundled runtime falls back to invoking Node');
+  const nodeDir = join(hx, 'plugins/node');
+  mkdirSync(nodeDir, { recursive: true });
+  const bundledNode = join(nodeDir, process.platform === 'win32' ? 'node.exe' : 'node');
+  writeFileSync(bundledNode, 'runtime fixture');
+  assert.equal(runtimeHelpers.resolveCompilerRuntime(hx, 'mp-weixin'), bundledNode, 'WeChat bytecode uses matching IDE runtime');
+  assert.equal(runtimeHelpers.resolveCompilerRuntime(hx, 'h5'), process.execPath, 'H5 runtime stays unchanged');
+  const bin = join(plugin, 'node_modules/@dcloudio/vite-plugin-uni/bin');
+  mkdirSync(bin, { recursive: true });
+  writeFileSync(join(plugin, 'package.json'), JSON.stringify({ version: 'test' }));
+  writeFileSync(join(bin, 'uni.js'), `const fs = require('node:fs'); console.log('MORI_ENV=' + JSON.stringify({ root: process.env.HX_APP_ROOT, plugins: process.env.UNI_HBUILDERX_PLUGINS, input: process.env.UNI_INPUT_DIR, compiler: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/uniapp-cli-vite'), sass: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/compile-dart-sass') }));`);
+  const env = { ...process.env, HBUILDERX_HOME: hx };
+  delete env.HX_APP_ROOT;
+  const result = spawnSync(process.execPath, ['scripts/uni.mjs', 'build', 'h5'], { cwd: new URL('..', import.meta.url), env, encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  const marker = result.stdout.split('\n').find(line => line.startsWith('MORI_ENV='));
+  assert.ok(marker, 'Compiler must execute');
+  const actual = JSON.parse(marker.slice('MORI_ENV='.length));
+  assert.ok(actual.root, 'Compiler needs HX_APP_ROOT to recognize IDE mode and load its Vue/UTS plugins');
+  assert.equal(actual.plugins, join(actual.root, 'plugins'));
+  assert.equal(actual.compiler, realpathSync(plugin));
+  assert.equal(actual.sass, realpathSync(fileURLToPath(new URL('..', import.meta.url))));
+  assert.equal(existsSync(actual.root), false, 'Temporary toolchain must be removed after compiler exits');
+  console.log('PASS HBuilderX compiler receives its detected root and plugin directory');
+} finally { rmSync(hx, { recursive: true, force: true }); }

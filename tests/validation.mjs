@@ -1,0 +1,33 @@
+import { readFileSync, existsSync } from 'node:fs';
+import { stripTypeScriptTypes } from 'node:module';
+import assert from 'node:assert/strict';
+const path = new URL('../uni_modules/mori-ui/validation.uts', import.meta.url);
+assert.ok(existsSync(path), 'The form validation module must exist');
+const source = readFileSync(path, 'utf8');
+const v = await import('data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(source)).toString('base64'));
+const required = [{ name: 'value', required: true, message: '请填写' }];
+for (const value of ['', '  ', [], false, null, undefined]) {
+  assert.deepEqual(v.validateMoriForm({ value }, required), { valid: false, errors: [{ name: 'value', message: '请填写' }] });
+}
+for (const value of [0, '0', true, ['a'], 'Mori']) assert.equal(v.validateMoriForm({ value }, required).valid, true);
+assert.equal(v.validateMoriForm({}, required).valid, false);
+const lengths = [{ name: 'value', minLength: 2, maxLength: 3, message: '长度错误' }];
+assert.equal(v.validateMoriForm({ value: '' }, lengths).valid, true, 'Optional empty skips constraints');
+for (const value of ['a', 'abcd', ['a'], ['a','b','c','d']]) assert.equal(v.validateMoriForm({ value }, lengths).valid, false);
+for (const value of ['ab', ['a','b']]) assert.equal(v.validateMoriForm({ value }, lengths).valid, true);
+const pattern = [{ name: 'email', pattern: '^.+@.+\\..+$', message: '邮箱无效' }];
+assert.equal(v.validateMoriForm({ email: 'bad' }, pattern).valid, false);
+assert.equal(v.validateMoriForm({ email: 'a@b.cn' }, pattern).valid, true);
+assert.equal(v.validateMoriForm({ email: '' }, pattern).valid, true);
+assert.throws(() => v.validateMoriForm({ email: 'x' }, [{ name: 'email', pattern: '[' }]), /正则|pattern|regular/i);
+assert.deepEqual(v.validateMoriForm({ value: 'reserved' }, [{name:'value', validator: x => x === 'reserved' ? '已被占用' : ''}]).errors, [{name:'value',message:'已被占用'}]);
+const rules = [{name:'first', required:true, message:'第一个必填'}, {name:'first', minLength:2}, {name:'second', required:true, message:'第二个必填'}];
+const all = v.validateMoriForm({first:'',second:''}, rules);
+assert.equal(all.errors.length, 2, 'At most one error per field');
+assert.deepEqual(v.validateMoriForm({first:'',second:''}, rules, 'first').errors, [{name:'first',message:'第一个必填'}]);
+assert.deepEqual(v.replaceMoriFieldErrors(all.errors, 'first', []), [{name:'second',message:'第二个必填'}]);
+assert.equal(all.errors.length, 2, 'Updating one field does not mutate the previous errors');
+assert.deepEqual(v.clearMoriFieldErrors(all.errors, 'first'), [{name:'second',message:'第二个必填'}]);
+assert.deepEqual(v.clearMoriFieldErrors(all.errors), []);
+assert.deepEqual(v.validateMoriForm({first:'ok'}, rules, 'missing'), {valid:true,errors:[]});
+console.log('PASS required semantics, lengths, patterns, custom rules, first errors, field isolation and clear');

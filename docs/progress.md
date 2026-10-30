@@ -1,6 +1,6 @@
 # 当前进度与下一步
 
-更新日期：2026-10-30（Asia/Shanghai）。阶段：**0.1.0 基础组件首版已实现，跨端验证未完成，尚未发布**。
+更新日期：2026-10-30（Asia/Shanghai）。阶段：**0.1.0 表单与反馈扩展已实现，共十三个组件；跨端真机验证未完成，尚未发布**。
 
 本文件是接力状态记录。更新任务后修改这里，不用把聊天历史当作唯一进度来源。
 
@@ -44,7 +44,7 @@
 - HarmonyOS NEXT 工具链与设备验证；不要求第一版所有组件全部支持鸿蒙。
 - 原生系统“减少动态效果”偏好的接入／验证；目前已验证的是 H5 媒体查询。
 - 最新视觉的用户正式验收；整理交接文档与提交代码的要求并非明确验收声明。
-- Form／FormItem 等后续组件、分组选择、包发布、最低系统版本均未完成或未定。
+- Form／FormItem、Radio／RadioGroup、CheckboxGroup、Textarea 已实现；异步校验、嵌套字段、包发布和最低系统版本仍未完成或未定。
 - 尚未发布组件包或 Release；源码已有本地与 GitHub 版本基线。
 
 ## 下一步建议
@@ -57,12 +57,12 @@
 | P0 | 原生最小闭环 | 在 HBuilderX 核对 Android／iOS 编译插件和运行目标，记录缺少的设备／配置 | 至少分别记录构建结果；有设备时完成四组件与键盘／主题验收 |
 | P1 | Safari / iOS H5 | 用实际 Safari 检查输入聚焦、清空、显隐、禁用和选择过渡 | 记录设备／系统／浏览器、复现步骤、截图和结论 |
 | P1 | 视觉回访 | 请用户在最新预览中操作 Input、Switch、Checkbox，处理具体反馈 | 用户确认或形成清楚的下一轮修改清单 |
-| P2 | 下一批基础组件 | 候选：Form／FormItem、Radio／CheckboxGroup、Textarea、Cell／Divider、Loading／Toast | 先明确范围和 API，再实现示例、文档及有意义的验证 |
+| P2 | 下一批基础组件 | 候选：Cell／Divider、Loading／Toast、Popup／Dialog；表单基础本轮已完成 | 先明确范围和 API，再实现示例、文档及有意义的验证 |
 | P2 | 鸿蒙与分发 | 明确工具链、最低版本与分发方式；保留可用平台降级策略 | 按组件记录支持程度；发布单独处理 |
 
 ## 已知实现边界
 
-- 首版核心四组件，没有完整表单容器、校验引擎或图标组件；图标目前是随库分发的少量 SVG。
+- 现有十个组件含同步表单容器／校验引擎；未提供异步校验、嵌套字段或通用图标组件，图标是随库分发的少量 SVG。
 - `setMoriConfig` 不持久化选择，也没有全局 density／字号配置；尺寸通过现有实例参数或样式基础控制。
 - 非 hex／rgb 的自定义颜色不具备完整自动前景推导；具体限制见 [使用手册](user-guide.md)。
 - 当前测试依赖工作台 DOM 与示例顺序；增减样例时应同步测试，不能只删除失败断言。
@@ -89,3 +89,75 @@
 ## 后续更新格式
 
 每次完成任务，更新以上相应条目，并追加简短记录：日期／任务、改动文件、验证命令与实际结果、未完成事项、下一步。不要把未运行的检查写成通过；存在未解决问题时保留复现入口。
+
+
+## 2026-10-30：参考开源库扩展表单基础
+
+用户选择表单校验、单选、分组多选、多行输入。参考 Vant Form／RadioGroup 与 Wot Form／Textarea 的交互与 API 组织，新增 Form、FormItem、Radio、RadioGroup、CheckboxGroup、Textarea；原四组件契约保留。同步顶层规则支持 required、长度、pattern、自定义 validator；提供 validate／validateField／clearValidate，分字段更新保留其他错误。FormItem 通过上下文统一标签、必填、错误和描述，Input／Textarea 的实际 H5 输入元素显式监听状态并同步 ARIA。
+
+工作目录 `/Users/others/Desktop/Mori-form-foundation`，分支 `feat/form-foundation`。添加表单页及入口、可提交／重置的本地示例、API 文档、选择／校验／工具链测试。代码保留在本地工作区，未推送或发布。
+
+本轮验证：
+
+- `npm run check`：十个 easycom 导出、配置和浏览器边界检查通过。
+- `npm run test:unit`：颜色、校验、选择／文本限制和构建环境测试通过。
+- H5 构建通过，使用本机 HBuilderX 编译器 5.26.2026091411.1611、Node 26.6.0。该结果只覆盖 H5，不降低原生的工具链要求。
+- 微信构建通过，编译器同上，自动采用其 bundled Node 22.22.2；Node 24／26 执行该编译器的微信缓存会报 cachedDataRejected。
+- 系统 Chrome 156.0.8078.74：原功能 9 组通过；Switch／Checkbox 动效 5 项通过；新表单套件通过（错误关联、单字段修正、单选键盘循环与禁用、多选上限、多行输入长度、成功提交、清错重置、360／390px 深色布局）。
+- 已查看桌面浅色、手机深色及提交区域截图。截图和 JSON 位于 `.impeccable/review/`；全页移动截图在当前 Chrome 出现重复拼接，改用真实视口顶部／提交区两张截图核对。
+- 本轮无微信开发者工具、原生编译／设备、Safari 证据；不能将构建或 Chrome 结果外推到这些平台。仍有 Sass legacy/import 和 H5 withKeys 编译提示。
+
+构建修复：显式设置 HX_APP_ROOT，并创建可清理的临时插件链接目录，让旧编译器使用项目锁定 Sass；不修改 IDE 安装。微信选择同安装的 bundled Node，H5 保持调用者 Node。浏览器脚本可用 MORI_BROWSER_EXECUTABLE 指向已安装 Chrome，默认继续使用 Playwright Chromium。新增浏览器导航后，将旧测试的指南定位限定到“开始使用”。
+
+运行时核查（2026-10-30）：查询 Node 官方 2026-10-21 安全公告；本机 Node 26.6.0、编译器 bundled 22.22.2 低于公告修复版本 26.12.1／22.23.4。此次未修改全局 Node 或 IDE；正式分发前应升级匹配的官方工具链并复核构建，不能直接替换加密编译器的配套运行时。来源：https://nodejs.org/en/blog/vulnerability/october-2026-security-releases 。
+
+
+## 2026-10-30：反馈组件扩展
+
+按用户要求优先补反馈组件，新增 Toast、Popup、Dialog，总数十三。参考 Vant Toast／Popup／Dialog 与 Wot Popup 的交互约定，以原有 UTS／uvue 和 Mori 主题实现，没有增加运行依赖。
+
+- Toast：文字／成功／失败／加载、三种位置、ref show／close 与受控可见性、重复调用替换并重启计时、duration=0 持续、卸载取消回调。实际 Vue setup 测试覆盖 model acknowledgement、属性更新、幂等关闭与卸载。
+- Popup：五方向、遮罩与无遮罩、关闭按钮、打开／退出事件、反向切换取消旧回调。有效 z-index、焦点和 Escape 同步归属最上层；退出结束才释放。H5 锁定／恢复滚动、Tab 焦点限制与回到触发点；无罩模式不锁滚动或焦点。
+- Dialog：组合 Popup，确认仅发事件，由业务控制关闭。confirmLoading 禁止重复确认、取消、遮罩与 Escape；示例模拟一次保存。
+- 工作台增加反馈入口与 `pages/feedback/feedback`。新增 `test:feedback`，单元脚本纳入 overlay、feedback、真实 Toast setup 测试；文档、设计和导出清单同步。
+
+本轮检查与证据：
+
+- `npm run check`、`npm run test:unit`、`git diff --check` 通过。
+- H5 与微信发行构建通过，沿用上轮同一官方编译器／匹配 Node 运行方式。仍有 Sass legacy/import 弃用和 H5 withKeys 类型提示。
+- Chrome 156.0.8078.74：反馈套件通过，涵盖 Toast 计时替换／持续／关闭／错误语义、Popup 遮罩与面板点击、嵌套层级、滚动锁恢复、Tab／Escape／Enter、无遮罩点击穿透、Dialog 等待防重复、消息框、手机深色布局、动画真实中间帧与减弱动态效果。
+- 原交互 9 组和表单套件再次通过，无 pageerror。原 Switch／Checkbox 动效未改，未无故重跑其专用套件。
+- 已查看反馈页桌面侧边弹层、手机深色底部弹层截图。原始结果 `.impeccable/review/feedback-verification.json`，截图 `feedback-desktop-popup.png`、`feedback-mobile-dark.png`。
+
+限制：微信仍只有编译证据；Safari／原生设备未验证。Popup 应挂在页面根级，未提供跨端 portal；原生安全区和滚动穿透需按页面适配。H5 实现键盘焦点隔离但未对背景／下层弹窗做 inert／aria-hidden 隔离，未验证读屏完整模态行为。Toast 固定 z-index=2000，自定义更高层弹窗可能覆盖它。无全局单例 Toast、队列或 Dialog Promise API。
+
+本地工作区继续保留上一批表单成果，未提交、推送或发布。下一步可按用户需求补 ActionSheet／Notify／Loading，或优先进行微信与原生实际运行验收。
+
+
+## 2026-10-30：底部弹层动效调整
+
+用户反馈底部弹出不够顺滑。先在 390×844 Chrome 实际采样三次：面板高 313px，原默认 180ms ease 同时滑动与淡入；帧间隔基本稳定，未出现页面滚动变化。问题主要表现为前半程位移急、内容半透明，未据此认定设备掉帧。
+
+Popup 默认 duration 调整为 280ms，进入使用 cubic-bezier(0.22, 0.61, 0.36, 1) 渐减速，退出使用 cubic-bezier(0.4, 0, 1, 1)。四边滑入面板保持不透明，遮罩仍独立淡入淡出；居中 Popup／Dialog 保留缩放淡入，也使用新的默认时长。显式 duration 仍可覆盖。未改首帧定时与焦点／滚动管理，因为本轮没有观察到相应故障。
+
+新增真实浏览器回归先在旧实现因滑动面板半透明而失败，修复后通过。覆盖实际 transform 中间帧、单向连续到达终点、尺寸稳定、全程不透明，以及退出中重新打开后仍保持面板和滚动锁。新采样中面板约在触发后 316ms 到位（含启动等待），无 pageerror。减少动态效果、嵌套／非模态弹层、Dialog 和 Toast 既有反馈测试一并通过。已查看手机深色截图。
+
+验证：npm run check、npm run test:unit、npm run test:feedback、H5／微信发行构建、git diff --check 均通过。设计规范、设计数据与 API 默认值同步更新。证据仍为 .impeccable/review/feedback-verification.json；测量来自本机 Chrome 156，不代表微信真机／Safari／原生性能，这些平台仍待运行验证。预览页可继续体验并按用户手感微调；未提交或推送。
+
+
+## 2026-10-30：按用户澄清恢复弹层淡入
+
+用户指出真正期望的是弹出时柔和淡入，上一轮取消面板透明度过渡的判断不符合需求；本记录取代上一轮“面板保持不透明”的设计结论。所有 Popup 面板恢复 opacity 0→1，与滑入／缩放同步；退出 1→0。保留 280ms 时长与 transform 减速曲线，opacity 独立使用 ease-in-out，避免进入初段就完全显现。未改 API 或焦点、滚动逻辑。
+
+回归测试先在上一版复现失败（首帧 opacity 为 1，期望 0），修复后通过。真实 Chrome 采样首帧为 0，随后依次出现 0.065、0.184、0.359、0.562、0.751、0.895 等中间态，最终为 1；退出也采到中间透明度。快速退出重开、减少动态效果以及整个反馈套件通过，无 pageerror。npm run check、git diff --check、H5 与微信发行构建通过。设计规范与设计数据已同步。
+
+预览已更新，仍需由用户确认手感；微信真机／Safari／原生运行未验证，不能把编译结果当作这些端的动效验收。未提交或推送。
+
+
+## 2026-10-30：修正底部进入方向被自动滚动抵消
+
+用户再次指出需要从底部慢慢浮现。本次增加真实 getBoundingClientRect 坐标检查后，在上一版复现首帧 top=531（期望屏幕下沿 844），虽然 computed transform 显示 translateY(313px)。检查祖先发现自动聚焦关闭按钮导致弹层外壳 scrollTop=313，视觉位移被滚动抵消。此前只采样 transform／opacity 的测试不足以验证实际进入方向，上一轮“从底部进入”的结论由本次坐标证据修正。
+
+H5 首次焦点使用 preventScroll，弹层外壳 overflow: clip 禁止因聚焦变成滚动容器，内部内容继续 overflow-y: auto。位移与透明度统一 ease-in-out、保持 280ms，使向上进入与显现同步。没有增加依赖或修改 API。
+
+新增回归先在旧实现首帧坐标断言失败，修复后通过：390×844 视口面板 top 从 844→824→732→609→538→531，透明度从 0 单调到 1，外壳 scrollTop 全程为 0。逐帧检查实际向上位移、最终底边对齐、透明度与位移同步；完整反馈套件（快速重开、嵌套、焦点恢复、非模态、减少动态效果、Toast、Dialog）通过，无 pageerror。H5 与微信构建、npm run check、git diff --check 通过。已检查真实动画中点截图 popup-bottom-midpoint.png，原始帧位于 feedback-verification.json。微信真机／Safari／原生仍无新增运行验证；未提交或推送。

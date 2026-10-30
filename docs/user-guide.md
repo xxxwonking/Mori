@@ -4,7 +4,7 @@
 
 ## 1. 安装和启动
 
-需要 Node.js 22.13+、npm、HBuilderX 及 Vue3 编译器插件。本机使用 HBuilderX 5.34，安装在 `D:\HBuilderX`。
+需要 Node.js 22.13+、npm、HBuilderX 5.31+ 及 Vue3 编译器插件。以下为 Windows 路径示例，需替换为自己的工程和安装目录；实际验证版本见 [兼容记录](compatibility.md)。
 
 ```powershell
 cd C:\Users\Administrator\Desktop\mori-ui
@@ -23,11 +23,30 @@ npm run dev
 
 开发服务器用于热更新；`npm run build:h5` 加 `npm run preview` 用于查看发行产物。两种服务不要同时占用同一端口。
 
+macOS 默认检测 `/Applications/HBuilderX.app/Contents/HBuilderX`。构建脚本会创建临时插件目录，将编译插件链接到已安装的 HBuilderX，并将 Sass 指向本项目锁定的依赖；结束后清理临时目录，不修改 IDE 安装内容。先执行 `npm ci`，再运行构建。
+
+浏览器测试默认使用 Playwright Chromium。若浏览器下载失败，也可指定已安装的 Chrome 可执行文件；例如 macOS 在启动预览后，另开终端运行：
+
+```sh
+export MORI_BROWSER_EXECUTABLE='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+export MORI_BASE_URL='http://127.0.0.1:5173'
+npm test
+npm run test:forms
+npm run test:motion
+npm run test:feedback
+```
+
+该环境变量适用于上述验证脚本；记录结果时注明实际浏览器版本，不能把系统 Chrome 的结果写成 Playwright Chromium 的结果。Windows 使用 PowerShell 的 `$env:MORI_BROWSER_EXECUTABLE` 设置实际安装路径。
+
 ## 2. 使用组件工作台
 
 左侧导航选择组件；手机宽度时导航位于顶部。切换“组件预览／API 参考”可以操作示例或查看参数。右上角的“自动／浅色／深色”和主题色会同步影响样例与组合表单。
 
 Button 可切换大小、加载和禁用。Input 展示普通、校验、密码和禁用字段。Switch 展示状态文字、独立开启／关闭颜色和尺寸。Checkbox 展示选择与禁用。组合表单支持必填、邮箱、同意选项校验，以及模拟保存和重置。
+
+表单基础入口打开 `pages/forms/forms`，集中展示 Form／FormItem、Radio／RadioGroup、CheckboxGroup 和 Textarea。H5 可直接访问 `http://127.0.0.1:5173/#/pages/forms/forms`；端口以当前服务为准。
+
+反馈与弹层入口打开 `pages/feedback/feedback`，可操作不同类型 Toast、不同位置及嵌套 Popup、确认／取消和等待状态的 Dialog。H5 地址为 `http://127.0.0.1:5173/#/pages/feedback/feedback`。
 
 “保存”仅演示本页成功状态，没有接口请求，也不会把资料持久化到磁盘；刷新会恢复初始状态。
 
@@ -35,7 +54,7 @@ Button 可切换大小、加载和禁用。Input 展示普通、校验、密码�
 
 目标应是 **uni-app x** 工程。当前包不能被当作普通 uni-app `.vue` 组件或标准 Web Vue 包直接安装。
 
-复制 `uni_modules/mori-ui` 整个目录，保留 `components`、`styles`、`platform`、`static`、`theme.uts`、`contrast.uts`、`package.json` 和 `THIRD_PARTY_NOTICES.md`。不需要复制工作台及 `demo-form`。
+复制 `uni_modules/mori-ui` 整个目录，保留 `components`、`styles`、`platform`、`static`、`theme.uts`、`contrast.uts`、`validation.uts`、`form-context.uts`、`selection.uts`、`feedback.uts`、`overlay.uts`、`package.json` 和 `THIRD_PARTY_NOTICES.md`。不需要复制工作台、`demo-form`、`demo-foundation` 或反馈演示页。
 
 组件通过 easycom 目录规则使用，无需逐个全局注册。在目标 `App.uvue` 的启动回调初始化主题：
 
@@ -131,7 +150,7 @@ function submit() {
 </style>
 ```
 
-注意：Input 的 `required` 只表达必填状态，校验由业务负责；`change` 在输入或清空时触发，不是仅在失焦时触发。Button 的 `loading` 会阻止点击。Switch 与 Checkbox 的 `v-model` 都是 boolean，Checkbox 尚无数组分组模式。
+注意：Input 的 `required` 只表达必填状态，校验由业务负责；`change` 在输入或清空时触发，不是仅在失焦时触发。Button 的 `loading` 会阻止点击。Switch 与 Checkbox 的 `v-model` 都是 boolean；数组多选使用 CheckboxGroup。
 
 ## 6. 尺寸与操作反馈
 
@@ -148,3 +167,139 @@ Switch 使用 180ms 滑块与颜色过渡；Checkbox 使用 160ms 勾的透明�
 ## 7. 发布和兼容范围
 
 当前没有 npm 包或插件市场发布流程。本项目 AppID 留空，应在自己的目标应用填写合法的 ID 和运行配置。具体平台证据见 [兼容记录](compatibility.md)，构建和验证方法见 [验证与排障](testing.md)。
+
+## 8. 使用表单基础组件
+
+Form 持有校验错误，业务持有数据；FormItem 统一字段标题、必填提示与错误。下面示例在提交时同步校验；修改后再次提交会刷新错误。它只展示本地成功状态，不访问后端。
+
+```vue
+<template>
+  <view class="profile">
+    <mori-form ref="profileForm" :model="values" :rules="rules">
+      <mori-form-item name="name" label="姓名" required>
+        <mori-input v-model="name" placeholder="请输入姓名" clearable />
+      </mori-form-item>
+      <mori-form-item name="role" label="使用身份" required>
+        <mori-radio-group v-model="role" :options="roles" />
+      </mori-form-item>
+      <mori-form-item name="topics" label="关注内容" required hint="请选择 1–2 项">
+        <mori-checkbox-group v-model="topics" :options="topicOptions" :max="2" />
+      </mori-form-item>
+      <mori-form-item name="bio" label="个人介绍" required hint="请填写 5–120 个长度单位">
+        <mori-textarea v-model="bio" placeholder="介绍一下自己"
+          :maxlength="120" show-word-limit />
+      </mori-form-item>
+      <mori-button label="保存资料" block @click="save" />
+    </mori-form>
+    <text>{{ status }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriFormRule, MoriFormInstance } from '@/uni_modules/mori-ui/validation.uts'
+import { MoriChoiceOption } from '@/uni_modules/mori-ui/selection.uts'
+
+const profileForm = ref<MoriFormInstance | null>(null)
+const name = ref('')
+const role = ref('')
+const topics = ref<string[]>([])
+const bio = ref('')
+const status = ref('')
+const values = computed((): UTSJSONObject => ({
+  name: name.value,
+  role: role.value,
+  topics: topics.value,
+  bio: bio.value
+} as UTSJSONObject))
+const roles: MoriChoiceOption[] = [
+  { label: '开发者', value: 'developer' },
+  { label: '设计师', value: 'designer' }
+]
+const topicOptions: MoriChoiceOption[] = [
+  { label: '组件更新', value: 'components' },
+  { label: '设计实践', value: 'design' },
+  { label: '跨端开发', value: 'platforms' }
+]
+const rules: MoriFormRule[] = [
+  { name: 'name', required: true, message: '请填写姓名' },
+  { name: 'role', required: true, message: '请选择使用身份' },
+  { name: 'topics', required: true, minLength: 1, maxLength: 2, message: '请选择 1–2 项关注内容' },
+  { name: 'bio', required: true, minLength: 5, maxLength: 120, message: '个人介绍长度应为 5–120' }
+]
+function save() {
+  if (profileForm.value == null) return
+  const result = profileForm.value!.validate()
+  status.value = result.valid ? '资料校验通过' : '请检查标记的字段'
+}
+</script>
+
+<style>
+.profile { padding: 16px; }
+</style>
+```
+
+FormItem 的 name、model 顶层键和规则的 name 应一致。required 视觉标记与校验规则分别配置。嵌套使用时，把标签、错误和提示放在 FormItem 上，Input／Textarea 的标题与消息由父级接管；每个 FormItem 建议只包含一个输入控件或选择组。
+
+需要失焦校验时，在业务处理函数中调用 `profileForm.value!.validateField('name')`；该方法只更新指定字段，返回值不能代表全表单有效。`clearValidate('name')` 清一项错误，`clearValidate()` 清全部错误；这两个方法都不重置业务值。当前不提供自动监听、异步校验、嵌套路径和 `resetFields`。
+
+单选值和选项 value 使用 string；多选值使用 string[]，options 的 value 保持唯一。CheckboxGroup 的 max 默认 0，表示不限制；min 控制用户取消操作，不自动补选。校验必选由 Form 的 required／minLength 负责。
+
+运行表单浏览器回归前先构建并启动预览，然后执行 `npm run test:forms`。开发服务器和测试的地址必须一致，使用其他端口时设置 `MORI_BASE_URL`。构建、浏览器与真机结果分别记录，不互相替代。
+
+## 9. 使用反馈与弹层
+
+Toast 用于简短提示，Popup 用于放置自定义内容，Dialog 用于明确确认／取消。将组件放在页面顶层；不要把它们放进带 transform 或裁切的卡片内部。
+
+```vue
+<template>
+  <view class="feedback-example">
+    <mori-button label="显示提示" @click="notify" />
+    <mori-button label="打开详情" variant="outline" @click="detailsVisible = true" />
+    <mori-button label="确认操作" variant="soft" @click="dialogVisible = true" />
+  </view>
+  <mori-toast ref="toast" />
+  <mori-popup v-model="detailsVisible" title="操作详情" position="bottom">
+    <text>这里可以放说明、选项或其他 Mori 组件。</text>
+    <mori-button label="完成" @click="detailsVisible = false" />
+  </mori-popup>
+  <mori-dialog v-model="dialogVisible" title="确认保存"
+    message="保存当前修改？" confirm-text="保存"
+    @confirm="confirmSave" @cancel="cancelSave" />
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriToastInstance } from '@/uni_modules/mori-ui/feedback.uts'
+
+const toast = ref<MoriToastInstance | null>(null)
+const detailsVisible = ref(false)
+const dialogVisible = ref(false)
+
+function notify() {
+  toast.value?.show({ message: '这是当前页面的轻提示', type: 'text', duration: 2000 })
+}
+function confirmSave() {
+  // 示例只演示本地反馈；实际业务成功后再关闭。
+  dialogVisible.value = false
+  toast.value?.show({ message: '操作已确认', type: 'success', duration: 2000 })
+}
+function cancelSave() {
+  toast.value?.show({ message: '已取消操作', type: 'text', duration: 1500 })
+}
+</script>
+
+<style>
+.feedback-example { padding: 16px; }
+</style>
+```
+
+Toast 可重复调用 show 替换当前内容；每次重新计时。等待提示使用 `show({ message: '正在处理', type: 'loading', duration: 0 })`，完成时用新的成功／失败提示替换，或调用 `toast.value?.close()`。loading 本身不会自动取消超时，必须明确传 duration=0。Toast 不阻止背景操作，也不负责业务防重复提交。
+
+也可用 `<mori-toast v-model="toastVisible" message="保存完成" />` 由父级控制显隐。混合使用时，show 会发出 true，父级随后确认 true 不覆盖本次临时配置；父级修改 message／type／duration／position 会覆盖相应值并重新计时。没有 v-model 时，用 ref 的 close 主动关闭。
+
+Dialog 的 confirm 不会自动关闭。实际异步提交时，在处理函数入口设置 `saving=true` 并绑定 `:confirm-loading="saving"`，业务成功后关闭模型，失败时保留弹窗并提供错误反馈，最终恢复 saving。加载期间取消按钮、Escape、遮罩关闭与重复确认均被阻止；由父级主动关闭仍然有效。取消路径会请求 false，通常无需在 cancel 回调里重复赋值。
+
+多个 Popup 可同时存在，新打开的层显示在已有层之上；关闭动画结束前仍由退出中的顶层持有遮罩与焦点。H5 支持焦点限制、关闭后恢复焦点和滚动锁计数。页面顶层挂载仍可能受应用的祖先堆叠上下文影响；当前没有 teleport。原生和小程序的页面滚动需结合各端 page-meta／页面配置处理，具体兼容性以实际记录为准。
+
+构建并启动预览后运行 `npm run test:feedback`，检查提示替换和计时、遮罩／Escape、焦点、嵌套弹层与 Dialog 等待状态。此命令的浏览器结果不替代微信或原生设备验收。

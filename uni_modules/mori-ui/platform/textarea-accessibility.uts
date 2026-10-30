@@ -1,0 +1,14 @@
+/** uni-textarea's wrapper is not the actual editable HTML element. */
+export function syncMoriTextareaAccessibility(id: string, name: string, required: boolean, invalid: boolean, descriptionId: string) {
+  // #ifdef WEB
+  const wrapper = document.getElementById(id)
+  if (wrapper == null) return
+  const input = wrapper instanceof HTMLTextAreaElement ? wrapper : Element.prototype.querySelector.call(wrapper, 'textarea')
+  if (input == null) return
+  input.setAttribute('aria-label', name)
+  input.setAttribute('aria-required', required ? 'true' : 'false')
+  input.setAttribute('aria-invalid', invalid ? 'true' : 'false')
+  if (descriptionId.length > 0) input.setAttribute('aria-describedby', descriptionId)
+  else input.removeAttribute('aria-describedby')
+  // #endif
+}

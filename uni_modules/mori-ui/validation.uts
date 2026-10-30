@@ -1,0 +1,66 @@
+/** The first release supports top-level field names and synchronous rules. */
+export type MoriFormRule = {
+  name: string;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  message?: string;
+  validator?: (value: any | null) => string;
+}
+export type MoriFieldError = { name: string; message: string }
+export type MoriValidationResult = { valid: boolean; errors: MoriFieldError[] }
+export type MoriFormInstance = {
+  validate: () => MoriValidationResult;
+  validateField: (name: string) => MoriValidationResult;
+  clearValidate: (name?: string) => void;
+}
+
+function isEmpty(value: any | null): boolean {
+  if (value == null || value === false) return true
+  if (typeof value == 'string') return (value as string).trim().length == 0
+  if (Array.isArray(value)) return (value as any[]).length == 0
+  return false
+}
+
+function valueLength(value: any | null): number {
+  if (typeof value == 'string') return (value as string).length
+  if (Array.isArray(value)) return (value as any[]).length
+  return -1
+}
+
+function ruleError(value: any | null, rule: MoriFormRule): string {
+  const fallback = rule.message != null && rule.message!.length > 0 ? rule.message! : '请检查此项内容'
+  if (isEmpty(value)) return rule.required == true ? fallback : ''
+  const length = valueLength(value)
+  if (rule.minLength != null && (length < 0 || length < rule.minLength!)) return fallback
+  if (rule.maxLength != null && (length < 0 || length > rule.maxLength!)) return fallback
+  if (rule.pattern != null && rule.pattern!.length > 0) {
+    const pattern = new RegExp(rule.pattern!)
+    if (typeof value != 'string' || !pattern.test(value as string)) return fallback
+  }
+  if (rule.validator != null) return rule.validator!(value)
+  return ''
+}
+
+export function validateMoriForm(model: UTSJSONObject, rules: MoriFormRule[], name: string = ''): MoriValidationResult {
+  const errors: MoriFieldError[] = []
+  for (let index = 0; index < rules.length; index++) {
+    const rule = rules[index]
+    if (name.length > 0 && rule.name != name) continue
+    if (errors.some((error: MoriFieldError): boolean => error.name == rule.name)) continue
+    const message = ruleError(model[rule.name], rule)
+    if (message.length > 0) errors.push({ name: rule.name, message })
+  }
+  return { valid: errors.length == 0, errors }
+}
+
+export function clearMoriFieldErrors(errors: MoriFieldError[], name: string = ''): MoriFieldError[] {
+  return name.length == 0 ? [] : errors.filter((error: MoriFieldError): boolean => error.name != name)
+}
+
+export function replaceMoriFieldErrors(errors: MoriFieldError[], name: string, replacement: MoriFieldError[]): MoriFieldError[] {
+  const next = clearMoriFieldErrors(errors, name)
+  replacement.forEach((error: MoriFieldError) => { if (error.name == name) next.push(error) })
+  return next
+}
