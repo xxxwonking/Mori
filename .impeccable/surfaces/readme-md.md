@@ -24,3 +24,9 @@ FORM: 已有 README 的扩展，使用用户已确认的 Apple 式紧凑灰蓝�
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
 约束：不宣称未验证平台可用，不添加许可／性能／构建状态虚假徽章。截图来自现有 H5 验证资料，源版本与裁切记入资产来源。只修改 README、文档资产、本 brief 和进度，保留核心源码与全局设计文件。
+
+## Finish record — 2026-10-30
+
+既有 Read 表面的收尾复核，不引入新视觉世界或 comp 流程。独立 finish reviewer 检查本地四档宽度各自浅深主题、手机图库及 GitHub 桌面／手机的 21 张展示截图，完整结论为 `ship`，无实质修复项。独立 documenter 核对 README／封面、主题与尺寸源码和既有设计系统，结论为 No changes；保留 DESIGN.md 与 `.impeccable/design.json`。
+
+可分发的范围与验证结论记录在 [README 收尾复核](../../docs/readme-review.md)。此记录只覆盖 README 与文档资产，不声明原生设备验证、组件包发布或用户最终视觉验收完成。
