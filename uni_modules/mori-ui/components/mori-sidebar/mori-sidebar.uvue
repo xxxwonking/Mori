@@ -1,0 +1,29 @@
+<template>
+
+<view class="mori-sidebar" role="navigation" :aria-label="label" :style="'background-color:' + moriPalette.ground" @keydown.right.prevent="move(1)" @keydown.left.prevent="move(-1)" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)"><button v-for="(item,index) in items" :id="id + '-' + index" :key="item.value" class="mori-action mori-sidebar__item mori-animated" role="button" :aria-checked="null" :aria-current="item.value == modelValue ? 'page' : null" :aria-disabled="disabled || item.disabled == true" :tabindex="index == tabStop ? 0 : -1" :disabled="disabled || item.disabled == true" :style="'background-color:' + (item.value == modelValue ? moriPalette.surface : 'transparent') + ';color:' + (item.value == modelValue ? moriPalette.primary : moriPalette.muted)" @click="select(item.value)" @keydown.enter.prevent="select(item.value)" @keydown.space.prevent="select(item.value)"><mori-icon v-if="item.icon != null" :name="item.icon!" :size="16" /><text class="mori-sidebar__label">{{ item.label }}</text></button></view>
+</template>
+
+<script setup lang="uts">
+
+import { computed, PropType, nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriNavItem } from '../../navigation.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { focusMoriRadio } from '../../platform/selection-accessibility.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, items: { type: Array as PropType<MoriNavItem[]>, default: (): MoriNavItem[] => [] }, disabled: { type: Boolean, default: false }, label: { type: String, default: '侧边导航' } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const id = createMoriFieldId()
+const tabStop = computed((): number => { if (props.disabled) return -1; const index = props.items.findIndex((item: MoriNavItem): boolean => item.value == props.modelValue && item.disabled != true); return index >= 0 ? index : props.items.findIndex((item: MoriNavItem): boolean => item.disabled != true) })
+function select(value: string) { if (props.disabled || !props.items.some((item: MoriNavItem): boolean => item.value == value && item.disabled != true) || value == props.modelValue) return; emit('update:modelValue', value); emit('change', value) }
+function move(direction: number) { if (props.disabled) return; const count = props.items.length; for (let step = 1; step <= count; step++) { const index = (Math.max(0, tabStop.value) + direction * step + count) % count; if (props.items[index].disabled != true) { select(props.items[index].value); nextTick(() => focusMoriRadio(id + '-' + index)); return } } }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-sidebar { display: flex; flex-direction: column; padding: 3px; border-radius: 8px; gap: 3px; min-width: 92px; }.mori-sidebar__item { width: 100%;justify-content: flex-start; gap: 6px; min-height: 36px; transition: background-color 180ms ease, color 180ms ease; }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-animated { transition: none; animation: none; } }
+/* #endif */
+.mori-sidebar__label { font-size: 13px; line-height: 20px; }
+</style>

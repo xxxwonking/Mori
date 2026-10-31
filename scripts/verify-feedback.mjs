@@ -1,5 +1,6 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 const browser = await chromium.launch({ channel: process.env.MORI_BROWSER_EXECUTABLE ? undefined : 'chromium', executablePath: process.env.MORI_BROWSER_EXECUTABLE || undefined, headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
 const errors = [];
@@ -93,7 +94,7 @@ try {
   await click('关闭提示');
   await click('侧边弹出');
   await page.clock.fastForward(250);
-  await page.screenshot({ path: new URL('feedback-desktop-popup.png', out).pathname });
+  await page.screenshot({ path: fileURLToPath(new URL('feedback-desktop-popup.png', out)) });
   await page.keyboard.press('Escape');
   await page.clock.fastForward(250);
   await click('深色');
@@ -103,7 +104,7 @@ try {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const box = await bottom.boundingBox();
   expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(391);
-  await page.screenshot({ path: new URL('feedback-mobile-dark.png', out).pathname });
+  await page.screenshot({ path: fileURLToPath(new URL('feedback-mobile-dark.png', out)) });
   await page.keyboard.press('Escape');
   await page.clock.fastForward(250);
   await click('消息对话框');

@@ -113,3 +113,27 @@ MORI_BASE_URL=http://127.0.0.1:5178 MORI_BROWSER_EXECUTABLE='/Applications/Googl
 `npm run test:feedback` 在现有预览服务检查 Toast 自动关闭／覆盖计时、弹层焦点／遮罩／滚动／嵌套／非模态、Dialog 等待与防重复、移动深色及真实过渡中间帧。支持相同 MORI_BASE_URL 和 MORI_BROWSER_EXECUTABLE 参数。输出 feedback-verification.json 与桌面／手机截图。
 
 `npm run test:unit` 同时执行 overlay、feedback 和 feedback-component；最后一项使用已有 Vue 编译器和自定义 renderer 运行真实 Toast setup/watchers，覆盖受控 prop 与 ref 方法的组合，不代替浏览器／原生渲染。
+
+
+## 40组件扩展检查
+
+- npm run check：显式40组件清单、easycom文件、浏览器全局依赖边界以及独立用法文档存在性。
+- npm run check:docs：40份文档、Vue/UTS代码块结构、与源码一致的props/events、本地链接。结构检查不代表所有示例已在原生上运行。
+- npm run test:unit 新增日历/闰年/范围/时间、数值边界、上传路径与真实Vue状态测试。
+- npm run test:catalog：基于已构建H5，测试基础展示、导航键盘/禁用、分页、气泡/操作面板/通知、搜索/数值、选择取消/提交、日历范围、日期时间、真实浏览器图片选择/删除、浅深色和360/390px宽度。Stepper 覆盖连续超限失焦、负数/小数中间态、Enter、逐字符输入与编辑后直接点加减；不插入延时规避宿主节流。Transition 检查真实中间帧、反向切换和减少动态效果。
+
+非默认端口按前文设置MORI_BASE_URL。本轮预览用5174，避免干扰已有5173开发进程。Windows截图路径统一使用fileURLToPath；不要直接使用URL.pathname（会形成C:\C:\...）。
+
+上传状态测试使用可控传输回调覆盖失败/进度/重试/删除中断/过期回调与卸载；浏览器用真实file chooser验证选图。业务服务、iOS权限和原生后台行为仍需 [平台清单](platform-adaptation.md) 的真实环境，不将测试替身报告为后端或iOS通过。
+
+Search 同时覆盖连续填入两次文本后立即 Enter／点击搜索，必须提交完整最终文本；此前旧实现会受到宿主输入节流影响，这些断言不得替换为固定等待。
+
+
+## 72 组件第二轮扩展检查
+
+- npm run check / npm run check:docs：显式 72 项目录与独立指南；文档结构不等于跨端运行。
+- npm run test:unit：新增 extended-catalog，实际 Vue setup 测试覆盖级联取消／确认、禁用祖先、树选择上限、连续数字按键、列表防重复和重试、刷新、手势方向，以及模拟时钟下的计时漂移／重启／卸载。
+- npm run test:expanded：构建后的组件全览新增四分类，真实浏览器验证图片失败／恢复、轮播、弹窗、导航键盘、选择器、输入长度、加载失败／重试、刷新／滑动、索引跳转和计时。截图为 expanded-*.png，报告 expanded-verification.json。
+- 同步执行 H5／微信构建；原组件的 npm test 与 test:catalog 检查分类入口整合没有破坏既有行为。
+
+命令同样支持 MORI_BASE_URL 和 MORI_BROWSER_EXECUTABLE。临时资源 geometry.svg 为本地几何测试图，不作为用户业务图。

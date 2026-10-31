@@ -152,6 +152,10 @@ function submit() {
 
 注意：Input 的 `required` 只表达必填状态，校验由业务负责；`change` 在输入或清空时触发，不是仅在失焦时触发。Button 的 `loading` 会阻止点击。Switch 与 Checkbox 的 `v-model` 都是 boolean；数组多选使用 CheckboxGroup。
 
+Input 的 `blur(value: string)` 和 `confirm(value: string)` 返回结束编辑时的最终文本，适合主动校验。底层输入事件可能节流，快速输入后需要立即处理时使用事件参数；Stepper 也以此完成上下界和步长归一化，支持负号与小数点草稿。
+
+Search 的 Enter 与搜索按钮使用最终编辑文本，必要时先补齐模型；未改动的值不会重复发 change。需要请求防抖时放在业务 change 处理函数中，明确点击搜索仍可立即提交。
+
 ## 6. 尺寸与操作反馈
 
 | 组件 | sm | md（默认） | lg |
@@ -303,3 +307,27 @@ Dialog 的 confirm 不会自动关闭。实际异步提交时，在处理函数�
 多个 Popup 可同时存在，新打开的层显示在已有层之上；关闭动画结束前仍由退出中的顶层持有遮罩与焦点。H5 支持焦点限制、关闭后恢复焦点和滚动锁计数。页面顶层挂载仍可能受应用的祖先堆叠上下文影响；当前没有 teleport。原生和小程序的页面滚动需结合各端 page-meta／页面配置处理，具体兼容性以实际记录为准。
 
 构建并启动预览后运行 `npm run test:feedback`，检查提示替换和计时、遮罩／Escape、焦点、嵌套弹层与 Dialog 等待状态。此命令的浏览器结果不替代微信或原生设备验收。
+
+
+## 10. 常用组件与逐组件文档
+
+当前共72个组件。完整目录及每个组件的最小示例、进阶状态、属性、事件、插槽、方法与平台边界见 [逐组件使用指南](component-guides.md)。新增展示页为 pages/catalog/catalog，可从工作台「组件全览」进入。
+
+新增选择器使用两个模型：v-model 是已提交值，v-model:show 是显示状态。临时选择只在确认后写回；取消不会覆盖业务值。Calendar 内联组件使用 string[]，单选也是一个日期的数组；日期为 YYYY-MM-DD，DatetimePicker 时间字符串没有隐式时区转换。
+
+导航条目使用唯一字符串value，跳转由业务处理change事件；fixed导航需要业务预留顶部或底部空间。Popover、Popup与其组合应在页面根级使用，避开裁切或transform祖先。
+
+上传默认选择图片，未配置uploadUrl时仅预览与编辑列表；配置业务地址后支持自动或ref.submit()上传。用resolveUrl解析业务响应，用beforeRead异步筛选，用chooseFiles替换原生选择过程。详细模型和生命周期见 [Upload](components/upload.md)。iOS权限、HEIC、临时路径和后台任务未做真机验收；所有差异有编号和接续步骤，见 [平台适配跟踪](platform-adaptation.md)。
+
+
+## 媒体、列表与复杂选择
+
+组件全览新增「媒体内容」「组织导航」「选择录入」「列表交互」四类可操作示例。新公开数据结构从 content.uts、extended-input.uts 导入；具体字段与实例类型见每组件指南。
+
+- 媒体：Image／Avatar／AvatarGroup／Swiper／ImagePreview，分别处理占位、失败、组内溢出和受控翻页。
+- 内容组织：Card／CellGroup／Grid／Steps／Timeline／Highlight，数据与业务状态由使用方持有。
+- 导航：SegmentedControl／Sidebar／DropdownMenu／IndexBar／Fab／BackTop／Sticky／ActionBar／SafeArea。固定层需要接入方预留空间；原生 Sticky 的默认行为详见其指南。
+- 输入：Cascader 用 string[] 路径并在确认时提交；TreeSelect 多选叶子；NumberKeyboard＋PasswordInput 可组成验证码输入。
+- 反馈与加载：NoticeBar／Result／LoadMore／List／PullRefresh／SwipeCell／CountDown／CountTo。加载类组件需回写完成状态，组件不发真实业务请求。
+
+[当前覆盖范围与后续缺口](component-coverage.md) 明确区分已实现、有限能力和下一批候选，不把同名组件视为完全兼容 Vant／Wot／uview-plus 的全部参数。

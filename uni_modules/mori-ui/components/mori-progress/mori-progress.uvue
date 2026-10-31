@@ -1,0 +1,21 @@
+<template>
+<view class="mori-progress" role="progressbar" :aria-valuenow="value" :aria-valuemin="0" :aria-valuemax="100" :aria-label="label"><view class="mori-progress__track" :style="'height:' + Math.max(2, strokeWidth) + 'px;background-color:' + moriPalette.border"><view class="mori-progress__fill" :style="'width:' + value + '%;background-color:' + (color.length > 0 ? color : moriPalette.primary)" /></view><text v-if="showText" class="mori-progress__label" :style="'color:' + moriPalette.muted">{{ value }}%</text></view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { clampMoriNumber } from '../../numeric.uts'
+const props = defineProps({ percentage: { type: Number, default: 0 }, strokeWidth: { type: Number, default: 4 }, showText: { type: Boolean, default: true }, color: { type: String, default: '' }, label: { type: String, default: '进度' } })
+const value = computed((): number => Math.round(clampMoriNumber(props.percentage, 0, 100)))
+</script>
+
+<style lang="scss">
+.mori-progress { display: flex; flex-direction: row; align-items: center; width: 100%; min-height: 20px; }
+.mori-progress__track { flex: 1; border-radius: 6px; overflow: hidden; }
+.mori-progress__fill { height: 100%; border-radius: 6px; transition: width 180ms ease; }
+.mori-progress__label { width: 40px; margin-left: 8px; font-size: 11px; line-height: 20px; text-align: right; }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-progress__fill { transition: none; } }
+/* #endif */
+</style>

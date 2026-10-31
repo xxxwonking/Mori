@@ -45,3 +45,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+Additional distributed Lucide icons: chevron-left, chevron-right, chevron-down, plus, minus, search, info, calendar, clock, upload, image, star, house (distributed as home), settings, bell, x. Source: https://github.com/lucide-icons/lucide/tree/main/icons . Light/dark stroke adaptations only.

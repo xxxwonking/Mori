@@ -1,0 +1,21 @@
+/** Shared finite bounds; malformed external values never leak NaN into styles. */
+export function clampMoriNumber(value: number, min: number, max: number): number {
+  const lower = Number.isFinite(min) ? min : 0
+  const upper = Number.isFinite(max) ? Math.max(lower, max) : lower
+  return Math.min(upper, Math.max(lower, Number.isFinite(value) ? value : lower))
+}
+export function snapMoriNumber(value: number, min: number, max: number, step: number): number {
+  const interval = Number.isFinite(step) && step > 0 ? step : 1
+  const next = min + Math.round((clampMoriNumber(value, min, max) - min) / interval) * interval
+  return clampMoriNumber(parseFloat(next.toFixed(8)), min, max)
+}
+export function moriPageCount(total: number, pageSize: number): number {
+  return Math.max(1, Math.ceil(Math.max(0, Number.isFinite(total) ? total : 0) / Math.max(1, Number.isFinite(pageSize) ? Math.floor(pageSize) : 10)))
+}
+export function moriPageItems(current: number, count: number, visible: number): number[] {
+  const size = Math.floor(clampMoriNumber(visible, 1, 9))
+  const start = Math.max(1, Math.min(current - Math.floor(size / 2), count - size + 1))
+  const result: number[] = []
+  for (let page = start; page <= Math.min(count, start + size - 1); page++) result.push(page)
+  return result
+}

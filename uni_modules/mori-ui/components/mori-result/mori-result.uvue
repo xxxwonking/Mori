@@ -1,0 +1,15 @@
+<template>
+
+<view class="mori-result" role="status"><view class="mori-result__icon" :style="'background-color:' + (status == 'error' ? moriPalette.dangerSoft : moriPalette.soft)"><mori-icon :name="status == 'success' ? 'check' : status == 'error' ? 'circle-x' : 'info'" :src="status == 'success' ? '/uni_modules/mori-ui/static/icons/check-' + (moriIsDark ? 'light' : 'dark') + '.svg' : ''" :size="28" /></view><text class="mori-result__title" :style="'color:' + moriPalette.text">{{ title }}</text><text v-if="description.length > 0" class="mori-result__description" :style="'color:' + moriPalette.muted">{{ description }}</text><view class="mori-result__actions"><slot /></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette, moriIsDark } from '../../theme.uts'
+defineProps({ status: { type: String, default: 'success' }, title: { type: String, default: '操作完成' }, description: { type: String, default: '' } })
+
+</script>
+
+<style lang="scss">
+.mori-result { display: flex; align-items: center; flex-direction: column; padding: 28px 16px; }.mori-result__icon { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }.mori-result__title { font-size: 16px; font-weight: 600; line-height: 24px; margin-top: 16px; text-align: center; }.mori-result__description { font-size: 12px; line-height: 20px; margin-top: 8px; text-align: center; max-width: 360px; }.mori-result__actions { margin-top: 16px; }
+</style>

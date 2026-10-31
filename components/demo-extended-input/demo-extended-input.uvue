@@ -1,0 +1,57 @@
+<template>
+  <view class="extended-input">
+    <text class="catalog-heading">搜索与数值录入</text>
+    <mori-search v-model="query" placeholder="搜索组件" @search="search" />
+    <mori-text :text="searchResult" tone="muted" />
+    <view class="catalog-row catalog-space"><mori-stepper v-model="quantity" :min="1" :max="5" label="数量" /><mori-stepper v-model="decimal" :min="-2" :max="2" :step="0.5" label="小数与负数" /><mori-stepper :model-value="2" label="禁用示例" disabled /><mori-rate v-model="rating" label="体验评分" allow-clear /></view>
+    <mori-slider v-model="volume" show-value :disabled="sliderDisabled" :label="sliderDisabled ? '音量（禁用）' : '音量'" />
+    <mori-switch v-model="sliderDisabled" label="禁用滑块" />
+    <mori-divider text="选项与日期时间" />
+    <mori-cell title="提醒方式" :value="reminder.length > 0 ? reminder : '请选择'" clickable is-link @click="picker = true" />
+    <mori-cell title="提醒时间" :value="appointment.length > 0 ? appointment : '请选择'" clickable is-link @click="datetime = true" />
+    <mori-picker v-model="reminder" v-model:show="picker" title="提醒方式" :options="reminders" />
+    <mori-datetime-picker v-model="appointment" v-model:show="datetime" title="提醒时间" min="2026-10-01 08:00" max="2027-12-31 23:59" />
+    <mori-divider text="日历与日期标记" />
+    <mori-radio-group v-model="calendarType" :options="calendarTypes" direction="horizontal" label="选择模式" @change="dates = []" />
+    <mori-calendar ref="calendar" v-model="dates" :type="calendarType" default-date="2026-10-15" min-date="2026-10-01" max-date="2026-12-31" :disabled-dates="['2026-10-18']" :marks="marks" :max-range="7" @confirm="confirmDates" />
+    <mori-text :text="dateResult" tone="muted" />
+    <mori-divider text="图片上传" />
+    <mori-upload ref="upload" v-model="files" :max-count="3" :max-size="5242880" hint="最多 3 张，每张不超过 5 MB。此示例仅选择与预览，不发送到服务器。" @afterRead="uploadResult = '已选择文件，可预览或删除。'" @delete="uploadResult = '已移除文件。'" />
+    <mori-button label="清空图片" variant="text" @click="upload?.clear()" />
+    <mori-text :text="uploadResult" tone="muted" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriChoiceOption } from '../../uni_modules/mori-ui/selection.uts'
+import { MoriCalendarMark, MoriCalendarInstance } from '../../uni_modules/mori-ui/calendar.uts'
+import { MoriUploadFile, MoriUploadInstance } from '../../uni_modules/mori-ui/upload.uts'
+const query = ref('')
+const quantity = ref(1)
+const decimal = ref(0)
+const rating = ref(3)
+const volume = ref(40)
+const sliderDisabled = ref(false)
+const searchResult = ref('输入后按搜索或回车。')
+const reminder = ref('')
+const appointment = ref('2026-10-30 09:30')
+const picker = ref(false)
+const datetime = ref(false)
+const reminders: MoriChoiceOption[] = [{ label: '站内消息', value: '站内消息' }, { label: '邮件', value: '邮件' }, { label: '短信（暂不可用）', value: '短信', disabled: true }]
+const dates = ref<string[]>([])
+const calendarType = ref('range')
+const calendarTypes: MoriChoiceOption[] = [{ label: '单选', value: 'single' }, { label: '多选', value: 'multiple' }, { label: '范围', value: 'range' }]
+const marks: MoriCalendarMark[] = [{ date: '2026-10-15', text: '活动' }, { date: '2026-10-30', text: '提醒' }]
+const dateResult = ref('选择日期后确认；范围最多 7 天，18 日不可选。')
+const calendar = ref<MoriCalendarInstance | null>(null)
+const files = ref<MoriUploadFile[]>([])
+const upload = ref<MoriUploadInstance | null>(null)
+const uploadResult = ref('尚未选择图片。')
+function search(value: string) { searchResult.value = value.length > 0 ? '搜索条件：' + value : '请先输入搜索内容。' }
+function confirmDates(value: string[]) { dateResult.value = '已确认：' + value.join(' 至 ') }
+</script>
+<style>
+.catalog-heading { display: block; font-size: 15px; line-height: 24px; font-weight: 600; margin-bottom: 16px; }
+.catalog-row { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 20px; }
+.catalog-space { margin: 20px 0; }
+</style>

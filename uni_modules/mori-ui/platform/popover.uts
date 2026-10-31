@@ -1,0 +1,11 @@
+/** A fixed anchored menu closes when its viewport moves; it never keeps a stale position. */
+export function observeMoriPopoverViewport(close: () => void): () => void {
+  // #ifdef WEB
+  window.addEventListener('resize', close)
+  window.addEventListener('scroll', close, true)
+  return () => { window.removeEventListener('resize', close); window.removeEventListener('scroll', close, true) }
+  // #endif
+  // #ifndef WEB
+  return () => {}
+  // #endif
+}

@@ -1,0 +1,15 @@
+/** Adapt the actual focus target, not uni-slider's non-focusable shell. */
+export function syncMoriSlider(id: string, label: string, disabled: boolean) {
+  // #ifdef WEB
+  const wrapper = document.getElementById(id)
+  if (wrapper == null) return
+  const input = Element.prototype.querySelector.call(wrapper, 'input[type="range"]') as HTMLInputElement | null
+  if (input != null) { input.setAttribute('aria-label', label); input.setAttribute('aria-disabled', disabled ? 'true' : 'false'); input.disabled = disabled }
+  // The host's 300ms color transition does not honor reduced-motion and can show a stale theme.
+  // A slider position tracks the pointer directly; theme updates should also apply immediately.
+  const track = Element.prototype.querySelector.call(wrapper, '.uni-slider-track') as HTMLElement | null
+  const fill = Element.prototype.querySelector.call(wrapper, '.uni-slider-track-value') as HTMLElement | null
+  if (track != null) track.style.transition = 'none'
+  if (fill != null) fill.style.transition = 'none'
+  // #endif
+}

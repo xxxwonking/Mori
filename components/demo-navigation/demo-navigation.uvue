@@ -1,0 +1,39 @@
+<template>
+  <view>
+    <text class="catalog-heading">宫格、分段与侧边导航</text>
+    <mori-grid :items="entries" :column-num="3" @select="status = '入口：' + $event" />
+    <view class="demo-navigation__space"><mori-segmented-control v-model="segment" :items="segments" /></view>
+    <view class="demo-navigation__split"><mori-sidebar v-model="side" :items="segments" /><view class="demo-navigation__body"><mori-text :text="'分段：' + segment + '，侧栏：' + side" /><view class="demo-navigation__space"><mori-dropdown-menu v-model="sort" :options="sorts" title="排序方式" /></view></view></view>
+    <mori-divider text="步骤与时间线" />
+    <mori-steps :items="steps" :active="step" />
+    <mori-button label="下一步" variant="text" @click="step = (step + 1) % 4" />
+    <mori-timeline :items="timeline" />
+    <mori-divider text="吸顶、底部与悬浮操作" />
+    <mori-sticky><mori-navbar title="示例工具栏" /></mori-sticky>
+    <view class="demo-navigation__space"><mori-action-bar primary-text="确认选择" secondary-text="取消" @primary="status = '确认选择'" @secondary="status = '取消选择'"><mori-text text="已选 2 项" /></mori-action-bar></view>
+    <view class="catalog-row"><mori-fab v-model="fab" :items="entries" :fixed="false" @select="status = '悬浮操作：' + $event" /><mori-back-top :scroll-top="300" :fixed="false" :auto-scroll="false" @click="status = '请求返回顶部'" /></view>
+    <mori-safe-area :size="8" />
+    <mori-text :text="status" tone="muted" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriNavItem } from '../../uni_modules/mori-ui/navigation.uts'
+import { MoriChoiceOption } from '../../uni_modules/mori-ui/selection.uts'
+import { MoriGridItem, MoriStepItem } from '../../uni_modules/mori-ui/content.uts'
+const entries: MoriGridItem[] = [{ value: 'home', label: '首页', icon: 'home' }, { value: 'calendar', label: '日程', icon: 'calendar' }, { value: 'disabled', label: '暂不可用', icon: 'settings', disabled: true }]
+const segments: MoriNavItem[] = [{ value: 'all', label: '全部' }, { value: 'saved', label: '收藏' }, { value: 'disabled', label: '禁用', disabled: true }]
+const sorts: MoriChoiceOption[] = [{ value: 'latest', label: '最新发布' }, { value: 'earliest', label: '最早发布' }]
+const steps: MoriStepItem[] = [{ title: '填写资料' }, { title: '核对信息' }, { title: '完成' }]
+const timeline: MoriStepItem[] = [{ title: '创建记录', time: '09:30', description: '本地示例' }, { title: '核对信息', time: '10:00' }, { title: '处理完成', time: '10:30' }]
+const segment = ref('all')
+const side = ref('all')
+const sort = ref('latest')
+const step = ref(1)
+const fab = ref(false)
+const status = ref('操作结果会显示在这里。')
+</script>
+<style lang="scss">
+@import '../demo-catalog.scss';
+.demo-navigation__space { margin: 20px 0; }.demo-navigation__split { display: flex; flex-direction: row; gap: 20px; }.demo-navigation__body { flex: 1; min-width: 0; }
+</style>

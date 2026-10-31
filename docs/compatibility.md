@@ -1,6 +1,6 @@
 # 兼容性与验证记录
 
-更新日期：2026-10-30。下方原四组件记录使用 HBuilderX 5.34；最新表单扩展复核使用本机编译器 5.26.2026091411.1611，具体见新增记录。
+更新日期：2026-10-31。当前 72 组件扩展在 Windows / HBuilderX 5.34 完成构建与 H5 检查，见文末记录。原四组件及 macOS 表单／反馈记录保留各自历史版本，不能混作本轮环境。
 
 此表记录已经取得的证据，不把平台目标等同于完成验证。
 
@@ -65,3 +65,38 @@ Toast／Popup／Dialog 已通过 H5 和微信发行构建。Chrome 156.0.8078.74
 底部弹层动效调整后再次通过 H5／微信构建与 Chrome 反馈回归。按用户澄清恢复面板淡入后，Chrome 实测 transform 连续、首帧透明、淡入／淡出有连续中间态、尺寸稳定，快速退出后重开和减少动态效果正常；不外推为其他平台帧率或手感结论。
 
 最新 H5 方向回归补充实际屏幕坐标与外壳 scrollTop：修正聚焦滚动抵消位移的问题，面板从视口下沿向上进入。已验证 Chrome；overflow: clip 和焦点 preventScroll 在 Safari／其他 WebView 尚未实际验证。微信构建通过，WEB 适配不进入微信产物。
+
+## 2026-10-31：40 组件扩展与最终自检
+
+基线 `e08185e`，新增 27 个组件并保留原 13 个组件。环境：Windows、HBuilderX 编译器 `5.34.2026102821.2458`、Node `24.21.0`、Playwright Chromium `145.0.7632.6`。预览使用 5174，避免干扰已有 5173 进程。
+
+| 检查范围 | 本轮结果 |
+|---|---|
+| 40 个组件的 H5／微信发行构建 | 最终源码均构建成功；仍有 Sass 弃用、H5 withKeys／NodeListOf 类型提示 |
+| 原基础、表单、反馈 | 基础 9 组、表单套件、反馈套件通过；Input 结束编辑参数修正后再次通过基础与表单回归 |
+| 新增组件 H5 | 分类套件通过：内容状态、导航键盘／禁用、分页边界、气泡关闭、通知／折叠、数值、Picker 取消／确认、日历范围／禁用日期、日期时间、图片选择／删除 |
+| 快速编辑 | Stepper 超限／空值、负号／小数草稿、连续失焦、键盘确认、直接点增加、逐字符输入均通过；Input 的 blur/confirm 返回宿主最终值；Search 连续输入后立即 Enter／点击搜索使用完整文本 |
+| 动画和主题 | Transition 实测连续中间帧、快速反向与减少动态效果；Slider 实际 range 的名称／禁用与深色轨道／拇指通过 |
+| 布局与截图 | 分类页 1280px 浅色、390px 深色及 360px 宽度检查通过；最终 5 张分类截图人工及独立复核已查看 |
+| 文档与逻辑 | 40 份组件指南、42 段 Vue/UTS 示例结构和本地链接检查通过；单元测试含真实 Vue setup 和可控上传传输回调 |
+| 独立复核 | 原 6 项发现全部修复并复核通过，结论 ship-with-caveats；完整范围见 [扩展自检记录](expansion-review.md) |
+
+上传的真实浏览器文件选择已运行；请求形状、状态码、进度、重试、取消、迟到回调通过测试替身验证。**没有真实业务后端接收、原生 iOS／Android 编译与设备、微信开发者工具／真机、Safari 或鸿蒙运行证据。** 本机无 iOS 工具链／签名及设备，adb 不在 PATH，项目 AppID 留空。iOS 权限、HEIC、沙盒路径、后台任务和 ATS 等按 [编号清单](platform-adaptation.md) 跟进；默认上传仅图片及前台传输。
+
+原始证据：`.impeccable/review/expansion-build-h5.log`、`expansion-build-weixin.log`、`catalog-verification.json`、`verification.json`、`forms-verification.json`、`feedback-verification.json` 及 `catalog-*.png`。目录被忽略，本节保存可随仓库分发的结论；复现命令见 [验证与排障](testing.md)。
+
+## 2026-10-31：72 组件扩展
+
+本轮沿用 Windows HBuilderX `5.34.2026102821.2458`，调用者 Node `24.21.0`，浏览器 Chromium `145.0.7632.6`。新增加的 32 个组件与原 40 个共同构建。
+
+| 检查范围 | 结果与边界 |
+|---|---|
+| H5／微信发行构建 | 当前源码两端成功；Sass legacy/import、H5 withKeys／NodeListOf 提示仍存在 |
+| 新增真实 H5 交互 | 图片失败／恢复、受控轮播、图片翻页／Escape、宫格、分段键盘、侧栏、筛选取消／确认、步骤、悬浮操作、级联／树选择、密码格／键盘、加载失败／重试、刷新、滑动操作、索引、倒计时与数字完成均通过 |
+| 回归 | 原基础 9 组与原 test:catalog 通过，无 pageerror；没有改动的表单／反馈专用套件未无故重复执行 |
+| 主题／布局 | 四个新增分类的 1280px 浅色、390px 深色截图已查看，360px 级联弹层检查通过；无文档级横向溢出 |
+| 单元／文档 | 完整 test:unit 通过，新增真实 Vue setup 与模拟时钟；72 份指南、74 段 Vue/UTS 示例结构与本地链接检查通过 |
+
+图片示例使用本地几何 SVG，未依赖外部图片服务。浏览器加载／刷新通过本地延时模拟，不代表真实后端。手势单元测试与 H5 操作不等于 iOS／Android／微信触摸验收。Sticky 的 APP 默认模式为普通流，自动 CSS 吸顶只用于 WEB／MP；SafeArea 的设备转向由使用方更新 size。新增平台编号见 [适配清单](platform-adaptation.md)，原 iOS 上传编号继续保留。
+
+本轮没有新增 Xcode／签名、Android 设备、微信 AppID／开发者工具、Safari 或 HarmonyOS 工具链运行证据，不扩大上轮的平台声明。原始日志为 `.impeccable/review/expansion-h5.log`、`expansion-weixin.log`、`expanded-verification.json`、`expanded-*.png`。独立复核结果另见 progress.md 本轮最终记录。

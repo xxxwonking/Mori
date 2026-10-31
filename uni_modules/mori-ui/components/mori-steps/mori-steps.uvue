@@ -1,0 +1,20 @@
+<template>
+
+<view class="mori-steps" :class="{ 'mori-steps--vertical': vertical }" role="list" :aria-label="label"><view v-for="(item,index) in items" :key="index" class="mori-steps__item" role="listitem" :aria-current="index == active ? 'step' : null"><view class="mori-steps__track"><view class="mori-steps__dot" :style="'background-color:' + (item.error == true ? moriPalette.dangerSoft : index <= active ? moriPalette.soft : moriPalette.ground) + ';color:' + (item.error == true ? moriPalette.danger : index <= active ? moriPalette.primary : moriPalette.muted)"><mori-icon v-if="index < active && item.error != true" :src="'/uni_modules/mori-ui/static/icons/check-' + (moriIsDark ? 'light' : 'dark') + '.svg'" :size="14" /><text v-else>{{ index + 1 }}</text></view><view v-if="index < items.length - 1" class="mori-steps__line" :style="'background-color:' + moriPalette.border" /></view><view class="mori-steps__copy"><text class="mori-steps__title" :style="'color:' + (item.error == true ? moriPalette.danger : index == active ? moriPalette.primary : moriPalette.text)">{{ item.title }}</text><text v-if="item.description != null" class="mori-steps__description" :style="'color:' + moriPalette.muted">{{ item.description }}</text></view></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { PropType } from 'vue'
+import { moriPalette, moriIsDark } from '../../theme.uts'
+import { MoriStepItem } from '../../content.uts'
+defineProps({ items: { type: Array as PropType<MoriStepItem[]>, default: (): MoriStepItem[] => [] }, active: { type: Number, default: 0 }, vertical: { type: Boolean, default: false }, label: { type: String, default: '办理进度' } })
+
+</script>
+
+<style lang="scss">
+.mori-steps { display: flex; flex-direction: row; width: 100%; }.mori-steps__item { flex: 1; min-width: 0; }.mori-steps__track { display: flex; flex-direction: row; align-items: center; }.mori-steps__dot { width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }.mori-steps__line { flex: 1; height: 1px; margin: 0 6px; }.mori-steps__copy { padding: 8px 10px 0 0; display: flex; flex-direction: column; gap: 3px; }.mori-steps__title { font-size: 13px; line-height: 20px; }.mori-steps__description { font-size: 11px; line-height: 18px; }.mori-steps--vertical { flex-direction: column; }.mori-steps--vertical .mori-steps__item { display: flex; flex-direction: row; min-height: 68px; }.mori-steps--vertical .mori-steps__track { flex-direction: column; width: 24px; }.mori-steps--vertical .mori-steps__line { width: 1px; min-height: 24px; margin: 4px 0; }.mori-steps--vertical .mori-steps__copy { padding: 0 0 18px 12px; flex: 1; }
+/* #ifdef WEB */
+.mori-steps__copy { overflow-wrap: anywhere; }
+/* #endif */
+</style>

@@ -1,0 +1,34 @@
+<template>
+
+<view class="mori-index-bar" :style="'height:' + height"><scroll-view class="mori-index-bar__scroll" scroll-y :scroll-into-view="target" :scroll-with-animation="false"><view v-for="(section,index) in sections" :id="id + '-' + index" :key="section.index" class="mori-index-bar__section"><text class="mori-index-bar__title" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.muted">{{ section.title }}</text><mori-cell v-for="(item,itemIndex) in section.items" :key="itemIndex" :title="item" clickable @click="emit('select', section.index, item, itemIndex)" /></view><mori-empty v-if="sections.length == 0" title="暂无内容" description="" /></scroll-view><scroll-view class="mori-index-bar__rail" scroll-y><button v-for="(section,index) in sections" :key="section.index" class="mori-action mori-index-bar__index" role="button" tabindex="0" :aria-label="'跳到 ' + section.title" :style="'color:' + (section.index == modelValue ? moriPalette.primary : moriPalette.muted)" @click="jump(index)" @keydown.enter.prevent="jump(index)" @keydown.space.prevent="jump(index)">{{ section.index }}</button></scroll-view></view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, PropType, watch, computed, onBeforeUnmount } from 'vue'
+import { nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriIndexSection } from '../../extended-input.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, sections: { type: Array as PropType<MoriIndexSection[]>, default: (): MoriIndexSection[] => [] }, height: { type: String, default: '320px' } })
+const emit = defineEmits(['update:modelValue', 'change', 'select'])
+const id = createMoriFieldId()
+const target = ref('')
+let scrollVersion = 0
+const selectedIndex = computed((): number => props.sections.findIndex((section: MoriIndexSection): boolean => section.index == props.modelValue))
+function scrollTo(index: number) {
+  const version = ++scrollVersion
+  target.value = ''
+  if (index < 0 || index >= props.sections.length) return
+  nextTick(() => { if (version == scrollVersion) target.value = id + '-' + index })
+}
+function jump(index: number) { if (index < 0 || index >= props.sections.length) return; scrollTo(index); const value = props.sections[index].index; emit('update:modelValue', value); emit('change', value) }
+watch(selectedIndex, (index: number) => scrollTo(index), { immediate: true })
+onBeforeUnmount(() => { scrollVersion++ })
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-index-bar { display: flex; flex-direction: row; width: 100%; }.mori-index-bar__scroll { flex: 1; min-width: 0; height: 100%; }.mori-index-bar__rail { width: 40px; height: 100%; flex-shrink: 0; }.mori-index-bar__title { display: block; padding: 6px 10px; font-size: 12px; line-height: 18px; }.mori-index-bar__index { width: 36px; min-height: 36px; padding: 0; font-size: 12px; }
+</style>

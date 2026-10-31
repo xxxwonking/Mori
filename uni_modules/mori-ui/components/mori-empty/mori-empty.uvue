@@ -1,0 +1,15 @@
+<template>
+<view class="mori-empty"><mori-icon :name="icon" :size="28" /><text class="mori-empty__title" :style="'color:' + moriPalette.text">{{ title }}</text><text v-if="description.length > 0" class="mori-empty__description" :style="'color:' + moriPalette.muted">{{ description }}</text><view class="mori-empty__action"><slot /></view></view>
+</template>
+
+<script setup lang="uts">
+import { moriPalette } from '../../theme.uts'
+defineProps({ title: { type: String, default: '暂无内容' }, description: { type: String, default: '' }, icon: { type: String, default: 'info' } })
+</script>
+
+<style lang="scss">
+.mori-empty { display: flex; flex-direction: column; align-items: center; padding: 28px 16px; }
+.mori-empty__title { font-size: 13px; line-height: 22px; margin-top: 10px; }
+.mori-empty__description { font-size: 12px; line-height: 20px; text-align: center; margin-top: 4px; }
+.mori-empty__action { margin-top: 12px; }
+</style>

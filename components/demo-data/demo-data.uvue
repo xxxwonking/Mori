@@ -1,0 +1,46 @@
+<template>
+  <view>
+    <text class="catalog-heading">列表、刷新与滑动操作</text>
+    <mori-notice-bar v-model="notice" text="请求使用本地延时模拟，可测试失败与重试。" closable />
+    <mori-list v-model:loading="loading" v-model:error="error" :finished="finished" height="240px" @load="load"><mori-cell v-for="(row,index) in rows" :key="index" :title="row" /></mori-list>
+    <view class="catalog-row"><mori-button label="下一次模拟失败" variant="text" @click="failNext = true" /><mori-button label="重置列表" variant="text" @click="resetList" /></view>
+    <mori-pull-refresh v-model="refreshing" height="160px" @refresh="refresh"><mori-text :text="'刷新次数：' + refreshCount" /><mori-cell title="下拉或点击刷新" label="刷新结束由业务回写状态" /></mori-pull-refresh>
+    <mori-swipe-cell v-model="swipe" @action="status = '请求删除，由业务决定是否确认'"><mori-cell title="向左滑动或展开操作" :border="false" /></mori-swipe-cell>
+    <mori-divider text="索引列表" />
+    <mori-index-bar v-model="index" :sections="sections" height="220px" @select="selectEntry" />
+    <mori-divider text="时间与数字" />
+    <view class="catalog-row"><mori-count-down ref="timer" :time="3000" :auto-start="false" @finish="status = '倒计时结束'" /><mori-button label="开始倒计时" size="sm" variant="outline" @click="timer?.start()" /><mori-button label="暂停倒计时" size="sm" variant="text" @click="timer?.pause()" /><mori-button label="重置倒计时" size="sm" variant="text" @click="timer?.reset()" /></view>
+    <view class="catalog-row"><mori-count-to :end-value="score" :decimals="1" suffix=" 分" label="示例分数" /><mori-button label="增加数值" size="sm" variant="text" @click="score += 10" /></view>
+    <mori-load-more status="finished" />
+    <mori-result status="success" title="示例流程完成" description="结果由业务驱动，组件只负责展示。"><mori-button label="重新体验" variant="soft" @click="notice = true" /></mori-result>
+    <mori-text :text="status" tone="muted" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref, onBeforeUnmount } from 'vue'
+import { MoriCountDownInstance, MoriIndexSection } from '../../uni_modules/mori-ui/extended-input.uts'
+const timer = ref<MoriCountDownInstance | null>(null)
+const rows = ref<string[]>([])
+const loading = ref(false)
+const error = ref(false)
+const finished = ref(false)
+const failNext = ref(false)
+const refreshing = ref(false)
+const refreshCount = ref(0)
+const swipe = ref(false)
+const notice = ref(true)
+const index = ref('A')
+const score = ref(128.5)
+const status = ref('操作结果会显示在这里。')
+const sections: MoriIndexSection[] = [{ index: 'A', title: 'A', items: ['安同学', '艾同学', '敖同学'] }, { index: 'B', title: 'B', items: ['白同学', '包同学', '毕同学'] }, { index: 'C', title: 'C', items: ['陈同学', '程同学'] }]
+let loadTimer = 0
+let refreshTimer = 0
+function load() { clearTimeout(loadTimer); loadTimer = setTimeout(() => { if (failNext.value) { failNext.value = false; error.value = true; loading.value = false; return }; const start = rows.value.length; rows.value = rows.value.concat(['条目 ' + (start + 1), '条目 ' + (start + 2), '条目 ' + (start + 3)]); finished.value = rows.value.length >= 9; loading.value = false }, 400) }
+function resetList() { clearTimeout(loadTimer); rows.value = []; error.value = false; finished.value = false; loading.value = false; failNext.value = false }
+function refresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(() => { refreshCount.value++; refreshing.value = false }, 400) }
+function selectEntry(section: string, item: string, itemIndex: number) { status.value = section + ' / ' + item + ' / ' + itemIndex }
+onBeforeUnmount(() => { clearTimeout(loadTimer); clearTimeout(refreshTimer) })
+</script>
+<style lang="scss">
+@import '../demo-catalog.scss';
+</style>

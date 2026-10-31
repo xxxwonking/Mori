@@ -1,0 +1,63 @@
+<template>
+<view :id="controlId" class="mori-stepper" role="group" :aria-label="label"><button @keydown.enter.prevent="decrease" @keydown.space.prevent="decrease" :aria-disabled="disabled || value <= min" :tabindex="(disabled || value <= min) ? -1 : 0" role="button" class="mori-action mori-stepper__button" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text" :disabled="disabled || value <= min" aria-label="减少" @click="decrease"><mori-icon name="minus" :size="14" /></button><view class="mori-stepper__input"><mori-input :key="editorKey" :model-value="draft" :label="label" :type="inputType" :disabled="disabled || disableInput" @change="input" @focus="focus" @blur="normalize" @confirm="normalize" /></view><button @keydown.enter.prevent="increase" @keydown.space.prevent="increase" :aria-disabled="disabled || value >= maximum" :tabindex="(disabled || value >= maximum) ? -1 : 0" role="button" class="mori-action mori-stepper__button" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text" :disabled="disabled || value >= maximum" aria-label="增加" @click="increase"><mori-icon name="plus" :size="14" /></button></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { snapMoriNumber } from '../../numeric.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { syncMoriStepperInputMode } from '../../platform/stepper.uts'
+const props = defineProps({ modelValue: { type: Number, default: 1 }, min: { type: Number, default: 0 }, max: { type: Number, default: 9999 }, step: { type: Number, default: 1 }, disabled: { type: Boolean, default: false }, disableInput: { type: Boolean, default: false }, label: { type: String, default: '' } })
+const emit = defineEmits(['update:modelValue', 'change', 'overlimit'])
+const controlId = createMoriFieldId()
+const inputType = computed((): string => {
+  // #ifdef WEB
+  return 'text'
+  // #endif
+  // #ifndef WEB
+  return props.min < 0 ? 'text' : 'digit'
+  // #endif
+})
+function syncInputMode() { nextTick(() => syncMoriStepperInputMode(controlId, props.min < 0)) }
+onMounted(syncInputMode)
+watch((): number => props.min, syncInputMode)
+const maximum = computed((): number => Math.max(props.min, props.max))
+const interval = computed((): number => props.step > 0 ? props.step : 1)
+const value = computed((): number => snapMoriNumber(props.modelValue, props.min, maximum.value, interval.value))
+const draft = ref('' + value.value)
+const editing = ref(false)
+const editorKey = ref(0)
+let normalizing = false
+let editGeneration = 0
+watch(value, (next: number) => { if (!editing.value && !normalizing) draft.value = '' + next })
+function focus() { editGeneration++; normalizing = false; editing.value = true }
+function cancelNormalization() { editGeneration++; normalizing = false; editing.value = false }
+function commit(next: number) { if (props.disabled || !Number.isFinite(next)) return; const result = snapMoriNumber(next, props.min, maximum.value, interval.value); if (result != props.modelValue) { emit('update:modelValue', result); emit('change', result) } }
+function input(text: string) { if (props.disabled || props.disableInput) return; draft.value = text; if (text.trim().length > 0 && text != '-' && text != '.' && text != '-.') commit(Number(text)) }
+function normalize(text: string) {
+  editing.value = false; normalizing = true
+  const ticket = ++editGeneration
+  draft.value = text
+  if (draft.value.trim().length > 0 && Number.isFinite(Number(draft.value))) commit(Number(draft.value))
+  // uni-input caches its own text. Remount after editing ends so same-value normalization
+  // also resets that cache (a DOM-only value write leaves the host cache stale).
+  nextTick(() => {
+    if (ticket != editGeneration || editing.value) return
+    draft.value = '' + value.value; normalizing = false
+    editorKey.value++
+    syncInputMode()
+  })
+}
+function increase() { if (props.disabled) return; if (value.value >= maximum.value) { emit('overlimit', 'max'); return }; cancelNormalization(); const next = snapMoriNumber(value.value + interval.value, props.min, maximum.value, interval.value); commit(next); draft.value = '' + next }
+function decrease() { if (props.disabled) return; if (value.value <= props.min) { emit('overlimit', 'min'); return }; cancelNormalization(); const next = snapMoriNumber(value.value - interval.value, props.min, maximum.value, interval.value); commit(next); draft.value = '' + next }
+onBeforeUnmount(() => { editGeneration++ })
+defineExpose({ increase, decrease })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-stepper { display: flex; flex-direction: row; align-items: flex-end; }
+.mori-stepper__button { width: 36px; height: 36px; flex-shrink: 0; }
+.mori-stepper__input { width: 68px; margin: 0 6px; }
+</style>

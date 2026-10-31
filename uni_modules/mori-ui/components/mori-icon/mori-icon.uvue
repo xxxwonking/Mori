@@ -1,0 +1,15 @@
+<template>
+<image v-if="iconSrc.length > 0" class="mori-icon" :src="iconSrc" :style="'width:' + size + 'px;height:' + size + 'px;'" mode="aspectFit" :aria-hidden="label.length == 0" :aria-label="label" />
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriIsDark } from '../../theme.uts'
+const props = defineProps({ name: { type: String, default: 'info' }, src: { type: String, default: '' }, size: { type: Number, default: 18 }, label: { type: String, default: '' } })
+const names = ['check', 'eye', 'eye-off', 'circle-x', 'chevron-left', 'chevron-right', 'chevron-down', 'plus', 'minus', 'search', 'info', 'calendar', 'clock', 'upload', 'image', 'star', 'home', 'settings', 'bell', 'x']
+const iconSrc = computed((): string => props.src.length > 0 ? props.src : names.includes(props.name) ? '/uni_modules/mori-ui/static/icons/' + props.name + '-' + (moriIsDark.value ? 'dark' : 'light') + '.svg' : '')
+</script>
+
+<style lang="scss">
+.mori-icon { flex-shrink: 0; }
+</style>

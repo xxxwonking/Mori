@@ -1,0 +1,24 @@
+<template>
+
+<view class="mori-tree-select" role="group" :aria-label="label"><mori-empty v-if="rows.length == 0" title="暂无选项" description="" /><view v-for="row in rows" :key="row.value" class="mori-tree-select__row" :style="'padding-left:' + (row.depth * 16) + 'px'"><button v-if="row.branch" class="mori-action mori-tree-select__branch" role="button" :aria-expanded="expanded.includes(row.value)" :aria-disabled="disabled || row.disabled" :disabled="disabled || row.disabled" :tabindex="disabled || row.disabled ? -1 : 0" :style="'color:' + moriPalette.text" @click="toggle(row)" @keydown.enter.prevent="toggle(row)" @keydown.space.prevent="toggle(row)"><mori-icon :name="expanded.includes(row.value) ? 'chevron-down' : 'chevron-right'" :size="16" /><text class="mori-tree-select__label">{{ row.label }}</text></button><mori-checkbox v-else :model-value="modelValue.includes(row.value)" :label="row.label" :disabled="disabled || row.disabled || (max > 0 && modelValue.length >= max && !modelValue.includes(row.value))" @change="select(row)" /></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriTreeNode, MoriTreeRow, moriTreeRows } from '../../extended-input.uts'
+const props = defineProps({ modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] }, options: { type: Array as PropType<MoriTreeNode[]>, default: (): MoriTreeNode[] => [] }, defaultExpanded: { type: Array as PropType<string[]>, default: (): string[] => [] }, max: { type: Number, default: 0 }, disabled: { type: Boolean, default: false }, label: { type: String, default: '选择项目' } })
+const emit = defineEmits(['update:modelValue', 'change', 'expand'])
+const expanded = ref<string[]>(props.defaultExpanded.slice())
+const rows = computed((): MoriTreeRow[] => moriTreeRows(props.options, expanded.value))
+function toggle(row: MoriTreeRow) { if (props.disabled || row.disabled) return; expanded.value = expanded.value.includes(row.value) ? expanded.value.filter((value: string): boolean => value != row.value) : expanded.value.concat([row.value]); emit('expand', expanded.value.slice()) }
+function select(row: MoriTreeRow) { if (props.disabled || row.disabled || row.branch) return; let next = props.modelValue.slice(); if (next.includes(row.value)) next = next.filter((value: string): boolean => value != row.value); else { if (props.max > 0 && next.length >= props.max) return; next.push(row.value) }; emit('update:modelValue', next); emit('change', next) }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-tree-select__row { min-height: 36px; }.mori-tree-select__branch { justify-content: flex-start; gap: 8px; width: 100%; padding-left: 0; }
+.mori-tree-select__label { font-size: 13px; line-height: 20px; }
+</style>

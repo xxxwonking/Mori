@@ -1,0 +1,38 @@
+export type MoriCountDownInstance = { start: () => void; pause: () => void; reset: () => void }
+export type MoriCountToInstance = { start: () => void; reset: () => void }
+export type MoriCascaderInstance = { confirm: () => void; cancel: () => void }
+export type MoriListInstance = { check: () => void }
+export type MoriRefreshInstance = { refresh: () => void }
+export type MoriSwipeCellInstance = { open: () => void; close: () => void }
+export type MoriTreeNode = { value: string; label: string; disabled?: boolean; children?: MoriTreeNode[] }
+export type MoriTreeRow = { value: string; label: string; disabled: boolean; depth: number; branch: boolean }
+export type MoriIndexSection = { index: string; title: string; items: string[] }
+export function moriTreePath(options: MoriTreeNode[], path: string[]): MoriTreeNode[] {
+  const result: MoriTreeNode[] = []
+  let level = options
+  for (let index = 0; index < path.length; index++) {
+    const item = level.find((node: MoriTreeNode): boolean => node.value == path[index] && node.disabled != true)
+    if (item == null) break
+    result.push(item)
+    level = item.children == null ? [] : item.children!
+  }
+  return result
+}
+export function moriTreeRows(options: MoriTreeNode[], expanded: string[], depth: number = 0, ancestorDisabled: boolean = false): MoriTreeRow[] {
+  let result: MoriTreeRow[] = []
+  options.forEach((node: MoriTreeNode) => {
+    const branch = node.children != null && node.children!.length > 0
+    const disabled = ancestorDisabled || node.disabled == true
+    result.push({ value: node.value, label: node.label, disabled, depth, branch })
+    if (branch && expanded.includes(node.value)) result = result.concat(moriTreeRows(node.children!, expanded, depth + 1, disabled))
+  })
+  return result
+}
+export function moriKeyboardValue(value: string, key: string, maxLength: number, extraKey: string): string {
+  if (key == 'delete') return value.substring(0, Math.max(0, value.length - 1))
+  if (key == 'clear') return ''
+  if (!/^[0-9]$/.test(key) && !(key.length == 1 && key == extraKey && (key == '.' || key == 'X'))) return value
+  const limit = Number.isFinite(maxLength) ? Math.max(1, Math.floor(maxLength)) : 6
+  if (value.length >= limit || (key == '.' && value.includes('.'))) return value
+  return value + key
+}

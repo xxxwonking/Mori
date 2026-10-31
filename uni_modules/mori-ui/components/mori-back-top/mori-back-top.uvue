@@ -1,0 +1,17 @@
+<template>
+
+<view v-if="scrollTop >= visibilityHeight" class="mori-back-top" :class="{ 'mori-back-top--fixed': fixed }" :style="fixed ? 'right:' + right + 'px;bottom:' + bottom + 'px' : ''"><mori-button :label="label" size="sm" variant="outline" @click="activate" /></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriOverlayReducedMotion } from '../../platform/overlay-accessibility.uts'
+const props = defineProps({ scrollTop: { type: Number, default: 0 }, visibilityHeight: { type: Number, default: 200 }, right: { type: Number, default: 16 }, bottom: { type: Number, default: 80 }, fixed: { type: Boolean, default: true }, autoScroll: { type: Boolean, default: true }, label: { type: String, default: '返回顶部' } })
+const emit = defineEmits(['click'])
+function activate() { emit('click'); if (props.autoScroll) uni.pageScrollTo({ scrollTop: 0, duration: moriOverlayReducedMotion() ? 0 : 280 }) }
+
+</script>
+
+<style lang="scss">
+.mori-back-top--fixed { position: fixed; z-index: 40; }
+</style>

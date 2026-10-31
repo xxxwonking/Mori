@@ -1,0 +1,36 @@
+<template>
+  <mori-popup :model-value="show" :title="title" :closable="false" @close="cancel">
+    <mori-calendar v-if="resolvedMode != 'time'" :key="session" v-model="dates" :min-date="min.substring(0, 10)" :max-date="max.substring(0, 10)" :show-confirm="false" :disabled="disabled" />
+    <view v-if="resolvedMode != 'date'" class="mori-datetime-picker__time"><mori-stepper v-model="hour" :min="0" :max="23" label="时" :disabled="disabled" /><mori-stepper v-model="minute" :min="0" :max="59" label="分" :disabled="disabled" /></view>
+    <text class="mori-datetime-picker__summary" :style="'color:' + (valid ? moriPalette.muted : moriPalette.danger)" role="status">{{ valid ? value : '请选择允许范围内的日期和时间' }}</text>
+    <view class="mori-datetime-picker__actions"><mori-button label="取消" variant="outline" @click="cancel" /><mori-button label="确认" :disabled="disabled || !valid" @click="confirm" /></view>
+  </mori-popup>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriPad } from '../../calendar.uts'
+import { moriDateTimeAllowed, initialMoriDateTime } from '../../datetime.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, show: { type: Boolean, default: false }, mode: { type: String, default: 'datetime' }, title: { type: String, default: '选择日期时间' }, min: { type: String, default: '' }, max: { type: String, default: '' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'update:show', 'confirm', 'cancel'])
+const dates = ref<string[]>([])
+const hour = ref(9)
+const minute = ref(0)
+const session = ref(0)
+const resolvedMode = computed((): string => props.mode == 'date' || props.mode == 'time' ? props.mode : 'datetime')
+const value = computed((): string => resolvedMode.value == 'time' ? moriPad(hour.value) + ':' + moriPad(minute.value) : resolvedMode.value == 'date' ? (dates.value[0] ?? '') : (dates.value[0] ?? '') + ' ' + moriPad(hour.value) + ':' + moriPad(minute.value))
+const valid = computed((): boolean => moriDateTimeAllowed(value.value, resolvedMode.value, props.min, props.max))
+function reset() { const initial = initialMoriDateTime(props.modelValue, resolvedMode.value, props.min, props.max); dates.value = resolvedMode.value == 'time' ? [] : [initial.substring(0, 10)]; const time = resolvedMode.value == 'time' ? initial : resolvedMode.value == 'datetime' ? initial.substring(11) : '09:00'; hour.value = parseInt(time.substring(0, 2)); minute.value = parseInt(time.substring(3)); session.value++ }
+watch((): boolean => props.show, (open: boolean) => { if (open) reset() }, { immediate: true })
+watch((): string => props.modelValue + '|' + props.mode + '|' + props.min + '|' + props.max, () => { if (props.show) reset() })
+function cancel() { if (props.show) { emit('cancel'); emit('update:show', false) } }
+function confirm() { if (!props.show || props.disabled || !valid.value) return; emit('update:modelValue', value.value); emit('confirm', value.value); emit('update:show', false) }
+defineExpose({ confirm, cancel })
+</script>
+
+<style>
+.mori-datetime-picker__time { display: flex; flex-direction: row; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+.mori-datetime-picker__summary { display: block; font-size: 12px; line-height: 20px; margin-top: 14px; }
+.mori-datetime-picker__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+</style>

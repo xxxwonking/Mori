@@ -1,0 +1,22 @@
+<template>
+
+<view class="mori-fab" :class="{ 'mori-fab--fixed': fixed }" :style="fixed ? 'right:' + right + 'px;bottom:' + bottom + 'px;z-index:' + zIndex : ''"><view v-if="modelValue && items.length > 0" class="mori-fab__items" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><button v-for="item in items" :key="item.value" class="mori-action mori-fab__item" role="button" :disabled="disabled || item.disabled == true" :aria-disabled="disabled || item.disabled == true" :tabindex="disabled || item.disabled == true ? -1 : 0" :style="'color:' + moriPalette.text" @click="select(item)" @keydown.enter.prevent="select(item)" @keydown.space.prevent="select(item)"><mori-icon v-if="item.icon != null" :name="item.icon!" :size="18" /><text class="mori-fab__label">{{ item.label }}</text></button></view><mori-button :label="modelValue && items.length > 0 ? '收起' : label" :disabled="disabled" round @click="toggle" /></view>
+</template>
+
+<script setup lang="uts">
+
+import { PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriGridItem } from '../../content.uts'
+const props = defineProps({ modelValue: { type: Boolean, default: false }, items: { type: Array as PropType<MoriGridItem[]>, default: (): MoriGridItem[] => [] }, label: { type: String, default: '新建' }, fixed: { type: Boolean, default: true }, right: { type: Number, default: 16 }, bottom: { type: Number, default: 24 }, zIndex: { type: Number, default: 50 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'click', 'select'])
+function toggle() { if (props.disabled) return; emit('click'); if (props.items.length > 0) emit('update:modelValue', !props.modelValue) }
+function select(item: MoriGridItem) { if (props.disabled || item.disabled == true) return; emit('select', item.value); emit('update:modelValue', false) }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-fab { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }.mori-fab--fixed { position: fixed; }.mori-fab__items { padding: 6px; border: 1px solid; border-radius: 8px; max-width: 240px; }.mori-fab__item { width: 100%; gap: 8px; justify-content: flex-start; }
+.mori-fab__label { font-size: 13px; line-height: 20px; }
+</style>

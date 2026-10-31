@@ -1,0 +1,18 @@
+<template>
+<view class="mori-loading" role="status" :aria-label="text.length > 0 ? text : '加载中'"><view class="mori-loading__ring" :style="'width:' + size + 'px;height:' + size + 'px;border-color:' + moriPalette.border + ';border-top-color:' + (color.length > 0 ? color : moriPalette.primary)" /><text v-if="text.length > 0" class="mori-loading__text" :style="'color:' + moriPalette.muted">{{ text }}</text></view>
+</template>
+
+<script setup lang="uts">
+import { moriPalette } from '../../theme.uts'
+defineProps({ text: { type: String, default: '' }, size: { type: Number, default: 18 }, color: { type: String, default: '' } })
+</script>
+
+<style lang="scss">
+.mori-loading { display: flex; flex-direction: row; align-items: center; min-height: 24px; }
+.mori-loading__ring { border-width: 2px; border-style: solid; border-radius: 50%; animation: mori-loading-spin 800ms linear infinite; }
+.mori-loading__text { margin-left: 8px; font-size: 12px; line-height: 20px; }
+@keyframes mori-loading-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-loading__ring { animation: none; } }
+/* #endif */
+</style>

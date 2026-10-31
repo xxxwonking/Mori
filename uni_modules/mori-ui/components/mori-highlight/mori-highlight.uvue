@@ -1,0 +1,18 @@
+<template>
+
+<text class="mori-highlight" :style="'color:' + moriPalette.text"><text v-for="(part,index) in parts" :key="index" :style="part.highlighted ? 'color:' + moriPalette.primary + ';background-color:' + moriPalette.soft : ''">{{ part.text }}</text></text>
+</template>
+
+<script setup lang="uts">
+
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriHighlight, MoriHighlightPart } from '../../content.uts'
+const props = defineProps({ text: { type: String, default: '' }, keyword: { type: String, default: '' }, caseSensitive: { type: Boolean, default: false } })
+const parts = computed((): MoriHighlightPart[] => moriHighlight(props.text, props.keyword, props.caseSensitive))
+
+</script>
+
+<style lang="scss">
+.mori-highlight { font-size: 13px; line-height: 22px; }
+</style>

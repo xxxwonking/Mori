@@ -1,0 +1,8 @@
+export type MoriNavItem = {
+  label: string;
+  value: string;
+  icon?: string;
+  badge?: string;
+  disabled?: boolean;
+}
+export type MoriPaginationInstance = { next: () => void; prev: () => void; select: (page: number) => void }

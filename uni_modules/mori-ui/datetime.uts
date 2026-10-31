@@ -1,0 +1,16 @@
+import { parseMoriDate, moriToday } from './calendar.uts'
+export function validMoriTime(value: string): boolean { return /^([01]\d|2[0-3]):[0-5]\d$/.test(value) }
+export function validMoriDateTime(value: string, mode: string): boolean {
+  if (mode == 'time') return validMoriTime(value)
+  if (mode == 'date') return parseMoriDate(value) != null
+  return value.length == 16 && value.substring(10, 11) == ' ' && parseMoriDate(value.substring(0, 10)) != null && validMoriTime(value.substring(11))
+}
+export function moriDateTimeAllowed(value: string, mode: string, min: string, max: string): boolean {
+  return validMoriDateTime(value, mode) && (!validMoriDateTime(min, mode) || value >= min) && (!validMoriDateTime(max, mode) || value <= max)
+}
+export function initialMoriDateTime(value: string, mode: string, min: string, max: string): string {
+  let result = validMoriDateTime(value, mode) ? value : mode == 'time' ? '09:00' : mode == 'date' ? moriToday() : moriToday() + ' 09:00'
+  if (validMoriDateTime(min, mode) && result < min) result = min
+  if (validMoriDateTime(max, mode) && result > max) result = max
+  return result
+}

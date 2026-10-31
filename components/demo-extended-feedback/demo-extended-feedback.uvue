@@ -1,0 +1,28 @@
+<template>
+  <view class="extended-feedback">
+    <text class="catalog-heading">操作面板与气泡菜单</text>
+    <view class="catalog-row"><mori-button label="选择操作" @click="sheet = true" /><mori-popover v-model="popover" :actions="actions" @select="selected" /><mori-button label="显示通知" variant="outline" @click="notify?.show({ message: '当前修改已在本页保存。', duration: 2500 })" /></view>
+    <mori-text :text="result" tone="muted" />
+    <mori-divider text="折叠面板" />
+    <mori-collapse v-model="opened" :items="questions" accordion />
+  </view>
+  <mori-action-sheet v-model="sheet" title="选择操作" description="禁用与加载中的选项不会触发选择。" :actions="actions" @select="selected" @cancel="result = '已取消操作'" />
+  <mori-notify ref="notify" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriAction, MoriNotifyInstance } from '../../uni_modules/mori-ui/actions.uts'
+import { MoriCollapseItem } from '../../uni_modules/mori-ui/input.uts'
+const sheet = ref(false)
+const popover = ref(false)
+const notify = ref<MoriNotifyInstance | null>(null)
+const opened = ref<string[]>(['theme'])
+const result = ref('选择后会在这里显示结果。')
+const actions: MoriAction[] = [{ label: '保存到收藏', value: 'save' }, { label: '分享', value: 'share' }, { label: '暂不可用', value: 'disabled', disabled: true }, { label: '移除记录', value: 'remove', danger: true }]
+const questions: MoriCollapseItem[] = [{ label: '如何切换主题？', value: 'theme', content: '使用 setMoriConfig 设置 light、dark 或 auto。切回 auto 后恢复跟随系统。' }, { label: '如何接入业务页面？', value: 'install', content: '复制 uni_modules/mori-ui，在 App 初始化主题。组件通过 easycom 自动识别。' }, { label: '暂不可用的问题', value: 'disabled', content: '', disabled: true }]
+function selected(action: MoriAction) { result.value = '已选择：' + action.label }
+</script>
+<style>
+.catalog-heading { display: block; font-size: 15px; line-height: 24px; font-weight: 600; margin-bottom: 16px; }
+.catalog-row { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 20px; overflow: visible; }
+</style>

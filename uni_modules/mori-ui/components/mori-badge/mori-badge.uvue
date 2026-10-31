@@ -1,0 +1,19 @@
+<template>
+<view class="mori-badge"><slot /><view v-if="dot || content.length > 0" class="mori-badge__mark" :class="{ 'mori-badge__mark--dot': dot }" :style="'background-color:' + moriPalette.danger + ';color:' + foreground" :aria-label="label.length > 0 ? label : content"><text v-if="!dot" class="mori-badge__text">{{ display }}</text></view></view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+const props = defineProps({ content: { type: String, default: '' }, max: { type: Number, default: 99 }, dot: { type: Boolean, default: false }, label: { type: String, default: '' } })
+const foreground = computed((): string => getMoriButtonTextColor(moriPalette.value.danger))
+const display = computed((): string => Number(props.content) > props.max ? props.max + '+' : props.content)
+</script>
+
+<style lang="scss">
+.mori-badge { position: relative; align-self: center; overflow: visible; padding: 6px 8px 0 0; }
+.mori-badge__mark { position: absolute; top: 0; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+.mori-badge__mark--dot { min-width: 6px; width: 6px; height: 6px; padding: 0; top: 2px; right: 2px; }
+.mori-badge__text { font-size: 10px; line-height: 16px; }
+</style>

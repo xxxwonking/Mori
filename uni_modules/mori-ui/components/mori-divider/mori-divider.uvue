@@ -1,0 +1,14 @@
+<template>
+<view class="mori-divider" role="separator"><view class="mori-divider__line" :style="'background-color:' + moriPalette.border" /><text v-if="text.length > 0" class="mori-divider__text" :style="'color:' + moriPalette.muted">{{ text }}</text><view v-if="text.length > 0" class="mori-divider__line" :style="'background-color:' + moriPalette.border" /></view>
+</template>
+
+<script setup lang="uts">
+import { moriPalette } from '../../theme.uts'
+defineProps({ text: { type: String, default: '' } })
+</script>
+
+<style lang="scss">
+.mori-divider { display: flex; flex-direction: row; align-items: center; width: 100%; margin: 16px 0; }
+.mori-divider__line { flex: 1; height: 1px; }
+.mori-divider__text { padding: 0 12px; font-size: 12px; line-height: 18px; }
+</style>

@@ -1,0 +1,33 @@
+<template>
+  <view class="demo-media">
+    <text class="catalog-heading">图片、头像与预览</text>
+    <mori-text text="几何图形为本地示例资源。图片支持加载、失败占位和预览。" tone="muted" />
+    <view class="catalog-row demo-media__row"><mori-avatar name="林" /><mori-avatar name="陈" square /><mori-avatar :src="sample" name="几何" /><mori-avatar-group :items="members" :max="3" /></view>
+    <view class="demo-media__images"><mori-image :src="broken ? '/missing-demo-image.png' : sample" alt="蓝色几何示例图" height="160px" @click="preview = true" /><mori-button :label="broken ? '恢复图片' : '模拟图片失败'" variant="text" @click="broken = !broken" /><mori-button label="预览图片组" variant="outline" @click="preview = true" /></view>
+    <mori-divider text="轮播与文本" />
+    <mori-swiper v-model="slide" :items="slides" :height="180" @select="status = '查看 ' + $event" />
+    <view class="demo-media__caption"><mori-text :text="'当前轮播：' + (slide + 1)" tone="muted" /><mori-button label="切换轮播" variant="text" @click="slide = slide == 0 ? 1 : 0" /></view>
+    <mori-highlight text="Mori UI 的组件可以复用到多个项目；组件主题随系统变化。" keyword="组件" />
+    <mori-divider text="内容容器" />
+    <mori-card title="资料卡片" description="示例数据，不会保存到服务器"><mori-text text="林同学 · 产品设计" /><template #footer><mori-button label="编辑资料" variant="text" @click="status = '请求编辑资料'" /></template></mori-card>
+    <view class="demo-media__row"><mori-cell-group title="账户偏好" description="最后一行明确关闭分隔线"><mori-cell title="语言" value="简体中文" /><mori-cell title="主题" value="跟随系统" :border="false" /></mori-cell-group></view>
+    <mori-text :text="status" tone="muted" />
+    <mori-image-preview v-model="previewIndex" v-model:show="preview" :images="[sample, sample]" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriAvatarItem, MoriSwiperItem } from '../../uni_modules/mori-ui/content.uts'
+const sample = '/uni_modules/mori-ui/static/examples/geometry.svg'
+const members: MoriAvatarItem[] = [{ value: 'lin', name: '林' }, { value: 'chen', name: '陈' }, { value: 'zhou', name: '周' }, { value: 'li', name: '李' }, { value: 'wu', name: '吴' }]
+const slides: MoriSwiperItem[] = [{ value: 'first', src: sample, title: '几何图形 · 第一张' }, { value: 'second', src: sample, title: '几何图形 · 第二张' }]
+const slide = ref(0)
+const broken = ref(false)
+const preview = ref(false)
+const previewIndex = ref(0)
+const status = ref('点击图片或操作查看结果。')
+</script>
+<style lang="scss">
+@import '../demo-catalog.scss';
+.demo-media__row { margin-top: 16px; margin-bottom: 16px; }.demo-media__images { max-width: 480px; }.demo-media__caption { display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin: 8px 0 20px; }
+</style>

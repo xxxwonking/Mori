@@ -1,5 +1,6 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const browser = await chromium.launch({ channel: process.env.MORI_BROWSER_EXECUTABLE ? undefined : 'chromium', executablePath: process.env.MORI_BROWSER_EXECUTABLE || undefined, headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 960 }, reducedMotion: 'reduce' });
@@ -66,16 +67,16 @@ try {
   await page.getByRole('button', { name: '重置示例', exact: true }).click();
   await expect(name).toHaveAttribute('aria-invalid', 'false');
   await expect(form.getByText('请填写称呼', { exact: true })).toHaveCount(0);
-  await page.screenshot({ path: new URL('forms-desktop-light.png', out).pathname, fullPage: true });
+  await page.screenshot({ path: fileURLToPath(new URL('forms-desktop-light.png', out)), fullPage: true });
   await page.getByRole('button', { name: '深色', exact: true }).click();
   await expect(page.locator('.forms-page')).toHaveClass(/forms-page--dark/);
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(form.locator('.mori-textarea__control')).toHaveCSS('background-color', 'rgb(28, 32, 40)');
   await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: new URL('forms-mobile-dark.png', out).pathname });
+  await page.screenshot({ path: fileURLToPath(new URL('forms-mobile-dark.png', out)) });
   await page.getByRole('button', { name: '保存资料', exact: true }).scrollIntoViewIfNeeded();
-  await page.screenshot({ path: new URL('forms-mobile-dark-submit.png', out).pathname });
+  await page.screenshot({ path: fileURLToPath(new URL('forms-mobile-dark-submit.png', out)) });
   await page.setViewportSize({ width: 360, height: 780 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.locator('.disabled-examples textarea')).toBeDisabled();

@@ -1,0 +1,21 @@
+<template>
+
+<view class="mori-avatar-group" role="group" :aria-label="label"><view v-for="(item, index) in visibleItems" :key="item.value" class="mori-avatar-group__item" :style="'margin-left:' + (index == 0 ? 0 : -overlapSize) + 'px;border-color:' + moriPalette.surface"><mori-avatar :src="item.src == null ? '' : item.src!" :name="item.name" :size="size" /></view><view v-if="remaining > 0" class="mori-avatar-group__more" :style="'width:' + size + 'px;height:' + size + 'px;background-color:' + moriPalette.soft + ';color:' + moriPalette.primary" :aria-label="'另外 ' + remaining + ' 人'"><text class="mori-avatar-group__label">+{{ remaining }}</text></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { computed, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriAvatarItem, moriBound } from '../../content.uts'
+const props = defineProps({ items: { type: Array as PropType<MoriAvatarItem[]>, default: (): MoriAvatarItem[] => [] }, max: { type: Number, default: 5 }, size: { type: Number, default: 36 }, overlap: { type: Number, default: 8 }, label: { type: String, default: '成员' } })
+const visibleItems = computed((): MoriAvatarItem[] => props.items.slice(0, Math.floor(moriBound(props.max, 1, 100))))
+const remaining = computed((): number => Math.max(0, props.items.length - visibleItems.value.length))
+const overlapSize = computed((): number => moriBound(props.overlap, 0, Math.max(0, props.size / 2)))
+
+</script>
+
+<style lang="scss">
+.mori-avatar-group { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 2px; }.mori-avatar-group__item { border: 2px solid; border-radius: 50%; }.mori-avatar-group__more { display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-left: 4px; font-size: 12px; }
+.mori-avatar-group__label { font-size: 13px; line-height: 20px; }
+</style>

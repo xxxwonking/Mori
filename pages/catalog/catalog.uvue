@@ -1,0 +1,90 @@
+<template>
+  <!-- #ifdef APP -->
+  <scroll-view scroll-y class="catalog-scroll" :style="'background-color:' + moriPalette.ground">
+  <!-- #endif -->
+  <view class="catalog-page" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
+    <view class="catalog-header">
+      <mori-button label="返回工作台" variant="text" @click="goBack" />
+      <view class="catalog-themes"><mori-button label="浅色" variant="text" size="sm" @click="setMoriConfig({ theme: 'light' })" /><mori-button label="深色" variant="text" size="sm" @click="setMoriConfig({ theme: 'dark' })" /><mori-button label="跟随系统" variant="text" size="sm" @click="setMoriConfig({ theme: 'auto' })" /></view>
+    </view>
+    <view class="catalog-intro"><text class="catalog-title">组件全览</text><mori-text tone="muted" text="从内容展示到完整录入，直接操作每一个组件。示例数据仅保留在本页。" /></view>
+    <mori-tabs v-model="category" :items="categories" label="组件分类" />
+    <view class="catalog-section" v-if="category == 'basic'" :style="'background-color:' + moriPalette.surface">
+      <text class="catalog-heading">文字、图标与状态</text>
+      <view class="catalog-row"><mori-text text="默认文字" /><mori-text text="操作文字" tone="primary" bold /><mori-text text="需要留意" tone="danger" /><mori-tag text="进行中" /><mori-tag v-if="tagVisible" text="可移除" closable plain @close="tagVisible = false" /></view>
+      <view class="catalog-row"><mori-icon name="calendar" /><mori-icon name="search" /><mori-icon name="settings" /><mori-badge content="128"><mori-button label="消息" variant="soft" /></mori-badge><mori-badge dot label="有未读提醒"><mori-icon name="bell" /></mori-badge><mori-loading text="正在加载" /></view>
+      <mori-divider text="内容与反馈" />
+      <mori-cell title="通知设置" label="点击查看操作反馈" value="已开启" clickable is-link @click="status = '已点击通知设置'" />
+      <mori-cell title="当前版本" value="本地示例" />
+      <view class="catalog-space"><mori-progress :percentage="progress" /><mori-button label="增加进度" variant="text" @click="progress = progress >= 100 ? 0 : progress + 20" /></view>
+      <mori-skeleton :loading="skeleton" avatar><mori-text text="内容已经加载完成。" /></mori-skeleton>
+      <mori-button :label="skeleton ? '显示内容' : '显示骨架'" variant="text" @click="skeleton = !skeleton" />
+      <mori-divider text="过渡动画" />
+      <mori-button label="切换动画" variant="outline" @click="transition = !transition" />
+      <view class="catalog-motion"><mori-transition :show="transition" name="slide-up"><mori-text text="内容随状态平滑出现。" tone="primary" /></mori-transition></view>
+      <mori-empty title="还没有收藏" description="浏览组件后，将常用组件加入你的业务页面。"><mori-button label="查看导航组件" size="sm" variant="soft" @click="category = 'navigation'" /></mori-empty>
+    </view>
+    <view class="catalog-section" v-if="category == 'navigation'" :style="'background-color:' + moriPalette.surface">
+      <text class="catalog-heading">导航栏</text>
+      <mori-navbar title="页面标题" left-arrow left-text="返回" right-text="完成" @clickLeft="status = '点击返回'" @clickRight="status = '点击完成'" />
+      <mori-divider text="标签页" />
+      <mori-tabs v-model="tab" :items="tabs"><mori-text :text="'当前内容：' + tab" /></mori-tabs>
+      <mori-divider text="分页" />
+      <mori-pagination v-model="page" :total="96" />
+      <mori-text :text="'第 ' + page + ' 页，共 96 条'" tone="muted" />
+      <mori-pagination :model-value="1" :total="0" simple disabled />
+      <mori-divider text="底部导航" />
+      <mori-tabbar v-model="destination" :items="destinations" />
+      <mori-text :text="'当前导航：' + destination" tone="muted" />
+    </view>
+    <view class="catalog-section" v-if="category == 'feedback'" :style="'background-color:' + moriPalette.surface"><demo-extended-feedback /></view>
+    <view class="catalog-section" v-if="category == 'input'" :style="'background-color:' + moriPalette.surface"><demo-extended-input /></view>
+    <view class="catalog-section" v-if="category == 'media'" :style="'background-color:' + moriPalette.surface"><demo-media /></view>
+    <view class="catalog-section" v-if="category == 'organization'" :style="'background-color:' + moriPalette.surface"><demo-navigation /></view>
+    <view class="catalog-section" v-if="category == 'choice'" :style="'background-color:' + moriPalette.surface"><demo-choice /></view>
+    <view class="catalog-section" v-if="category == 'data'" :style="'background-color:' + moriPalette.surface"><demo-data /></view>
+    <text class="catalog-status" role="status" :style="'color:' + moriPalette.muted">{{ status }}</text>
+  </view>
+  <!-- #ifdef APP -->
+  </scroll-view>
+  <!-- #endif -->
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+import { moriPalette, setMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
+import { MoriNavItem } from '../../uni_modules/mori-ui/navigation.uts'
+const category = ref('basic')
+const categories: MoriNavItem[] = [{ label: '基础展示', value: 'basic' }, { label: '导航', value: 'navigation' }, { label: '反馈', value: 'feedback' }, { label: '录入', value: 'input' }, { label: '媒体内容', value: 'media' }, { label: '组织导航', value: 'organization' }, { label: '选择录入', value: 'choice' }, { label: '列表交互', value: 'data' }]
+const tabs: MoriNavItem[] = [{ label: '全部', value: 'all' }, { label: '待处理', value: 'pending', badge: '3' }, { label: '已完成', value: 'done' }, { label: '暂不可用', value: 'disabled', disabled: true }]
+const destinations: MoriNavItem[] = [{ label: '首页', value: 'home', icon: 'home' }, { label: '消息', value: 'messages', icon: 'bell', badge: '3' }, { label: '设置', value: 'settings', icon: 'settings' }]
+const tab = ref('all')
+const page = ref(1)
+const destination = ref('home')
+const status = ref('操作结果会显示在这里。')
+const progress = ref(40)
+const skeleton = ref(true)
+const transition = ref(true)
+const tagVisible = ref(true)
+function goBack() { uni.reLaunch({ url: '/pages/index/index' }) }
+</script>
+
+<style>
+.catalog-scroll { flex: 1; }
+.catalog-page { min-height: 100vh; padding: 20px 24px 40px; }
+.catalog-header { display: flex; flex-direction: row; justify-content: space-between; align-items: center; width: 100%; max-width: 960px; margin: 0 auto; }
+.catalog-themes { display: flex; flex-direction: row; }
+.catalog-intro { width: 100%; max-width: 960px; margin: 28px auto 20px; }
+.catalog-title { display: block; font-size: 28px; font-weight: 600; line-height: 38px; margin-bottom: 8px; }
+.catalog-page > .mori-tabs { max-width: 960px; margin: 0 auto; }
+.catalog-section { width: 100%; max-width: 960px; margin: 8px auto 0; padding: 24px; border-radius: 12px; }
+.catalog-heading { display: block; font-size: 15px; line-height: 24px; font-weight: 600; margin-bottom: 16px; }
+.catalog-row { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; margin-bottom: 20px; }
+.catalog-space { margin: 20px 0; }
+.catalog-motion { min-height: 44px; padding-top: 12px; }
+.catalog-status { display: block; width: 100%; max-width: 960px; margin: 16px auto 0; font-size: 12px; line-height: 20px; }
+/* #ifdef WEB */
+.catalog-page { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+@media (max-width: 640px) { .catalog-page { padding: 12px 12px 28px; } .catalog-header { align-items: flex-start; flex-direction: column; } .catalog-intro { margin-top: 20px; } .catalog-title { font-size: 24px; line-height: 34px; } .catalog-section { padding: 16px; } }
+/* #endif */
+</style>

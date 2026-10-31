@@ -1,0 +1,41 @@
+<template>
+
+<text class="mori-count-down" :style="'color:' + moriPalette.text" :aria-label="label + ' ' + formatted">{{ formatted }}</text>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriCountdownText, moriFinite } from '../../content.uts'
+const props = defineProps({ time: { type: Number, default: 0 }, autoStart: { type: Boolean, default: true }, label: { type: String, default: '剩余时间' } })
+const emit = defineEmits(['change', 'finish'])
+const remaining = ref(0)
+const running = ref(false)
+const formatted = computed((): string => moriCountdownText(remaining.value))
+let deadline = 0
+let timer = 0
+let lastSecond = -1
+function tick() {
+  remaining.value = Math.max(0, deadline - Date.now())
+  const second = Math.ceil(remaining.value / 1000)
+  if (second != lastSecond) { lastSecond = second; emit('change', remaining.value) }
+  if (remaining.value <= 0) { running.value = false; clearTimeout(timer); emit('finish'); return }
+  timer = setTimeout(tick, Math.min(100, remaining.value))
+}
+function start() { if (running.value || remaining.value <= 0) return; running.value = true; deadline = Date.now() + remaining.value; tick() }
+function pause() { if (!running.value) return; clearTimeout(timer); remaining.value = Math.max(0, deadline - Date.now()); running.value = false }
+function reset() { clearTimeout(timer); running.value = false; remaining.value = Math.max(0, moriFinite(props.time, 0)); lastSecond = -1; if (props.autoStart) start() }
+watch((): number => props.time, reset, { immediate: true })
+watch((): boolean => props.autoStart, (value: boolean) => { if (value) start(); else pause() })
+onBeforeUnmount(() => clearTimeout(timer))
+defineExpose({ start, pause, reset })
+
+</script>
+
+<style lang="scss">
+.mori-count-down { font-size: 18px; font-weight: 500; line-height: 28px; }
+/* #ifdef WEB */
+.mori-count-down { font-variant-numeric: tabular-nums; }
+/* #endif */
+</style>

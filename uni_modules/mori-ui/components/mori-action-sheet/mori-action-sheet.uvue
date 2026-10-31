@@ -1,0 +1,22 @@
+<template>
+<mori-popup :model-value="modelValue" :title="title" :closable="false" :close-on-overlay-click="closeOnOverlayClick" @close="cancel"><view class="mori-action-sheet"><text v-if="description.length > 0" class="mori-action-sheet__description" :style="'color:' + moriPalette.muted">{{ description }}</text><button @keydown.enter.prevent="select(action)" @keydown.space.prevent="select(action)" :aria-disabled="action.disabled == true || action.loading == true" :tabindex="(action.disabled == true || action.loading == true) ? -1 : 0" role="button" v-for="action in actions" :key="action.value" class="mori-action mori-action-sheet__action" :disabled="action.disabled == true || action.loading == true" :aria-busy="action.loading == true" :style="'color:' + (action.danger == true ? moriPalette.danger : moriPalette.text) + ';border-color:' + moriPalette.border" @click="select(action)"><mori-loading v-if="action.loading == true" :size="16" /><view class="mori-action-sheet__content"><text>{{ action.label }}</text><text v-if="action.description != null" class="mori-action-sheet__description" :style="'color:' + moriPalette.muted">{{ action.description }}</text></view></button><mori-empty v-if="actions.length == 0" title="暂无可用操作" /><button @keydown.enter.prevent="cancel" @keydown.space.prevent="cancel" :tabindex="0" role="button" v-if="cancelText.length > 0" class="mori-action mori-action-sheet__cancel" :style="'color:' + moriPalette.muted + ';background-color:' + moriPalette.ground" @click="cancel">{{ cancelText }}</button></view></mori-popup>
+</template>
+
+<script setup lang="uts">
+import { PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriAction } from '../../actions.uts'
+const props = defineProps({ modelValue: { type: Boolean, default: false }, title: { type: String, default: '' }, description: { type: String, default: '' }, actions: { type: Array as PropType<MoriAction[]>, default: (): MoriAction[] => [] }, cancelText: { type: String, default: '取消' }, closeOnSelect: { type: Boolean, default: true }, closeOnOverlayClick: { type: Boolean, default: true } })
+const emit = defineEmits(['update:modelValue', 'select', 'cancel'])
+function cancel() { if (!props.modelValue) return; emit('cancel'); emit('update:modelValue', false) }
+function select(action: MoriAction) { if (!props.modelValue || action.disabled == true || action.loading == true) return; emit('select', action); if (props.closeOnSelect) emit('update:modelValue', false) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-action-sheet { display: flex; flex-direction: column; }
+.mori-action-sheet__action { width: 100%; min-height: 44px; padding: 10px 12px; border-radius: 0; border-bottom-width: 1px; border-bottom-style: solid; }
+.mori-action-sheet__content { display: flex; flex-direction: column; align-items: center; }
+.mori-action-sheet__description { font-size: 11px; line-height: 18px; text-align: center; margin: 3px 0 6px; }
+.mori-action-sheet__cancel { margin-top: 12px; width: 100%; }
+</style>

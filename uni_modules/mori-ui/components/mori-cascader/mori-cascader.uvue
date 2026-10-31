@@ -1,0 +1,32 @@
+<template>
+
+<mori-popup :model-value="show" :title="title" :closable="false" @close="cancel"><view class="mori-cascader"><view class="mori-cascader__path"><mori-button label="全部选项" size="sm" variant="text" @click="back(0)" /><mori-button v-for="(item,index) in selectedNodes" :key="item.value" :label="item.label" size="sm" variant="text" @click="back(index + 1)" /></view><mori-loading v-if="loading" text="正在加载选项" /><view v-else-if="levelOptions.length > 0" class="mori-cascader__options"><button v-for="item in levelOptions" :key="item.value" class="mori-action mori-cascader__option" role="button" :tabindex="disabled || item.disabled == true ? -1 : 0" :disabled="disabled || item.disabled == true" :aria-disabled="disabled || item.disabled == true" :style="'color:' + moriPalette.text + ';border-color:' + moriPalette.border" @click="select(item.value)" @keydown.enter.prevent="select(item.value)" @keydown.space.prevent="select(item.value)"><text class="mori-cascader__label">{{ item.label }}</text><mori-icon v-if="item.children != null && item.children!.length > 0" name="chevron-right" :size="16" /></button></view><mori-text v-else-if="valid" text="已选到末级，确认后保存。" tone="muted" /><mori-empty v-else title="暂无选项" description="" /><view class="mori-cascader__actions"><mori-button label="取消" variant="outline" @click="cancel" /><mori-button label="确认" :disabled="!valid || disabled || loading" @click="confirm" /></view></view></mori-popup>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, watch, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriTreeNode, moriTreePath } from '../../extended-input.uts'
+const props = defineProps({ modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] }, show: { type: Boolean, default: false }, options: { type: Array as PropType<MoriTreeNode[]>, default: (): MoriTreeNode[] => [] }, title: { type: String, default: '逐级选择' }, loading: { type: Boolean, default: false }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'update:show', 'change', 'confirm', 'cancel'])
+const draft = ref<string[]>([])
+const selectedNodes = computed((): MoriTreeNode[] => moriTreePath(props.options, draft.value))
+const levelOptions = computed((): MoriTreeNode[] => { const nodes = selectedNodes.value; if (nodes.length == 0) return props.options; const children = nodes[nodes.length - 1].children; return children == null ? [] : children! })
+const valid = computed((): boolean => selectedNodes.value.length > 0 && selectedNodes.value.length == draft.value.length && levelOptions.value.length == 0)
+function sync() { draft.value = moriTreePath(props.options, props.modelValue).map((item: MoriTreeNode): string => item.value) }
+watch((): boolean => props.show, (value: boolean) => { if (value) sync() }, { immediate: true })
+watch((): string[] => props.modelValue, () => { if (props.show) sync() })
+function back(length: number) { if (!props.disabled && !props.loading) draft.value = draft.value.slice(0, length) }
+function select(value: string) { if (props.disabled || props.loading || !props.show) return; const item = levelOptions.value.find((node: MoriTreeNode): boolean => node.value == value && node.disabled != true); if (item == null) return; draft.value = selectedNodes.value.map((node: MoriTreeNode): string => node.value).concat([item.value]); emit('change', draft.value.slice()) }
+function cancel() { if (!props.show) return; emit('cancel'); emit('update:show', false) }
+function confirm() { if (!props.show || props.disabled || props.loading || !valid.value) return; emit('update:modelValue', draft.value.slice()); emit('confirm', draft.value.slice()); emit('update:show', false) }
+defineExpose({ confirm, cancel })
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-cascader__path { display: flex; flex-direction: row; flex-wrap: wrap; margin-bottom: 12px; gap: 4px; }.mori-cascader__options { max-height: 300px; overflow: auto; }.mori-cascader__option { width: 100%; justify-content: space-between; min-height: 44px; border-bottom: 1px solid; border-radius: 0; }.mori-cascader__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.mori-cascader__label { font-size: 13px; line-height: 20px; }
+</style>

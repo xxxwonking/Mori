@@ -1,0 +1,94 @@
+<template>
+  <view class="mori-calendar" :aria-label="title">
+    <view class="mori-calendar__header">
+      <button @keydown.enter.prevent="moveMonth(-1)" @keydown.space.prevent="moveMonth(-1)" :aria-disabled="disabled || !canPrev" :tabindex="(disabled || !canPrev) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.text" :disabled="disabled || !canPrev" aria-label="上个月" @click="moveMonth(-1)"><mori-icon name="chevron-left" :size="16" /></button>
+      <text class="mori-calendar__month" :style="'color:' + moriPalette.text">{{ year }} 年 {{ month }} 月</text>
+      <button @keydown.enter.prevent="moveMonth(1)" @keydown.space.prevent="moveMonth(1)" :aria-disabled="disabled || !canNext" :tabindex="(disabled || !canNext) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.text" :disabled="disabled || !canNext" aria-label="下个月" @click="moveMonth(1)"><mori-icon name="chevron-right" :size="16" /></button>
+    </view>
+    <view class="mori-calendar__grid">
+      <text v-for="weekday in weekdays" :key="weekday" class="mori-calendar__weekday" :style="'color:' + moriPalette.muted">{{ weekday }}</text>
+      <view v-for="blank in offset" :key="'blank-' + blank" class="mori-calendar__blank" />
+      <view v-for="day in days" :key="day.date" class="mori-calendar__cell">
+        <button @keydown.enter.prevent="select(day.date)" @keydown.space.prevent="select(day.date)" :aria-disabled="disabled || day.disabled" :tabindex="(disabled || day.disabled) ? -1 : 0" role="button" class="mori-action mori-calendar__day" :disabled="disabled || day.disabled" :aria-label="day.date + (day.text.length > 0 ? ' ' + day.text : '')" :aria-pressed="day.selected" :style="dayStyle(day)" @click="select(day.date)"><text>{{ day.day }}</text><text v-if="day.text.length > 0" class="mori-calendar__mark">{{ day.text }}</text></button>
+      </view>
+    </view>
+    <text v-if="message.length > 0" class="mori-calendar__message" role="status" :style="'color:' + moriPalette.danger">{{ message }}</text>
+    <view v-if="showConfirm" class="mori-calendar__footer"><mori-button :label="confirmText" block :disabled="disabled || !valid" @click="confirm" /></view>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriCalendarDay, MoriCalendarMark, moriPad, moriToday, parseMoriDate, formatMoriDate, moriDateAllowed, selectMoriDate, validMoriCalendarValue } from '../../calendar.uts'
+const props = defineProps({
+  modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] },
+  type: { type: String, default: 'single' },
+  title: { type: String, default: '选择日期' },
+  minDate: { type: String, default: '' },
+  maxDate: { type: String, default: '' },
+  defaultDate: { type: String, default: '' },
+  disabledDates: { type: Array as PropType<string[]>, default: (): string[] => [] },
+  marks: { type: Array as PropType<MoriCalendarMark[]>, default: (): MoriCalendarMark[] => [] },
+  maxRange: { type: Number, default: 0 },
+  firstDayOfWeek: { type: Number, default: 0 },
+  disabled: { type: Boolean, default: false },
+  showConfirm: { type: Boolean, default: true },
+  confirmText: { type: String, default: '确认日期' }
+})
+const emit = defineEmits(['update:modelValue', 'select', 'confirm', 'overRange', 'monthChange'])
+const year = ref(2026)
+const month = ref(1)
+const message = ref('')
+const firstDay = computed((): number => Math.max(0, Math.min(6, Math.floor(props.firstDayOfWeek))))
+const weekdays = computed((): string[] => { const names = ['日', '一', '二', '三', '四', '五', '六']; return names.slice(firstDay.value).concat(names.slice(0, firstDay.value)) })
+const monthKey = computed((): string => year.value + '-' + moriPad(month.value))
+const canPrev = computed((): boolean => monthKey.value > '1000-01' && (parseMoriDate(props.minDate) == null || monthKey.value > props.minDate.substring(0, 7)))
+const canNext = computed((): boolean => monthKey.value < '9999-12' && (parseMoriDate(props.maxDate) == null || monthKey.value < props.maxDate.substring(0, 7)))
+const offset = computed((): number => (new Date(Date.UTC(year.value, month.value - 1, 1)).getUTCDay() - firstDay.value + 7) % 7)
+const days = computed((): MoriCalendarDay[] => {
+  const count = new Date(Date.UTC(year.value, month.value, 0)).getUTCDate()
+  const result: MoriCalendarDay[] = []
+  for (let day = 1; day <= count; day++) {
+    const date = monthKey.value + '-' + moriPad(day)
+    const mark = props.marks.find((item: MoriCalendarMark): boolean => item.date == date)
+    result.push({ date, day, disabled: !moriDateAllowed(date, props.minDate, props.maxDate, props.disabledDates), selected: props.modelValue.includes(date), inRange: props.type == 'range' && props.modelValue.length == 2 && date > props.modelValue[0] && date < props.modelValue[1], text: mark != null ? mark.text : '' })
+  }
+  return result
+})
+const valid = computed((): boolean => validMoriCalendarValue(props.modelValue, props.type, props.minDate, props.maxDate, props.disabledDates, props.maxRange))
+function dayStyle(day: MoriCalendarDay): string { return 'color:' + (day.selected ? moriPalette.value.onPrimary : day.inRange ? moriPalette.value.primary : moriPalette.value.text) + ';background-color:' + (day.selected ? moriPalette.value.primary : day.inRange ? moriPalette.value.soft : 'transparent') }
+function scrollToDate(value: string) {
+  let candidate = parseMoriDate(value) != null ? value : moriToday()
+  if (parseMoriDate(props.minDate) != null && candidate < props.minDate) candidate = props.minDate
+  if (parseMoriDate(props.maxDate) != null && candidate > props.maxDate) candidate = props.maxDate
+  const date = parseMoriDate(candidate)
+  if (date != null) { year.value = date.getUTCFullYear(); month.value = date.getUTCMonth() + 1 }
+}
+function moveMonth(direction: number) { if (props.disabled || direction < 0 && !canPrev.value || direction > 0 && !canNext.value) return; const date = new Date(Date.UTC(year.value, month.value - 1 + direction, 1)); scrollToDate(formatMoriDate(date)); emit('monthChange', monthKey.value) }
+function select(value: string) {
+  if (props.disabled) return
+  const next = selectMoriDate(props.modelValue, value, props.type, props.minDate, props.maxDate, props.disabledDates, props.maxRange)
+  if (next == null) { message.value = '所选区间包含不可用日期或超过天数限制，请重新选择。'; emit('overRange', value); return }
+  message.value = ''; emit('update:modelValue', next); emit('select', next)
+}
+function confirm() { if (!props.disabled && valid.value) emit('confirm', props.modelValue.slice()) }
+scrollToDate(props.modelValue.length > 0 ? props.modelValue[0] : props.defaultDate)
+watch((): string => props.minDate + '|' + props.maxDate, () => scrollToDate(monthKey.value + '-01'))
+watch((): string => props.defaultDate, scrollToDate)
+defineExpose({ scrollToDate, confirm })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-calendar { width: 100%; }
+.mori-calendar__header { display: flex; flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mori-calendar__month { font-size: 14px; line-height: 22px; font-weight: 600; }
+.mori-calendar__grid { display: flex; flex-direction: row; flex-wrap: wrap; }
+.mori-calendar__weekday { width: 14.285714%; font-size: 11px; line-height: 28px; text-align: center; }
+.mori-calendar__blank, .mori-calendar__cell { width: 14.285714%; min-height: 46px; }
+.mori-calendar__day { width: 100%; min-height: 44px; padding: 4px 0; display: flex; flex-direction: column; }
+.mori-calendar__mark { font-size: 9px; line-height: 14px; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mori-calendar__message { display: block; font-size: 11px; line-height: 18px; margin-top: 8px; }
+.mori-calendar__footer { margin-top: 14px; }
+</style>

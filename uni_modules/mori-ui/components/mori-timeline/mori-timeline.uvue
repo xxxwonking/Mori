@@ -1,0 +1,18 @@
+<template>
+
+<view class="mori-timeline" role="list" :aria-label="label"><view v-for="(item,index) in displayed" :key="index" class="mori-timeline__item" role="listitem"><view class="mori-timeline__rail"><view class="mori-timeline__dot" :style="'background-color:' + (item.error == true ? moriPalette.danger : moriPalette.primary)" /><view v-if="index < displayed.length - 1" class="mori-timeline__line" :style="'background-color:' + moriPalette.border" /></view><view class="mori-timeline__copy"><text v-if="item.time != null" class="mori-timeline__time" :style="'color:' + moriPalette.muted">{{ item.time }}</text><text class="mori-timeline__title" :style="'color:' + moriPalette.text">{{ item.title }}</text><text v-if="item.description != null" class="mori-timeline__description" :style="'color:' + moriPalette.muted">{{ item.description }}</text></view></view><slot /></view>
+</template>
+
+<script setup lang="uts">
+
+import { computed, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriStepItem } from '../../content.uts'
+const props = defineProps({ items: { type: Array as PropType<MoriStepItem[]>, default: (): MoriStepItem[] => [] }, reverse: { type: Boolean, default: false }, label: { type: String, default: '时间线' } })
+const displayed = computed((): MoriStepItem[] => props.reverse ? props.items.slice().reverse() : props.items)
+
+</script>
+
+<style lang="scss">
+.mori-timeline__item { display: flex; flex-direction: row; }.mori-timeline__rail { width: 16px; display: flex; align-items: center; flex-direction: column; flex-shrink: 0; }.mori-timeline__dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; }.mori-timeline__line { width: 1px; flex: 1; margin: 4px 0; }.mori-timeline__copy { flex: 1; display: flex; flex-direction: column; padding: 0 0 24px 10px; gap: 4px; }.mori-timeline__title { font-size: 13px; line-height: 20px; }.mori-timeline__time,.mori-timeline__description { font-size: 12px; line-height: 18px; }
+</style>

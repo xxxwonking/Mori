@@ -1,0 +1,23 @@
+<template>
+<mori-popup :model-value="show" :title="title" :closable="false" @close="cancel"><view class="mori-picker"><mori-loading v-if="loading" text="正在加载选项" /><mori-radio-group v-else-if="options.length > 0" v-model="draft" :options="options" :label="title" :disabled="disabled" /><mori-empty v-else title="暂无可选项" description="请稍后重试。" /><view class="mori-picker__actions"><mori-button :label="cancelText" variant="outline" @click="cancel" /><mori-button :label="confirmText" :disabled="!valid || loading || disabled" @click="confirm" /></view></view></mori-popup>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, PropType } from 'vue'
+import { MoriChoiceOption } from '../../selection.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, show: { type: Boolean, default: false }, title: { type: String, default: '请选择' }, options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] }, disabled: { type: Boolean, default: false }, loading: { type: Boolean, default: false }, confirmText: { type: String, default: '确认' }, cancelText: { type: String, default: '取消' } })
+const emit = defineEmits(['update:modelValue', 'update:show', 'confirm', 'cancel'])
+const draft = ref('')
+const valid = computed((): boolean => props.options.some((item: MoriChoiceOption): boolean => item.value == draft.value && item.disabled != true))
+watch((): boolean => props.show, (open: boolean) => { if (open) draft.value = props.modelValue }, { immediate: true })
+watch((): string => props.modelValue, (value: string) => { if (props.show) draft.value = value })
+function cancel() { if (props.show) { emit('cancel'); emit('update:show', false) } }
+function confirm() { if (!props.show || !valid.value || props.disabled || props.loading) return; emit('update:modelValue', draft.value); emit('confirm', draft.value); emit('update:show', false) }
+defineExpose({ confirm, cancel })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-picker { width: 100%; }
+.mori-picker__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+</style>

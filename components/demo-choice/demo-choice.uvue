@@ -1,0 +1,31 @@
+<template>
+  <view>
+    <text class="catalog-heading">级联选择与树选择</text>
+    <mori-text text="级联选择确认后提交完整路径；树选择只选择末级项目。" tone="muted" />
+    <view class="demo-choice__space"><mori-button label="选择地区" variant="outline" @click="show = true" /><mori-text :text="'已确认路径：' + (path.length == 0 ? '未选择' : path.join(' / '))" tone="muted" /></view>
+    <mori-tree-select v-model="selected" :options="tree" :default-expanded="['fruit']" :max="2" />
+    <mori-text :text="'树选择：' + (selected.length == 0 ? '未选择' : selected.join(', '))" tone="muted" />
+    <mori-divider text="密码格与数字键盘" />
+    <mori-password-input :value="pin" :focused="keyboard" info="示例验证码，不会发送或保存" @focus="keyboard = true" />
+    <view class="demo-choice__space"><mori-number-keyboard v-model="pin" v-model:show="keyboard" @confirm="status = '已确认 ' + $event.length + ' 位'" /></view>
+    <mori-button v-if="!keyboard" label="重新打开键盘" variant="text" @click="keyboard = true" />
+    <mori-text :text="status" tone="muted" />
+    <mori-cascader v-model="path" v-model:show="show" :options="areas" title="选择地区" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriTreeNode } from '../../uni_modules/mori-ui/extended-input.uts'
+const areas: MoriTreeNode[] = [{ value: 'zj', label: '浙江', children: [{ value: 'hz', label: '杭州', children: [{ value: 'xh', label: '西湖区' }, { value: 'gs', label: '拱墅区' }] }, { value: 'nb', label: '宁波', disabled: true }] }, { value: 'js', label: '江苏', children: [{ value: 'nj', label: '南京' }] }]
+const tree: MoriTreeNode[] = [{ value: 'fruit', label: '水果', children: [{ value: 'apple', label: '苹果' }, { value: 'pear', label: '梨' }, { value: 'peach', label: '桃' }, { value: 'disabled', label: '暂不可选', disabled: true }] }, { value: 'vegetable', label: '蔬菜', children: [{ value: 'tomato', label: '番茄' }] }]
+const path = ref<string[]>([])
+const selected = ref<string[]>([])
+const show = ref(false)
+const pin = ref('')
+const keyboard = ref(true)
+const status = ref('选择结果由当前页面持有。')
+</script>
+<style lang="scss">
+@import '../demo-catalog.scss';
+.demo-choice__space { margin: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+</style>

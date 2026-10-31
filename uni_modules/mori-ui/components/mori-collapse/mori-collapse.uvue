@@ -1,0 +1,26 @@
+<template>
+<view class="mori-collapse"><view v-for="(item, index) in items" :key="item.value" class="mori-collapse__item" :style="'border-color:' + moriPalette.border"><button @keydown.enter.prevent="toggle(item.value)" @keydown.space.prevent="toggle(item.value)" :aria-disabled="disabled || item.disabled == true" :tabindex="(disabled || item.disabled == true) ? -1 : 0" role="button" class="mori-action mori-collapse__header" :disabled="disabled || item.disabled == true" :style="'color:' + moriPalette.text" :aria-expanded="modelValue.includes(item.value)" :aria-controls="id + '-' + index" @click="toggle(item.value)"><text class="mori-collapse__title">{{ item.label }}</text><view :style="'transform:rotate(' + (modelValue.includes(item.value) ? '180' : '0') + 'deg)'" class="mori-collapse__arrow"><mori-icon name="chevron-down" :size="16" /></view></button><view v-if="modelValue.includes(item.value)" :id="id + '-' + index" class="mori-collapse__body" role="region" :aria-label="item.label"><slot :name="item.value"><mori-text :text="item.content" tone="muted" /></slot></view></view></view>
+</template>
+
+<script setup lang="uts">
+import { PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { MoriCollapseItem } from '../../input.uts'
+const props = defineProps({ modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] }, items: { type: Array as PropType<MoriCollapseItem[]>, default: (): MoriCollapseItem[] => [] }, accordion: { type: Boolean, default: false }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const id = createMoriFieldId()
+function toggle(value: string) { const item = props.items.find((entry: MoriCollapseItem): boolean => entry.value == value); if (props.disabled || item == null || item.disabled == true) return; const next = props.modelValue.includes(value) ? props.modelValue.filter((entry: string): boolean => entry != value) : props.accordion ? [value] : props.modelValue.concat([value]); emit('update:modelValue', next); emit('change', next) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-collapse__item { border-bottom-width: 1px; border-bottom-style: solid; }
+.mori-collapse__header { width: 100%; justify-content: space-between; padding: 10px 0; }
+.mori-collapse__title { flex: 1; text-align: left; }
+.mori-collapse__body { padding: 0 0 14px; }
+.mori-collapse__arrow { transition: transform 180ms ease; }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-collapse__arrow { transition: none; } }
+/* #endif */
+</style>

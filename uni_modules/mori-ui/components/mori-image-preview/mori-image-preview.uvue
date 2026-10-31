@@ -1,0 +1,20 @@
+<template>
+
+<mori-popup :model-value="show" position="center" :title="title" @close="close"><view class="mori-image-preview"><mori-image v-if="images.length > 0" :src="images[current]" :alt="'图片 ' + (current + 1)" height="280px" mode="aspectFit" :preview="nativePreview" /><mori-empty v-else title="暂无图片" description="" /><view v-if="images.length > 0" class="mori-image-preview__controls"><mori-button label="上一张" size="sm" variant="text" :disabled="current == 0" @click="move(-1)" /><mori-text :text="(current + 1) + ' / ' + images.length" tone="muted" /><mori-button label="下一张" size="sm" variant="text" :disabled="current >= images.length - 1" @click="move(1)" /></view></view></mori-popup>
+</template>
+
+<script setup lang="uts">
+
+import { computed, PropType } from 'vue'
+import { moriBound } from '../../content.uts'
+const props = defineProps({ show: { type: Boolean, default: false }, modelValue: { type: Number, default: 0 }, images: { type: Array as PropType<string[]>, default: (): string[] => [] }, title: { type: String, default: '图片预览' }, nativePreview: { type: Boolean, default: false } })
+const emit = defineEmits(['update:show', 'update:modelValue', 'change', 'close'])
+const current = computed((): number => Math.floor(moriBound(props.modelValue, 0, Math.max(0, props.images.length - 1))))
+function move(delta: number) { const next = current.value + delta; if (next < 0 || next >= props.images.length) return; emit('update:modelValue', next); emit('change', next) }
+function close() { emit('update:show', false); emit('close') }
+
+</script>
+
+<style lang="scss">
+.mori-image-preview { width: 100%; }.mori-image-preview__controls { margin-top: 12px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+</style>

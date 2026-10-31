@@ -1,0 +1,17 @@
+<template>
+
+<view class="mori-action-bar" :class="{ 'mori-action-bar--fixed': fixed }" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view class="mori-action-bar__content"><view class="mori-action-bar__summary"><slot /></view><view class="mori-action-bar__buttons"><mori-button v-if="secondaryText.length > 0" :label="secondaryText" variant="outline" :disabled="disabled || loading" @click="emit('secondary')" /><mori-button :label="primaryText" :loading="loading" :disabled="disabled" @click="primary" /></view></view><mori-safe-area v-if="safeAreaInsetBottom" /></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ primaryText: { type: String, default: '确认' }, secondaryText: { type: String, default: '' }, loading: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, fixed: { type: Boolean, default: false }, safeAreaInsetBottom: { type: Boolean, default: true } })
+const emit = defineEmits(['primary', 'secondary'])
+function primary() { if (!props.disabled && !props.loading) emit('primary') }
+
+</script>
+
+<style lang="scss">
+.mori-action-bar { border-top: 1px solid; }.mori-action-bar--fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; }.mori-action-bar__content { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 16px; }.mori-action-bar__summary { flex: 1; min-width: 80px; }.mori-action-bar__buttons { display: flex; flex-direction: row; gap: 8px; flex-wrap: wrap; }
+</style>

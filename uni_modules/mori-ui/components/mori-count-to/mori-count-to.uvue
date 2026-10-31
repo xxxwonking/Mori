@@ -1,0 +1,35 @@
+<template>
+
+<text class="mori-count-to" :style="'color:' + moriPalette.text" :aria-label="label.length > 0 ? label + ' ' + endValue : null">{{ prefix + formatted + suffix }}</text>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriBound, moriFinite } from '../../content.uts'
+import { moriOverlayReducedMotion } from '../../platform/overlay-accessibility.uts'
+const props = defineProps({ startValue: { type: Number, default: 0 }, endValue: { type: Number, default: 0 }, duration: { type: Number, default: 800 }, decimals: { type: Number, default: 0 }, autoplay: { type: Boolean, default: true }, prefix: { type: String, default: '' }, suffix: { type: String, default: '' }, label: { type: String, default: '' } })
+const emit = defineEmits(['finish'])
+const value = ref(0)
+const formatted = computed((): string => value.value.toFixed(Math.floor(moriBound(props.decimals, 0, 6))))
+let timer = 0
+let began = 0
+let from = 0
+let to = 0
+let span = 0
+function tick() { const ratio = span <= 0 ? 1 : Math.min(1, (Date.now() - began) / span); value.value = from + (to - from) * (1 - Math.pow(1 - ratio, 3)); if (ratio >= 1) { value.value = to; emit('finish', to) } else timer = setTimeout(tick, 16) }
+function start() { clearTimeout(timer); from = moriFinite(props.startValue, 0); to = moriFinite(props.endValue, 0); span = moriOverlayReducedMotion() ? 0 : moriBound(props.duration, 0, 60000); value.value = from; began = Date.now(); tick() }
+function reset() { clearTimeout(timer); value.value = moriFinite(props.startValue, 0); if (props.autoplay) start() }
+watch((): string => props.startValue + ':' + props.endValue + ':' + props.duration + ':' + props.autoplay, reset, { immediate: true })
+onBeforeUnmount(() => clearTimeout(timer))
+defineExpose({ start, reset })
+
+</script>
+
+<style lang="scss">
+.mori-count-to { font-size: 20px; font-weight: 600; line-height: 28px; }
+/* #ifdef WEB */
+.mori-count-to { font-variant-numeric: tabular-nums; }
+/* #endif */
+</style>

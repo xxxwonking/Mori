@@ -1,0 +1,21 @@
+<template>
+<view class="mori-navbar" :class="{ 'mori-navbar--fixed': fixed, 'mori-navbar--safe': safeAreaInsetTop }" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view class="mori-navbar__row"><button @keydown.enter.prevent="emit('clickLeft')" @keydown.space.prevent="emit('clickLeft')" :tabindex="0" role="button" v-if="leftText.length > 0 || leftArrow" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" :aria-label="leftText.length > 0 ? leftText : '返回'" @click="emit('clickLeft')"><mori-icon v-if="leftArrow" name="chevron-left" :size="18" /><text>{{ leftText }}</text></button><view v-else class="mori-navbar__side" /><text class="mori-navbar__title" :style="'color:' + moriPalette.text">{{ title }}</text><button @keydown.enter.prevent="emit('clickRight')" @keydown.space.prevent="emit('clickRight')" :tabindex="0" role="button" v-if="rightText.length > 0" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" @click="emit('clickRight')">{{ rightText }}</button><view v-else class="mori-navbar__side"><slot name="right" /></view></view></view>
+</template>
+
+<script setup lang="uts">
+import { moriPalette } from '../../theme.uts'
+defineProps({ title: { type: String, default: '' }, leftText: { type: String, default: '' }, leftArrow: { type: Boolean, default: false }, rightText: { type: String, default: '' }, fixed: { type: Boolean, default: false }, safeAreaInsetTop: { type: Boolean, default: false } })
+const emit = defineEmits(['clickLeft', 'clickRight'])
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-navbar { width: 100%; border-bottom-width: 1px; border-bottom-style: solid; }
+.mori-navbar__row { display: flex; flex-direction: row; align-items: center; min-height: 44px; }
+.mori-navbar--fixed { position: fixed; left: 0; right: 0; top: 0; z-index: 100; }
+.mori-navbar__side { width: 80px; flex-shrink: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; }
+.mori-navbar__title { flex: 1; min-width: 0; font-size: 15px; line-height: 22px; font-weight: 600; text-align: center; }
+/* #ifdef WEB || MP-WEIXIN */
+.mori-navbar--safe { padding-top: env(safe-area-inset-top); }
+/* #endif */
+</style>

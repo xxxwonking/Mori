@@ -34,3 +34,26 @@ Vant 和 Wot 作为 API / 视觉实现参考，未作为运行依赖引入；组
 | [Wot Popup](https://wot-ui.cn/component/popup.html) | uni-app 场景中的弹出位置、遮罩和底部安全区 | 按 UTS／uvue 自行实现，H5 DOM 行为隔离到 platform；原生和小程序滚动／焦点能力按实际验证记录处理 |
 
 Mori 的 prop 名称、默认值和事件与参考库不完全一致，接入时以本项目 API 为准。Toast、Popup、Dialog 的字体、圆角、按钮尺寸及亮暗配色沿用 Mori 规范；继续复用已随模块分发的 Lucide 图标及许可，没有新增上述参考库的运行依赖。
+
+
+## 2026-10-30：常用组件目录扩展
+
+查阅并自行以UTS实现，没有增加上游运行依赖：
+
+| 官方来源 | 采用的交互约定 | Mori边界 |
+|---|---|---|
+| [Vant Calendar源码文档](https://raw.githubusercontent.com/youzan/vant/main/packages/vant/src/calendar/README.zh-CN.md) | 单选/多选/范围、禁用与确认 | 使用严格字符串日期数组、月切换与标记；不照搬Date对象API |
+| [Vant Uploader源码文档](https://raw.githubusercontent.com/youzan/vant/main/packages/vant/src/uploader/README.zh-CN.md) | 文件列表、预览、读取后业务处理 | 提供afterRead及可选uni.uploadFile适配；不是Vant的浏览器File对象 |
+| [Wot Tabs源码文档](https://raw.githubusercontent.com/Moonofweisheng/wot-design-uni/master/docs/component/tabs.md) | 标签唯一标识、禁用与切换 | 使用string value + items；内容通过slot，不实现Wot全套Tab子组件接口 |
+| [uview-plus NumberBox](https://raw.githubusercontent.com/ijry/uview-plus/master/src/uni_modules/uview-plus/components/u-number-box/props.js) | 步长、上下界和禁用输入 | 数值模型与有限边界，原有36px设计 |
+| [uview-plus DatetimePicker](https://raw.githubusercontent.com/ijry/uview-plus/master/src/uni_modules/uview-plus/components/u-datetime-picker/props.js) | 显隐模型与日期时间选择 | Mori组合日历与时分步进，返回本地格式字符串 |
+| [uview-plus Upload](https://raw.githubusercontent.com/ijry/uview-plus/master/src/uni_modules/uview-plus/components/u-upload/props.js) | 选择前处理与文件预览/状态 | 独立平台选择与请求入口，iOS差异编号跟踪 |
+
+新增16种Lucide图标从官方icons目录获取，仅调整浅深描边；Mori的home名称映射上游house。许可继续随模块分发。
+
+
+## 2026-10-31 通用覆盖扩充参考
+
+参考 [Vant Cascader](https://github.com/youzan/vant/blob/main/packages/vant/src/cascader/README.zh-CN.md) 的逐级选择与路径语义、[Vant List](https://github.com/youzan/vant/blob/main/packages/vant/src/list/README.zh-CN.md) 的 loading／finished／error 分离。查阅 [Wot NumberKeyboard](https://github.com/Moonofweisheng/wot-design-uni/blob/master/docs/component/number-keyboard.md) 时确认其已迁移到 Keyboard；Mori 保留明确的 NumberKeyboard 名称，只承诺数字／小数点／X 键能力。未引入这些库运行依赖、未复制其组件实现。
+
+新增 static/examples/geometry.svg 是项目自绘矩形、圆与线段，用于图片加载／裁切／预览验证；沿用随库 Lucide 图标许可，未增加外部照片。

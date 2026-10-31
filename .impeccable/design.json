@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-30T03:23:36.990Z",
+  "generatedAt": "2026-10-31T02:48:44.716Z",
   "title": "Design System: Mori UI",
   "extensions": {
     "colorMeta": {
@@ -303,6 +303,22 @@
       "checkbox-label": {
         "displayName": "checkbox-label",
         "purpose": "对应实际组件文字层级。"
+      },
+      "card-title": {
+        "displayName": "卡片标题",
+        "purpose": "Card 的紧凑内容标题。"
+      },
+      "keyboard-key": {
+        "displayName": "数字键",
+        "purpose": "内联 NumberKeyboard 按键，保持三列数字辨识。"
+      },
+      "count-down": {
+        "displayName": "倒计时",
+        "purpose": "CountDown 剩余时间；H5 使用 tabular-nums。"
+      },
+      "count-to": {
+        "displayName": "数值展示",
+        "purpose": "CountTo 的结果数字；H5 使用 tabular-nums。"
       }
     },
     "motion": [
@@ -320,6 +336,61 @@
         "name": "checkbox",
         "value": "160ms ease",
         "purpose": "勾的 opacity / transform 与方框背景、边框。"
+      },
+      {
+        "name": "transition",
+        "value": "180ms ease-in-out",
+        "purpose": "默认 fade；slide-up 从 translateY(12px) 进入，zoom 从 scale(0.96) 进入，同时淡入淡出。H5 减少动态效果时取消过渡。"
+      },
+      {
+        "name": "loading",
+        "value": "800ms linear infinite",
+        "purpose": "圆环旋转；H5 减少动态效果时保留静态圆环和状态文案。"
+      },
+      {
+        "name": "skeleton",
+        "value": "1.4s ease-in-out infinite",
+        "purpose": "行占位透明度在 1 与 0.45 之间循环；H5 减少动态效果时保留静态占位。"
+      },
+      {
+        "name": "tabs-progress-collapse",
+        "value": "180ms ease",
+        "purpose": "分别用于标签文字及底边颜色、进度宽度和折叠箭头旋转；H5 减少动态效果时取消 CSS 过渡。"
+      },
+      {
+        "name": "rate",
+        "value": "160ms ease",
+        "purpose": "评分操作的选中背景；H5 减少动态效果时取消过渡。"
+      },
+      {
+        "name": "slider-theme",
+        "value": "none",
+        "purpose": "H5 实际轨道和填充取消宿主颜色过渡，拖动直接跟随输入，主题即时更新。"
+      },
+      {
+        "name": "segmented-sidebar",
+        "value": "180ms ease",
+        "purpose": "选中项的背景与文字颜色；H5 减少动态效果时取消过渡，外部尺寸不变。"
+      },
+      {
+        "name": "swipe-cell",
+        "value": "180ms ease-in-out",
+        "purpose": "释放后平移至展开或收起位置；拖动时过渡时长为零，H5 减少动态效果时取消过渡。"
+      },
+      {
+        "name": "swiper",
+        "value": "280ms host transition",
+        "purpose": "宿主轮播切换，默认关闭自动播放；H5 减少动态效果时禁止自动播放并将切换时长归零。"
+      },
+      {
+        "name": "count-to",
+        "value": "800ms; 1 - (1 - t)^3",
+        "purpose": "默认三次减速数值插值；H5 减少动态效果时直接显示终值。"
+      },
+      {
+        "name": "back-top",
+        "value": "280ms host scroll",
+        "purpose": "默认返回页面顶部；H5 减少动态效果时宿主滚动时长归零。"
       }
     ],
     "breakpoints": [
@@ -341,6 +412,237 @@
         "name": "switch-thumb",
         "value": "0 1px 3px rgba(0,0,0,0.14)",
         "purpose": "H5 滑块轻微投影。"
+      }
+    ],
+    "componentPatterns": [
+      {
+        "name": "基础展示与动画",
+        "components": [
+          "text",
+          "icon",
+          "loading",
+          "transition",
+          "divider",
+          "cell",
+          "tag",
+          "badge",
+          "progress",
+          "skeleton",
+          "empty",
+          "collapse"
+        ],
+        "tokenReferences": [
+          "{colors.ink}",
+          "{colors.muted}",
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.border}",
+          "{colors.surface}",
+          "{colors.ground}",
+          "{colors.danger}",
+          "{colors.danger-soft}"
+        ],
+        "description": "Text 默认 13px，使用正文／辅助／主色／危险四种语义，允许显式字号与颜色。Icon 默认 18px，延续随库 Lucide SVG 与浅深色资源；带语义的图标有名称，装饰图标不重复朗读。Divider 使用 1px 边界色线条和 12px 辅助文字。\n\nTag 以 11px 文字和小圆角表达轻量状态，primary／danger／default 分别复用主色柔和底、危险柔和底和中性地色；plain 使用透明底与对应语义描边。关闭按钮仍用图标并保留操作名称。Badge 使用 danger 与自动前景；容器始终预留顶部 6px、右侧 8px，16px 数字标记或 6px 圆点留在边界内，显隐不改变这份占位。\n\nCell 使用 surface 和单一底部分隔线，至少 44px，标题／值 13px、说明 11px；长内容可换行，右侧值不超过 55%。Collapse 使用同一边界色和整行按钮，展开区域承接正文，箭头旋转表达展开状态；禁用项保留可见说明。\n\nProgress 使用主色填充与边界色轨道，默认轨道 4px，百分比为 11px；有可访问的数值范围。Loading 使用主色环段与边界色圆环，附加文字 12px。Skeleton 复用边界色占位，默认三行、末行缩为 60%，可选 36px 圆形头像。Empty 以 28px 图标、13px 标题、12px 说明和可选操作提供空态。",
+        "motion": "Transition 默认 180ms ease-in-out；Loading 800ms linear；Skeleton 1.4s ease-in-out；Progress 与 Collapse 180ms ease。H5 减少动态效果时取消相应 CSS 动画与过渡。"
+      },
+      {
+        "name": "导航",
+        "components": [
+          "navbar",
+          "tabs",
+          "tabbar",
+          "pagination"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.muted}",
+          "{colors.surface}",
+          "{colors.border}"
+        ],
+        "description": "Navbar、Tabs、Tabbar、Pagination 是独立导出组件。Navbar 使用表面色与底部细边框，标题居中，操作位于两侧；内容行至少 44px、标题 15px。固定定位与顶部安全区由使用者显式开启。\n\nTabs 以主色文字和始终预留的 2px 底边框表达当前项，未选中边框透明；项目横向滚动，操作行至少 40px。Tabbar 使用主色文字与柔和底色，图标和 11px 标签上下排列，项目至少 48px；固定定位默认关闭，底部安全区默认开启。Pagination 沿用 36px 操作按钮，当前页用柔和底色，边界前后页禁用，窄容器可换行。\n\n这些组件的禁用项需同时保留行为约束与可访问状态；Tabs 使用左右键跳过禁用项。交互按钮复用共享 reset：至少 36px、13px 文字、禁用透明度 0.4，H5 焦点框收在按钮内；组件的专用行高不改变基础 Button／Input 的默认尺寸。"
+      },
+      {
+        "name": "反馈扩展",
+        "components": [
+          "action-sheet",
+          "popover",
+          "notify"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.ink}",
+          "{colors.muted}",
+          "{colors.surface}",
+          "{colors.ground}",
+          "{colors.border}",
+          "{colors.danger}",
+          "{rounded.control}"
+        ],
+        "description": "ActionSheet 复用底部 Popup，以细分隔线组织至少 44px 的操作行，危险操作用 danger 文字；说明文字 11px，取消区使用 ground。加载与禁用操作不能触发选择，空列表显示 Empty。\n\nPopover 的触发器使用主色文字与柔和底色；菜单使用 surface、1px border 和 8px 圆角，不添加投影。菜单按触发器的屏幕位置固定放置，边缘至少留 8px，必要时翻到上方，长菜单在内部滚动；H5 视口变化或滚动时关闭。它复用浮层层级和键盘管理，未提供跨端 portal，需避免被业务祖先裁切。\n\nNotify 使用顶部通栏，普通通知用 primary、错误用 danger，并自动配对前景；正文 13px，可关闭操作 12px。重复调用替换当前内容与计时；持续通知可显式关闭，不靠动画或颜色单独表达结果。",
+        "composition": "ActionSheet 复用既有 Popup，保留 280ms ease-in-out 的位移和透明度同步过渡。Popover 使用浮层层级和键盘管理；Notify 使用实际背景的自动黑白前景。"
+      },
+      {
+        "name": "数值与搜索录入",
+        "components": [
+          "stepper",
+          "slider",
+          "rate",
+          "search"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.border}",
+          "{colors.ground}",
+          "{colors.ink}",
+          "{components.input}",
+          "{components.button-text}"
+        ],
+        "description": "Search 直接组合 Input 与文字 Button，沿用单一边框、清空图标、36px 默认高度；键盘搜索与按钮提交表达同一操作。\n\nStepper 使用 36px 增减按钮、68px 输入容器与两侧 6px 间距，底部对齐有标签的输入。输入复用 Input，草稿允许小数或负号的编辑中间态，失焦／确认后按范围与步长规范化；边界按钮禁用，不能通过回填跳动打断输入。\n\nSlider 使用主色的活动轨道和 20px 滑块、边界色背景轨道；H5 可访问名称与禁用状态同步到实际 range 输入。Rate 默认五个 36px 星形操作，选中范围使用柔和底色，星形本身沿用主题图标；只读与禁用阻止修改。"
+      },
+      {
+        "name": "选项与日期时间",
+        "components": [
+          "picker",
+          "calendar",
+          "datetime-picker"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.muted}",
+          "{colors.danger}",
+          "{components.calendar-selected}",
+          "{components.calendar-range-middle}",
+          "{components.button-solid}",
+          "{components.button-outline}"
+        ],
+        "description": "Picker 组合 RadioGroup、Loading、Empty 和底部 Popup，以草稿选择、取消、确认组织操作；加载或无有效选项时禁用确认，不另造滚轮皮肤。\n\nCalendar 使用七列日期网格。日期按钮至少 44px，单元格至少 46px；月标题 14px、星期 11px、日期标记 9px。单选、多选以及范围端点使用 primary／onPrimary，中间日期使用 soft／primary；选择只改变颜色，不能改变日期格外部尺寸。禁用日期不可选，区间受限时显示文字说明，确认使用既有 Button。\n\nDatetimePicker 组合 Calendar 与 Stepper，按 date／time／datetime 显示日期和时间，摘要用辅助色或错误色；取消保留原值，确认才提交有效草稿。Picker 与 DatetimePicker 的操作使用现有 36px Button，继承 Popup 的主题、动效和关闭生命周期。",
+        "foreground": "Calendar 选中端点使用运行时 moriPalette.onPrimary；默认浅色前景只是 frontmatter 的静态结果。"
+      },
+      {
+        "name": "上传",
+        "components": [
+          "upload"
+        ],
+        "tokenReferences": [
+          "{colors.surface}",
+          "{colors.border}",
+          "{colors.ink}",
+          "{colors.muted}",
+          "{colors.danger}",
+          "{rounded.control}",
+          "{components.button-outline}"
+        ],
+        "description": "Upload 以列表展示图片，文件行使用 1px 主题边框、8px 圆角、8px 内边距与 48px 缩略图。文件名 12px，提示与状态 11px；上传中复用 Progress，失败使用 danger 文字与明确重试操作。选择按钮复用 outline Button，删除使用带名称的图标。等待、上传中、完成、失败都保留文字说明，不能仅以图片或颜色表达状态。"
+      },
+      {
+        "name": "媒体与头像",
+        "components": [
+          "image",
+          "avatar",
+          "avatar-group",
+          "swiper",
+          "image-preview"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.ground}",
+          "{colors.surface}",
+          "{components.avatar}",
+          "{components.swiper}"
+        ],
+        "description": "Image 默认占满容器宽度、高 160px、8px 圆角，地色承载加载和失败占位；占位沿用 Loading、图标与 12px 文案。换图时重置状态，图片加载不改变外部尺寸。Avatar 默认圆形，方形版本使用 8px 圆角；默认尺寸见 frontmatter，失败后显示姓名首字与主色柔和底。AvatarGroup 用表面色细边分隔重叠头像，超出数量用明确的数字说明。\n\nSwiper 的标题位于图片内的主题表面上，文字 13px；指示点使用主色。只有当前页进入 Tab 顺序，左右键翻页后将焦点移到新页，H5 聚焦不滚动容器。ImagePreview 使用居中 Popup、适应完整图片的 280px 图片区和小档翻页按钮；空集合显示 Empty。默认仅浏览和翻页，宿主缩放需显式启用 nativePreview。"
+      },
+      {
+        "name": "内容容器与状态",
+        "components": [
+          "card",
+          "cell-group",
+          "grid",
+          "steps",
+          "timeline",
+          "highlight",
+          "result",
+          "notice-bar",
+          "count-down",
+          "count-to"
+        ],
+        "tokenReferences": [
+          "{components.card}",
+          "{components.steps-marker}",
+          "{typography.card-title}",
+          "{typography.count-down}",
+          "{typography.count-to}",
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.danger}",
+          "{colors.border}"
+        ],
+        "description": "Card 以一条 1px 边界、主题表面和容器圆角组织内容，无投影；尺寸见 frontmatter。标题使用 card-title 层级，说明 12px，头部间距 4px、头部与内容间距 12px。CellGroup 以 12px 辅助标题与 11px 说明分组，内侧左右留 12px，默认内容圆角 8px；分隔线由内部 Cell 控制。\n\nGrid 以 24px 图标、13px 标签和可选 11px 说明组成独立入口，1px 边界和 8px 圆角沿用基础形状。Steps 使用圆形序号或完成勾、1px 连接线、13px 标题与 11px 说明，当前步骤用主色，错误步骤用错误语义；支持横向和纵向。Timeline 使用更小的 8px 圆点与纵向细线，正文 13px、时间和说明 12px。\n\nHighlight 在原文内以主色与柔和底标记匹配片段，不注入 HTML。NoticeBar 是可换行的内联公告：柔和底、12px 正文、图标关闭和可选文字操作，不使用跑马灯。Result 以 52px 圆形图标底、16px 标题和 12px 说明表达结果，操作沿用插槽内的已有组件。CountDown 与 CountTo 的独立数字层级见 frontmatter，H5 使用等宽数字排列，颜色仍为正文色。"
+      },
+      {
+        "name": "组织导航与布局",
+        "components": [
+          "segmented-control",
+          "sidebar",
+          "dropdown-menu",
+          "fab",
+          "back-top",
+          "sticky",
+          "safe-area",
+          "action-bar"
+        ],
+        "tokenReferences": [
+          "{components.segmented-selected}",
+          "{colors.ground}",
+          "{colors.surface}",
+          "{colors.primary}",
+          "{colors.muted}",
+          "{colors.border}"
+        ],
+        "description": "SegmentedControl 与 Sidebar 在地色容器中以表面色和主色文字突出当前项，控件文字 13px、操作项至少 36px；容器内边距与项间距均为 3px。前者横向均分且可换行，后者纵向、最小宽 92px。两者以方向键循环选择并跳过禁用项；选中不改变边框或外部尺寸。DropdownMenu 用 outline Button 打开底部 Picker，取消保留原值，确认才应用筛选。\n\nActionBar 以顶部分隔线和主题表面托起摘要及已有按钮，内边距 10px 16px，内容可换行；默认普通流，底部安全区默认开启。Fab 复用 round Button，展开菜单使用表面色、1px 边界和 8px 圆角；BackTop 复用小档 outline Button。Sticky 在 WEB／微信使用 CSS sticky，App 默认普通流，受控 fixed 由业务驱动并提供占位高度。这些组件的布局能力不表示所有目标平台都已运行验收。"
+      },
+      {
+        "name": "层级选择与数字录入",
+        "components": [
+          "cascader",
+          "tree-select",
+          "number-keyboard",
+          "password-input"
+        ],
+        "tokenReferences": [
+          "{components.keyboard-key}",
+          "{components.password-cell}",
+          "{spacing.compact-gap}",
+          "{colors.surface}",
+          "{colors.ground}",
+          "{colors.primary}",
+          "{colors.danger}"
+        ],
+        "description": "Cascader 在底部 Popup 中以可换行的已选路径、至少 44px 的分隔选项行和取消／确认按钮呈现层级；末级才允许确认，加载、禁用和无有效路径时禁用确认。TreeSelect 用每层 16px 缩进、分支箭头和既有 Checkbox 组织树，只选择叶子；到达上限仍可取消已选项。\n\nNumberKeyboard 是内联三列键盘，可放入 Popup；地色容器、表面色按键、至少 44px 键高和 keyboard-key 文字层级用于数字操作。PasswordInput 是受控展示格，以一条 1px 边框、6px 圆角和 compact-gap 间距表达每位字符；默认遮掩圆点，焦点与错误只改变描边颜色，说明使用 11px。点击请求业务展开键盘，可访问名称只描述已输入位数；这套组合不提供密码验证或安全键盘能力。"
+      },
+      {
+        "name": "列表与手势反馈",
+        "components": [
+          "list",
+          "load-more",
+          "pull-refresh",
+          "index-bar",
+          "swipe-cell"
+        ],
+        "tokenReferences": [
+          "{colors.primary}",
+          "{colors.muted}",
+          "{colors.danger}",
+          "{colors.danger-soft}",
+          "{colors.surface}",
+          "{colors.border}"
+        ],
+        "description": "LoadMore 以至少 48px 的状态行、加载文案、结束文案与明确重试操作区分状态，错误操作使用 danger。List 组合该状态行与内容插槽，加载中阻止重复请求；PullRefresh 组合宿主下拉刷新与显式刷新按钮，键盘仍有入口。业务完成后应同步归还 loading 状态，包括同一更新批次内完成的请求。\n\nIndexBar 将内容滚动区与 40px 索引栏并排，索引操作为 36px，标题和索引文字 12px；索引选择与有效模型变化驱动定位，异步新增或重排分组后仍按索引值找目标，自由滚动不自动改变模型。SwipeCell 保持外框尺寸，以内容平移揭示右侧单一操作；危险操作用错误柔和底和错误文字，保留显式展开／收起按钮及竖向滚动优先行为。操作只发事件，不替业务删除条目。"
       }
     ]
   },
@@ -455,6 +757,38 @@
       "description": "确认事件交由业务处理，等待期间禁用重复操作。",
       "html": "<section class=\"ds-dialog\"><h3>保存本次修改？</h3><p>确认后保存当前偏好。</p><button>确认保存</button></section>",
       "css": ".ds-dialog{max-width:320px;padding:20px;border-radius:12px;background:#fff;color:#1d2430}.ds-dialog h3{margin:0 0 14px;font:600 15px/24px sans-serif}.ds-dialog p{font:13px/22px sans-serif;color:#616e82}.ds-dialog button{height:36px;border:0;border-radius:8px;padding:0 14px;background:#0066d6;color:#fff;font:500 13px/20px sans-serif}"
+    },
+    {
+      "name": "状态标签",
+      "kind": "chip",
+      "refersTo": "tag-primary",
+      "description": "复用主色柔和底；附带的危险与描边标签是静态状态示例。",
+      "html": "<div class=\"ds-tags\"><span class=\"ds-tag\">进行中</span><span class=\"ds-tag ds-tag-danger\">需处理</span><span class=\"ds-tag ds-tag-plain\">待确认</span></div>",
+      "css": ".ds-tags{display:flex;align-items:flex-start;gap:8px}.ds-tag{display:flex;align-items:center;padding:2px 7px;border:1px solid transparent;border-radius:5px;background:#eaf2ff;color:#0066d6;font:11px/18px -apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif}.ds-tag-danger{background:#fff2ef;color:#b63d37}.ds-tag-plain{background:transparent;border-color:#0066d6}"
+    },
+    {
+      "name": "标签页",
+      "kind": "nav",
+      "refersTo": "tabs-active",
+      "description": "40px 最小行高，主色文字与预留底边表示选中；此处仅展示静态选择，实际组件支持左右键与禁用跳过。",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\" aria-label=\"内容分类\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">全部</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">待处理</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\" aria-disabled=\"true\" disabled>暂不可用</button></div>",
+      "css": ".ds-tabs{display:flex;overflow-x:auto;border-bottom:1px solid #d2dae6}.ds-tab{flex-shrink:0;min-width:64px;min-height:40px;padding:0 14px;margin:0;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#616e82;font:13px/20px -apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;cursor:pointer;transition:color 180ms ease,border-color 180ms ease}.ds-tab[aria-selected=\"true\"]{color:#0066d6;border-bottom-color:#0066d6;font-weight:600}.ds-tab:disabled{opacity:.4;cursor:default}.ds-tab:not(:disabled):hover,.ds-tab:not(:disabled):active{opacity:.8}.ds-tab:focus-visible{outline:2px solid currentColor;outline-offset:-2px}@media(prefers-reduced-motion:reduce){.ds-tab{transition:none}}"
+    },
+    {
+      "name": "日历范围",
+      "kind": "custom",
+      "refersTo": "calendar-selected",
+      "description": "44px 最小日期按钮；端点主色配自动前景，中段柔和底。这里只展示默认浅色范围状态，实际组件按主题计算前景。",
+      "html": "<div class=\"ds-calendar-days\" role=\"group\" aria-label=\"日期范围示例\"><button class=\"ds-calendar-day ds-calendar-selected\" aria-label=\"2026-10-15\" aria-pressed=\"true\">15</button><button class=\"ds-calendar-day ds-calendar-middle\" aria-label=\"2026-10-16\" aria-pressed=\"false\">16</button><button class=\"ds-calendar-day ds-calendar-selected\" aria-label=\"2026-10-17\" aria-pressed=\"true\">17</button><button class=\"ds-calendar-day\" aria-label=\"2026-10-18\" aria-disabled=\"true\" tabindex=\"-1\" disabled>18</button></div>",
+      "css": ".ds-calendar-days{display:flex;max-width:320px}.ds-calendar-day{flex:1;min-height:44px;padding:4px 0;margin:0;border:0;border-radius:6px;background:transparent;color:#1d2430;font:13px/20px -apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;cursor:pointer}.ds-calendar-selected{background:#0066d6;color:#fff}.ds-calendar-middle{background:#eaf2ff;color:#0066d6}.ds-calendar-day:disabled{opacity:.4;cursor:default}.ds-calendar-day:not(:disabled):hover,.ds-calendar-day:not(:disabled):active{opacity:.8}.ds-calendar-day:focus-visible{outline:2px solid currentColor;outline-offset:-2px}"
+    },
+    {
+      "name": "内容卡片",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "被动内容容器，使用细边框、主题表面和紧凑标题；静态浅色示例。",
+      "html": "<section class=\"ds-card\"><header class=\"ds-card-header\"><h3 class=\"ds-card-title\">资料卡片</h3><p class=\"ds-card-description\">内容按业务组织</p></header><div class=\"ds-card-body\">林同学 · 产品设计</div></section>",
+      "css": ".ds-card{border:1px solid #d2dae6;border-radius:12px;padding:16px;background:#fff;color:#1d2430;font:13px/20px -apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;overflow-wrap:anywhere}.ds-card-header{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}.ds-card-title{margin:0;font-size:15px;font-weight:600;line-height:22px}.ds-card-description{margin:0;color:#616e82;font-size:12px;line-height:18px}.ds-card-body{min-width:0}"
     }
   ],
   "narrative": {
@@ -493,7 +827,7 @@
       "Don't 给输入叠加外置焦点圈或改变聚焦时的边框宽度。",
       "Don't 依赖宿主 Checkbox / Switch 默认皮肤决定选中效果。",
       "Don't 用显示、隐藏、清空文字代替已确定的输入操作图标。",
-      "Don't 恢复旧的 40px 默认高度；40px 只作为 lg 档位。",
+      "Don't 恢复 Button／Input 旧的 40px 默认高度；两者 40px 仅作为 lg 档位，PasswordInput 的独立密码格不属于该档位。",
       "Don't 把展示页侧栏和手机框推广为所有业务页面的布局规范。"
     ]
   }

@@ -71,8 +71,9 @@ const inputFontSize = computed((): number => props.size == 'sm' ? 12 : props.siz
 const controlStyle = computed((): string => 'border-color:' + (focused.value ? (props.color.length > 0 ? props.color : moriPalette.value.primary) : resolvedError.value.length > 0 ? moriPalette.value.danger : moriPalette.value.border) + ';background-color:' + (props.disabled ? moriPalette.value.ground : moriPalette.value.surface) + ';')
 function handleInput(event: UniInputEvent) { emit('update:modelValue', event.detail.value); emit('change', event.detail.value) }
 function handleFocus() { focused.value = true; emit('focus') }
-function handleBlur() { focused.value = false; emit('blur') }
-function handleConfirm() { emit('confirm', props.modelValue) }
+// Host input events may be throttled; blur/confirm carry the final visible text.
+function handleBlur(event: UniInputBlurEvent) { focused.value = false; emit('blur', event.detail.value) }
+function handleConfirm(event: UniInputConfirmEvent) { emit('confirm', event.detail.value) }
 function togglePassword() { if (!props.disabled) passwordVisible.value = !passwordVisible.value }
 function clearValue() { if (props.disabled) return; emit('update:modelValue', ''); emit('change', ''); emit('clear') }
 function syncAccessibility() { syncMoriInputAccessibility(fieldId, accessibleName.value, resolvedRequired.value, resolvedError.value.length > 0, descriptionId.value.length > 0, descriptionId.value) }

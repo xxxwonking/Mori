@@ -1,0 +1,32 @@
+<template>
+<view v-if="visible" class="mori-notify" :style="'background-color:' + background + ';color:' + foreground" :role="kind == 'danger' ? 'alert' : 'status'" :aria-live="kind == 'danger' ? 'assertive' : 'polite'"><text class="mori-notify__message">{{ message }}</text><button @keydown.enter.prevent="close" @keydown.space.prevent="close" :tabindex="0" role="button" v-if="closable" class="mori-action mori-notify__close" :style="'color:' + foreground" aria-label="关闭通知" @click="close"><text>关闭</text></button></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, onBeforeUnmount } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+import { MoriNotifyOptions } from '../../actions.uts'
+const props = defineProps({ duration: { type: Number, default: 3000 }, closable: { type: Boolean, default: true } })
+const emit = defineEmits(['close'])
+const visible = ref(false)
+const message = ref('')
+const kind = ref('primary')
+let timer = 0
+const background = computed((): string => kind.value == 'danger' ? moriPalette.value.danger : moriPalette.value.primary)
+const foreground = computed((): string => getMoriButtonTextColor(background.value))
+function close() { clearTimeout(timer); if (visible.value) { visible.value = false; emit('close') } }
+function show(options: MoriNotifyOptions) { clearTimeout(timer); message.value = options.message; kind.value = options.type ?? 'primary'; visible.value = true; const duration = options.duration ?? props.duration; if (duration > 0) timer = setTimeout(close, duration) }
+onBeforeUnmount(() => clearTimeout(timer))
+defineExpose({ show, close })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-notify { position: fixed; left: 0; right: 0; top: 0; z-index: 2200; display: flex; flex-direction: row; align-items: center; padding: 10px 16px; }
+.mori-notify__message { flex: 1; font-size: 13px; line-height: 20px; }
+.mori-notify__close { flex-shrink: 0; margin-left: 10px; font-size: 12px; }
+/* #ifdef WEB || MP-WEIXIN */
+.mori-notify { padding-top: calc(10px + env(safe-area-inset-top)); }
+/* #endif */
+</style>

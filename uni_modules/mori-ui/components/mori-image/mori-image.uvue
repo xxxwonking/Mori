@@ -1,0 +1,31 @@
+<template>
+
+<view class="mori-image" :style="boxStyle" :role="preview ? 'button' : 'img'" :aria-label="alt" :tabindex="preview && src.length > 0 && !failed ? 0 : -1" @click="activate" @keydown.enter.prevent="activate" @keydown.space.prevent="activate">
+  <image v-if="src.length > 0 && !failed" :key="src" class="mori-image__asset" :src="src" :mode="mode" :lazy-load="lazyLoad" :aria-hidden="true" @load="loaded" @error="broken" />
+  <view v-if="failed || src.length == 0" class="mori-image__state"><slot name="error"><mori-icon name="image" :size="24" /><text :style="'color:' + moriPalette.muted">{{ errorText }}</text></slot></view>
+  <view v-else-if="pending" class="mori-image__state"><slot name="loading"><mori-loading text="加载图片" /></slot></view>
+</view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, watch } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ src: { type: String, default: '' }, alt: { type: String, default: '图片' }, width: { type: String, default: '100%' }, height: { type: String, default: '160px' }, radius: { type: Number, default: 8 }, mode: { type: String, default: 'aspectFill' }, lazyLoad: { type: Boolean, default: true }, preview: { type: Boolean, default: false }, errorText: { type: String, default: '图片暂不可用' } })
+const emit = defineEmits(['load', 'error', 'click'])
+const pending = ref(true)
+const failed = ref(false)
+const boxStyle = computed((): string => 'width:' + props.width + ';height:' + props.height + ';border-radius:' + Math.max(0, props.radius) + 'px;background-color:' + moriPalette.value.ground)
+watch((): string => props.src, () => { pending.value = true; failed.value = false })
+function loaded() { pending.value = false; emit('load', props.src) }
+function broken() { pending.value = false; failed.value = true; emit('error', props.src) }
+function activate() { emit('click', props.src); if (props.preview && !failed.value && props.src.length > 0) uni.previewImage({ urls: [props.src], current: 0 }) }
+
+</script>
+
+<style lang="scss">
+.mori-image { position: relative; overflow: hidden; flex-shrink: 0; }.mori-image__asset { width: 100%; height: 100%; }.mori-image__state { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; }
+/* #ifdef WEB */
+.mori-image:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+/* #endif */
+</style>

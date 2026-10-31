@@ -1,0 +1,18 @@
+<template>
+<view class="mori-tag" :style="tagStyle"><text class="mori-tag__text"><slot>{{ text }}</slot></text><button @keydown.enter.prevent="emit('close')" @keydown.space.prevent="emit('close')" :tabindex="0" role="button" v-if="closable" class="mori-action mori-tag__close" :aria-label="'移除' + text" :style="'color:' + moriPalette.text" @click="emit('close')"><mori-icon name="x" :size="12" /></button></view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ text: { type: String, default: '' }, type: { type: String, default: 'primary' }, plain: { type: Boolean, default: false }, closable: { type: Boolean, default: false } })
+const emit = defineEmits(['close'])
+const tagStyle = computed((): string => { const color = props.type == 'danger' ? moriPalette.value.danger : props.type == 'default' ? moriPalette.value.muted : moriPalette.value.primary; return 'color:' + color + ';border-color:' + (props.plain ? color : 'transparent') + ';background-color:' + (props.plain ? 'transparent' : props.type == 'danger' ? moriPalette.value.dangerSoft : props.type == 'default' ? moriPalette.value.ground : moriPalette.value.soft) })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-tag { display: flex; flex-direction: row; align-items: center; align-self: flex-start; padding: 2px 7px; border: 1px solid transparent; border-radius: 5px; }
+.mori-tag__text { font-size: 11px; line-height: 18px; }
+.mori-tag__close { min-height: 28px; width: 28px; padding: 0; margin: -2px -5px -2px 2px; }
+</style>

@@ -1,0 +1,3 @@
+export type MoriCollapseItem = { label: string; value: string; content: string; disabled?: boolean }
+export type MoriStepperInstance = { increase: () => void; decrease: () => void }
+export type MoriPickerInstance = { confirm: () => void; cancel: () => void }

@@ -1,0 +1,21 @@
+<template>
+<view class="mori-search" role="search"><view class="mori-search__field"><mori-input :model-value="modelValue" :placeholder="placeholder" :label="label" clearable :disabled="disabled" confirm-type="search" @update:modelValue="update" @blur="update" @confirm="confirmSearch" @clear="emit('clear')" /></view><mori-button :label="actionText" variant="text" :disabled="disabled" @click="search" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, watch } from 'vue'
+const props = defineProps({ modelValue: { type: String, default: '' }, placeholder: { type: String, default: '搜索内容' }, label: { type: String, default: '' }, actionText: { type: String, default: '搜索' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change', 'search', 'clear'])
+const searchValue = ref(props.modelValue)
+watch((): string => props.modelValue, (value: string) => { searchValue.value = value })
+function update(value: string) { if (!props.disabled) { searchValue.value = value; if (value != props.modelValue) { emit('update:modelValue', value); emit('change', value) } } }
+// Confirm/blur may arrive before a throttled input; submit the final host text.
+function confirmSearch(value: string) { update(value); search() }
+function search() { if (!props.disabled) emit('search', searchValue.value) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-search { display: flex; flex-direction: row; align-items: flex-end; width: 100%; }
+.mori-search__field { flex: 1; min-width: 0; }
+</style>

@@ -1,0 +1,65 @@
+<template>
+<view class="mori-popover"><button @keydown.enter.prevent="toggle" @keydown.space.prevent="toggle" :aria-disabled="disabled" :tabindex="(disabled) ? -1 : 0" role="button" :id="anchorId" class="mori-action mori-popover__trigger" :style="'color:' + moriPalette.primary + ';background-color:' + moriPalette.soft" :disabled="disabled" aria-haspopup="menu" :aria-expanded="modelValue" :aria-controls="panelId" @click="toggle"><slot name="reference"><text>{{ text }}</text></slot></button><view v-if="modelValue && ready" class="mori-popover__layer" :style="'z-index:' + zIndex"><view class="mori-popover__outside" @click="close" /><view :id="panelId" class="mori-popover__panel" role="menu" :aria-label="text" :style="panelStyle" tabindex="-1" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)"><button @keydown.enter.prevent="select(action)" @keydown.space.prevent="select(action)" :aria-disabled="action.disabled == true || action.loading == true" :tabindex="(action.disabled == true || action.loading == true) ? -1 : 0" v-for="(action, index) in actions" :id="panelId + '-' + index" :key="action.value" class="mori-action mori-popover__action" role="menuitem" :disabled="action.disabled == true || action.loading == true" :style="'color:' + (action.danger == true ? moriPalette.danger : moriPalette.text)" @click="select(action)">{{ action.label }}</button><text v-if="actions.length == 0" class="mori-popover__empty" :style="'color:' + moriPalette.muted">暂无操作</text></view></view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, nextTick, getCurrentInstance, onBeforeUnmount, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriAction } from '../../actions.uts'
+import { createMoriOverlayId, acquireMoriOverlay, releaseMoriOverlay, isTopMoriOverlay } from '../../overlay.uts'
+import { activateMoriOverlayAccessibility, releaseMoriOverlayAccessibility } from '../../platform/overlay-accessibility.uts'
+import { observeMoriPopoverViewport } from '../../platform/popover.uts'
+import { focusMoriRadio } from '../../platform/selection-accessibility.uts'
+const props = defineProps({ modelValue: { type: Boolean, default: false }, text: { type: String, default: '更多操作' }, actions: { type: Array as PropType<MoriAction[]>, default: (): MoriAction[] => [] }, disabled: { type: Boolean, default: false }, placement: { type: String, default: 'bottom' } })
+const emit = defineEmits(['update:modelValue', 'select'])
+const panelId = createMoriOverlayId()
+const anchorId = panelId + '-anchor'
+const instance = getCurrentInstance()
+const ready = ref(false)
+const left = ref(8)
+const top = ref(8)
+const width = ref(180)
+const height = ref(240)
+const zIndex = ref(1000)
+let active = -1
+let generation = 0
+let stopObserving: (() => void) | null = null
+const panelStyle = computed((): string => 'left:' + left.value + 'px;top:' + top.value + 'px;width:' + width.value + 'px;max-height:' + height.value + 'px;background-color:' + moriPalette.value.surface + ';border-color:' + moriPalette.value.border)
+function close() { if (props.modelValue && isTopMoriOverlay(panelId)) emit('update:modelValue', false) }
+function toggle() { if (props.disabled) return; emit('update:modelValue', !props.modelValue) }
+function select(action: MoriAction) { if (action.disabled == true || action.loading == true || !isTopMoriOverlay(panelId)) return; emit('select', action); close() }
+function move(direction: number) { const count = props.actions.length; for (let step = 1; step <= count; step++) { const index = (active + direction * step + count) % count; if (props.actions[index].disabled != true && props.actions[index].loading != true) { active = index; focusMoriRadio(panelId + '-' + index); return } } }
+function release() { ready.value = false; stopObserving?.(); stopObserving = null; releaseMoriOverlay(panelId); releaseMoriOverlayAccessibility(panelId) }
+watch((): boolean => props.modelValue, (open: boolean) => {
+  const ticket = ++generation
+  if (!open) { release(); return }
+  nextTick(() => { if (ticket != generation) return; uni.createSelectorQuery().in(instance?.proxy).select('#' + anchorId).boundingClientRect((rect: NodeInfo) => {
+    if (ticket != generation || rect == null) return
+    const screen = uni.getWindowInfo()
+    width.value = Math.min(200, screen.windowWidth - 16)
+    left.value = Math.max(8, Math.min(rect.left ?? 8, screen.windowWidth - width.value - 8))
+    const anchorTop = rect.top ?? 8
+    const bottom = (rect.top ?? 8) + (rect.height ?? 36)
+    const desired = Math.min(280, Math.max(44, props.actions.length * 40 + 12))
+    const above = props.placement == 'top' || screen.windowHeight - bottom - 16 < desired && anchorTop > screen.windowHeight - bottom
+    height.value = Math.max(40, above ? anchorTop - 16 : screen.windowHeight - bottom - 16)
+    top.value = above ? Math.max(8, anchorTop - Math.min(desired, height.value) - 8) : bottom + 8
+    ready.value = true; zIndex.value = acquireMoriOverlay(panelId, 1000)
+    nextTick(() => { if (ticket != generation) return; activateMoriOverlayAccessibility(panelId, close, false); active = -1; move(1); stopObserving = observeMoriPopoverViewport(close) })
+  }).exec() })
+}, { immediate: true })
+onBeforeUnmount(() => { generation++; release() })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-popover { align-self: flex-start; }
+.mori-popover__layer { position: fixed; left: 0; right: 0; top: 0; bottom: 0; }
+.mori-popover__outside { position: absolute; left: 0; right: 0; top: 0; bottom: 0; }
+.mori-popover__panel { position: fixed; padding: 6px; border-width: 1px; border-style: solid; border-radius: 8px; overflow: auto; }
+.mori-popover__action { width: 100%; min-height: 40px; justify-content: flex-start; text-align: left; }
+.mori-popover__empty { font-size: 12px; line-height: 32px; }
+/* #ifdef WEB */
+.mori-popover__panel { box-sizing: border-box; }
+/* #endif */
+</style>

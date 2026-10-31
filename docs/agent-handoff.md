@@ -1,10 +1,10 @@
 # 下次接手说明
 
-记录日期：2026-10-30（Asia/Shanghai）。这是接手入口；持续变化的完成情况统一记录在 [当前进度](progress.md)。
+记录日期：2026-10-31（Asia/Shanghai）。这是接手入口；持续变化的完成情况统一记录在 [当前进度](progress.md)。当前本地扩展为 72 组件，第二轮新增 32 个通用组件；当前验证与复核状态以 progress.md 最后记录为准。详细用法见 [逐组件指南](component-guides.md)，iOS 上传与跨端差异见 [平台适配跟踪](platform-adaptation.md)。
 
 ## 项目是什么
 
-Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，现有 Button、Input、Switch、Checkbox，以及 Form、FormItem、Radio、RadioGroup、CheckboxGroup、Textarea，以及 Toast、Popup、Dialog，共十三个组件、组件工作台和组合示例。源码保存在 [GitHub 仓库](https://github.com/xxxwonking/Mori)，尚未发布组件包。
+Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，当前共有72个基础、展示、导航、反馈与录入组件，以及工作台和组合示例。准确清单见 [逐组件指南](component-guides.md)。源码远程为 [GitHub 仓库](https://github.com/xxxwonking/Mori)，本地与远端同步状态以 git status 和 origin/master 为准；尚未发布组件包。
 
 本机目录为 `C:\Users\Administrator\Desktop\mori-ui`，HBuilderX 在 `D:\HBuilderX`。迁移机器时重新定位项目与 HBuilderX，不照搬本机路径。当前技术路线是 `.uvue` + UTS，通过 `uni_modules` 整包复制复用。
 
@@ -49,6 +49,7 @@ npm --version
 
 ## 当前交接状态
 
+- 上一轮 Windows 扩展从远程 `e08185e` 增加 27 个组件，总计 40 个，尚未提交／推送。H5／微信构建、基础／表单／反馈／分类回归及 40 份指南检查通过；最新自检结论为 ship-with-caveats，详见 [扩展自检记录](expansion-review.md)。下列早期视觉／README 结论保留各自历史范围。
 - 功能首版与最近一轮紧凑样式、图标、选择态、动画修改已实现。
 - 最近一次 H5 功能检查为 9 组通过，动画检查为 5 项通过；H5 与微信发行构建通过。
 - iOS／Android 原生编译与真机、微信运行、Safari 和鸿蒙验证尚未完成。
@@ -70,6 +71,9 @@ docs/progress.md 和 DESIGN.md，核对当前源码与运行环境，然后执�
 完成后按改动范围验证，并更新进度、API、设计或兼容文档；不要重复初始化项目。
 ```
 
-最新本轮工作位于 macOS `/Users/others/Desktop/Mori-form-foundation` 的 `feat/form-foundation` 工作区，未推送；旧 Windows 路径属于历史环境。表单 API 与新验证证据见 progress.md、components.md；下一步应优先补微信运行及原生证据。
+历史表单／反馈工作曾在 macOS `/Users/others/Desktop/Mori-form-foundation` 的 `feat/form-foundation` 工作区完成，随后已整合远程 master；当前工作位于上文 Windows 目录，基线 `e08185e`。不要把历史工作区当作当前执行路径。
 
-最新反馈扩展已实现，入口 pages/feedback/feedback；验证、平台限制和待办见 progress.md 最后记录。
+反馈入口 `pages/feedback/feedback`，新增分类入口 `pages/catalog/catalog`；当前预览使用 5174，验证、平台限制和待办见 progress.md 最后记录。Input 的 blur／confirm 现在携带宿主最终文本，Stepper 重建结束编辑的输入以规避宿主缓存，修改时保留快速编辑回归。
+
+
+2026-10-31 第二轮新增 32 个组件，用户随后要求将两轮扩展一起提交并推送到 origin/master。用户明确选择「通用组件全面补齐」；优先扩充覆盖范围，不能继续照旧建议只做设备检查。新清单见 component-coverage.md，源码含 content.uts／extended-input.uts 和四组 demo。历史记录中的“未提交／未推送”对应当时状态，最新状态见 progress.md 与 Git；后续开始前检查 git status。

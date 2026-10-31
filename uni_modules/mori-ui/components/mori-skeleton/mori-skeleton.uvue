@@ -1,0 +1,22 @@
+<template>
+<view v-if="loading" class="mori-skeleton" role="status" aria-label="正在加载内容"><view v-if="avatar" class="mori-skeleton__avatar" :style="'background-color:' + moriPalette.border" /><view class="mori-skeleton__body"><view v-for="row in rows" :key="row" class="mori-skeleton__line" :class="{ 'mori-skeleton__line--animated': animated }" :style="'background-color:' + moriPalette.border + ';width:' + (row == rows ? '60%' : '100%')" /></view></view><view v-else><slot /></view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ loading: { type: Boolean, default: true }, row: { type: Number, default: 3 }, avatar: { type: Boolean, default: false }, animated: { type: Boolean, default: true } })
+const rows = computed((): number => Math.floor(Math.max(1, Math.min(20, props.row))))
+</script>
+
+<style lang="scss">
+.mori-skeleton { width: 100%; display: flex; flex-direction: row; padding: 4px 0; }
+.mori-skeleton__avatar { width: 36px; height: 36px; border-radius: 18px; margin-right: 12px; }
+.mori-skeleton__body { flex: 1; }
+.mori-skeleton__line { height: 12px; margin-bottom: 12px; border-radius: 4px; }
+.mori-skeleton__line--animated { animation: mori-skeleton-pulse 1.4s ease-in-out infinite; }
+@keyframes mori-skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-skeleton__line--animated { animation: none; } }
+/* #endif */
+</style>

@@ -1,0 +1,21 @@
+<template>
+
+<view class="mori-dropdown-menu"><mori-button :label="selectedLabel" variant="outline" :disabled="disabled" @click="open = true" /><mori-picker :model-value="modelValue" :show="open" :title="title" :options="options" :disabled="disabled" @update:show="open = $event" @confirm="choose" /></view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, computed, PropType, watch } from 'vue'
+import { MoriChoiceOption } from '../../selection.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] }, title: { type: String, default: '筛选' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const open = ref(false)
+const selectedLabel = computed((): string => { const item = props.options.find((entry: MoriChoiceOption): boolean => entry.value == props.modelValue); return item == null ? props.title : item.label })
+watch((): boolean => props.disabled, (value: boolean) => { if (value) open.value = false })
+function choose(value: string) { if (props.disabled) return; if (value != props.modelValue) { emit('update:modelValue', value); emit('change', value) } }
+
+</script>
+
+<style lang="scss">
+.mori-dropdown-menu { min-width: 100px; }
+</style>

@@ -1,0 +1,25 @@
+<template>
+
+<view class="mori-grid" role="group" :aria-label="label"><view v-for="item in items" :key="item.value" class="mori-grid__cell" :style="'width:' + (100 / columns) + '%'"><button class="mori-action mori-grid__item" role="button" :aria-disabled="item.disabled == true" :tabindex="item.disabled == true ? -1 : 0" :disabled="item.disabled == true" :style="'color:' + moriPalette.text + ';border-color:' + (border ? moriPalette.border : 'transparent')" @click="select(item)" @keydown.enter.prevent="select(item)" @keydown.space.prevent="select(item)"><mori-icon v-if="item.icon != null" :name="item.icon!" :size="24" /><text class="mori-grid__label">{{ item.label }}</text><text v-if="item.description != null" class="mori-grid__description" :style="'color:' + moriPalette.muted">{{ item.description }}</text></button></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { computed, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriGridItem, moriBound } from '../../content.uts'
+const props = defineProps({ items: { type: Array as PropType<MoriGridItem[]>, default: (): MoriGridItem[] => [] }, columnNum: { type: Number, default: 4 }, border: { type: Boolean, default: true }, label: { type: String, default: '快捷入口' } })
+const emit = defineEmits(['select'])
+const columns = computed((): number => Math.floor(moriBound(props.columnNum, 1, 8)))
+function select(item: MoriGridItem) { if (item.disabled != true) emit('select', item.value) }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-grid { display: flex; flex-direction: row; flex-wrap: wrap; }.mori-grid__cell { padding: 3px; box-sizing: border-box; }.mori-grid__item { width: 100%; min-height: 80px; padding: 12px 6px; flex-direction: column; gap: 7px; border: 1px solid; border-radius: 8px; }.mori-grid__description { font-size: 11px; line-height: 16px; }
+/* #ifdef WEB */
+.mori-grid__item { overflow-wrap: anywhere; }
+/* #endif */
+.mori-grid__label { font-size: 13px; line-height: 20px; }
+</style>

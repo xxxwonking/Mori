@@ -1,5 +1,7 @@
 # 基础组件 API
 
+所有 **72 个组件**的独立详细用法、参数、事件、方法和边界见 [逐组件使用指南](component-guides.md)。本页保留原 13 个组件的 API；新增组件以对应独立页面为准。平台差异与 iOS 上传后续工作见 [适配跟踪](platform-adaptation.md)。
+
 组件按 `uni_modules` / easycom 规则使用。全局主题由 `theme.uts` 管理，初始化方式见 README。
 
 ## mori-button
@@ -46,8 +48,9 @@ H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成
 
 - `update:modelValue(value)`：用于 v-model。
 - `change(value)`：每次输入或清空时返回当前字符串；不是仅在失焦时触发。
-- `focus` / `blur`：不携带参数。
-- `confirm(value)`：键盘确认。
+- `focus`：不携带参数。
+- `blur(value: string)`：失焦时的最终文本。
+- `confirm(value: string)`：键盘确认时的最终文本；与 blur 一样直接读取宿主事件，避免输入事件节流导致旧值。
 - `clear`：用户执行清空操作。
 
 密码类型使用眼睛图标切换显隐；clearable 使用关闭图标清空。图标保留可访问名称与键盘操作，显隐与清空可同时使用。输入组件呈现错误信息，校验规则留给业务。组合表单展示了必填、邮箱格式、同意选项与错误恢复。

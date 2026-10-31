@@ -1,0 +1,32 @@
+<template>
+<view class="mori-tabs"><scroll-view scroll-x class="mori-tabs__scroll" :scroll-into-view="activeId" :scroll-with-animation="true"><view class="mori-tabs__list" role="tablist" :aria-label="label" :style="'border-color:' + moriPalette.border" @keydown.right.prevent="move(1)" @keydown.left.prevent="move(-1)"><button @keydown.enter.prevent="select(item.value)" @keydown.space.prevent="select(item.value)" :aria-disabled="disabled || item.disabled == true" v-for="(item, index) in items" :id="id + '-' + index" :key="item.value" class="mori-action mori-tabs__tab" :class="{ 'mori-tabs__tab--active': item.value == modelValue }" role="tab" :aria-selected="item.value == modelValue" :tabindex="index == tabStop ? 0 : -1" :disabled="disabled || item.disabled == true" :style="'color:' + (item.value == modelValue ? moriPalette.primary : moriPalette.muted) + ';border-bottom-color:' + (item.value == modelValue ? moriPalette.primary : 'transparent')" @click="select(item.value)"><text>{{ item.label }}</text><text v-if="item.badge != null" class="mori-tabs__badge">{{ item.badge }}</text></button></view></scroll-view><view class="mori-tabs__content"><slot /></view></view>
+</template>
+
+<script setup lang="uts">
+import { computed, nextTick, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriNavItem } from '../../navigation.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { focusMoriRadio } from '../../platform/selection-accessibility.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, items: { type: Array as PropType<MoriNavItem[]>, default: (): MoriNavItem[] => [] }, label: { type: String, default: '标签页' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change', 'clickTab'])
+const id = createMoriFieldId()
+const tabStop = computed((): number => { if (props.disabled) return -1; const current = props.items.findIndex((item: MoriNavItem): boolean => item.value == props.modelValue && item.disabled != true); return current >= 0 ? current : props.items.findIndex((item: MoriNavItem): boolean => item.disabled != true) })
+const activeId = computed((): string => id + '-' + Math.max(0, tabStop.value))
+function select(value: string) { const item = props.items.find((entry: MoriNavItem): boolean => entry.value == value); if (props.disabled || item == null || item.disabled == true) return; emit('clickTab', value); if (value != props.modelValue) { emit('update:modelValue', value); emit('change', value) } }
+function move(direction: number) { if (props.disabled) return; const count = props.items.length; for (let step = 1; step <= count; step++) { const index = (Math.max(0, tabStop.value) + direction * step + count) % count; if (props.items[index].disabled != true) { select(props.items[index].value); nextTick(() => focusMoriRadio(id + '-' + index)); return } } }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-tabs { width: 100%; }
+.mori-tabs__scroll { width: 100%; white-space: nowrap; }
+.mori-tabs__list { display: flex; flex-direction: row; border-bottom-width: 1px; border-bottom-style: solid; }
+.mori-tabs__tab { flex-shrink: 0; min-width: 64px; min-height: 40px; padding: 0 14px; border-radius: 0; border-bottom-width: 2px; border-bottom-style: solid; transition: color 180ms ease, border-color 180ms ease; }
+.mori-tabs__tab--active { font-weight: 600; }
+.mori-tabs__badge { margin-left: 5px; font-size: 10px; }
+.mori-tabs__content { padding-top: 12px; }
+/* #ifdef WEB */
+@media (prefers-reduced-motion: reduce) { .mori-tabs__tab { transition: none; } }
+/* #endif */
+</style>

@@ -1,0 +1,21 @@
+<template>
+
+<view v-if="modelValue" class="mori-notice-bar" :style="'background-color:' + moriPalette.soft + ';color:' + moriPalette.primary"><mori-icon name="bell" :size="18" /><text class="mori-notice-bar__text">{{ text }}</text><button v-if="actionText.length > 0" class="mori-action" role="button" tabindex="0" :style="'color:' + moriPalette.primary" @click="emit('click')" @keydown.enter.prevent="emit('click')" @keydown.space.prevent="emit('click')">{{ actionText }}</button><button v-if="closable" class="mori-action mori-notice-bar__close" role="button" tabindex="0" aria-label="关闭公告" @click="close" @keydown.enter.prevent="close" @keydown.space.prevent="close"><mori-icon name="x" :size="16" /></button></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette } from '../../theme.uts'
+defineProps({ modelValue: { type: Boolean, default: true }, text: { type: String, default: '' }, closable: { type: Boolean, default: false }, actionText: { type: String, default: '' } })
+const emit = defineEmits(['update:modelValue', 'close', 'click'])
+function close() { emit('update:modelValue', false); emit('close') }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-notice-bar { display: flex; flex-direction: row; align-items: center; border-radius: 8px; padding: 4px 10px; gap: 8px; min-height: 36px; }.mori-notice-bar__text { flex: 1; min-width: 0; font-size: 12px; line-height: 20px; }.mori-notice-bar__close { width: 36px; flex-shrink: 0; padding: 0; }
+/* #ifdef WEB */
+.mori-notice-bar__text { overflow-wrap: anywhere; }
+/* #endif */
+</style>

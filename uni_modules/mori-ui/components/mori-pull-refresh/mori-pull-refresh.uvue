@@ -1,0 +1,27 @@
+<template>
+
+<scroll-view class="mori-pull-refresh" scroll-y :style="'height:' + height" :refresher-enabled="!disabled" :refresher-triggered="modelValue" :refresher-threshold="threshold" @refresherrefresh="refresh"><view class="mori-pull-refresh__control"><mori-loading v-if="modelValue || requested" text="正在刷新" /><mori-button v-else :label="text" variant="text" size="sm" :disabled="disabled" @click="refresh" /></view><slot /></scroll-view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, watch, nextTick } from 'vue'
+const props = defineProps({ modelValue: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, height: { type: String, default: '320px' }, threshold: { type: Number, default: 60 }, text: { type: String, default: '刷新内容' } })
+const emit = defineEmits(['update:modelValue', 'refresh'])
+const requested = ref(false)
+watch((): boolean => props.modelValue, (value: boolean) => { if (!value) requested.value = false })
+function refresh() {
+  if (props.disabled || props.modelValue || requested.value) return
+  requested.value = true
+  emit('update:modelValue', true)
+  emit('refresh')
+  // Accept a refresh completed within the same Vue update batch.
+  nextTick(() => { if (!props.modelValue) requested.value = false })
+}
+defineExpose({ refresh })
+
+</script>
+
+<style lang="scss">
+.mori-pull-refresh { width: 100%; }.mori-pull-refresh__control { min-height: 40px; display: flex; align-items: center; justify-content: center; }
+</style>

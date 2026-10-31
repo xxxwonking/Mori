@@ -1,0 +1,15 @@
+<template>
+
+<view class="mori-cell-group"><text v-if="title.length > 0" class="mori-cell-group__title" :style="'color:' + moriPalette.muted">{{ title }}</text><view class="mori-cell-group__body" :class="{ 'mori-cell-group__body--inset': inset }" :style="'background-color:' + moriPalette.surface"><slot /></view><text v-if="description.length > 0" class="mori-cell-group__description" :style="'color:' + moriPalette.muted">{{ description }}</text></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette } from '../../theme.uts'
+defineProps({ title: { type: String, default: '' }, description: { type: String, default: '' }, inset: { type: Boolean, default: true } })
+
+</script>
+
+<style lang="scss">
+.mori-cell-group__title { display: block; font-size: 12px; line-height: 18px; margin-bottom: 8px; }.mori-cell-group__body { padding: 0 12px; }.mori-cell-group__body--inset { border-radius: 8px; }.mori-cell-group__description { display: block; font-size: 11px; line-height: 18px; margin-top: 6px; }
+</style>

@@ -1,0 +1,25 @@
+<template>
+
+<view class="mori-safe-area" :class="position == 'top' ? 'mori-safe-area--top' : 'mori-safe-area--bottom'" :style="areaStyle" aria-hidden="true" />
+</template>
+
+<script setup lang="uts">
+
+import { computed } from 'vue'
+const props = defineProps({ position: { type: String, default: 'bottom' }, background: { type: String, default: 'transparent' }, size: { type: Number, default: -1 } })
+const areaStyle = computed((): string => {
+  let height = props.size
+  // #ifdef APP
+  if (height < 0) { const insets = uni.getWindowInfo().safeAreaInsets; if (insets != null) height = props.position == 'top' ? insets.top : insets.bottom }
+  // #endif
+  return 'background-color:' + props.background + ';' + (height >= 0 ? 'height:' + height + 'px;' : '')
+})
+
+</script>
+
+<style lang="scss">
+.mori-safe-area { width: 100%; flex-shrink: 0; height: 0; }
+/* #ifdef WEB || MP-WEIXIN */
+.mori-safe-area--top { height: env(safe-area-inset-top); }.mori-safe-area--bottom { height: env(safe-area-inset-bottom); }
+/* #endif */
+</style>

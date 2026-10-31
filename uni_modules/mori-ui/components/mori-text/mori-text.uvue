@@ -1,0 +1,17 @@
+<template>
+<text class="mori-text" :selectable="selectable" :style="textStyle"><slot>{{ text }}</slot></text>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ text: { type: String, default: '' }, tone: { type: String, default: 'default' }, size: { type: Number, default: 13 }, color: { type: String, default: '' }, bold: { type: Boolean, default: false }, selectable: { type: Boolean, default: false }, lines: { type: Number, default: 0 } })
+const textStyle = computed((): string => 'color:' + (props.color.length > 0 ? props.color : props.tone == 'muted' ? moriPalette.value.muted : props.tone == 'primary' ? moriPalette.value.primary : props.tone == 'danger' ? moriPalette.value.danger : moriPalette.value.text) + ';font-size:' + Math.max(10, props.size) + 'px;font-weight:' + (props.bold ? '600' : '400') + ';' + (props.lines > 0 ? 'overflow:hidden;text-overflow:ellipsis;lines:' + Math.floor(props.lines) + ';-webkit-line-clamp:' + Math.floor(props.lines) + ';' : ''))
+</script>
+
+<style lang="scss">
+.mori-text { line-height: 1.6; }
+/* #ifdef WEB */
+.mori-text { display: -webkit-box; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+/* #endif */
+</style>

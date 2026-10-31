@@ -1,0 +1,18 @@
+<template>
+
+<view class="mori-card" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view v-if="title.length > 0 || description.length > 0" class="mori-card__header"><text class="mori-card__title" :style="'color:' + moriPalette.text">{{ title }}</text><text v-if="description.length > 0" class="mori-card__description" :style="'color:' + moriPalette.muted">{{ description }}</text><slot name="extra" /></view><view class="mori-card__body"><slot /></view><slot name="footer" /></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette } from '../../theme.uts'
+defineProps({ title: { type: String, default: '' }, description: { type: String, default: '' } })
+
+</script>
+
+<style lang="scss">
+.mori-card { border: 1px solid; border-radius: 12px; padding: 16px; }.mori-card__header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }.mori-card__title { font-size: 15px; font-weight: 600; line-height: 22px; }.mori-card__description { font-size: 12px; line-height: 18px; }.mori-card__body { min-width: 0; }
+/* #ifdef WEB */
+.mori-card { box-sizing: border-box; overflow-wrap: anywhere; }
+/* #endif */
+</style>

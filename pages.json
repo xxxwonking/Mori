@@ -20,6 +20,13 @@
         "navigationBarTitleText": "反馈组件",
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/catalog/catalog",
+      "style": {
+        "navigationBarTitleText": "组件全览",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {

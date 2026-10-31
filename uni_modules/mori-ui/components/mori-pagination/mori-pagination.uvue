@@ -1,0 +1,25 @@
+<template>
+<view class="mori-pagination" role="navigation" :aria-label="label"><button @keydown.enter.prevent="prev" @keydown.space.prevent="prev" :aria-disabled="disabled || current <= 1" :tabindex="(disabled || current <= 1) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.primary" :disabled="disabled || current <= 1" aria-label="上一页" @click="prev"><mori-icon name="chevron-left" :size="16" /></button><text v-if="simple" class="mori-pagination__summary" :style="'color:' + moriPalette.text">{{ current }} / {{ count }}</text><button @keydown.enter.prevent="select(page)" @keydown.space.prevent="select(page)" :aria-disabled="disabled" :tabindex="(disabled) ? -1 : 0" role="button" v-for="page in simple ? [] : pages" :key="page" class="mori-action mori-pagination__page" :aria-label="'第 ' + page + ' 页'" :aria-current="page == current ? 'page' : 'false'" :disabled="disabled" :style="'color:' + (page == current ? moriPalette.primary : moriPalette.text) + ';background-color:' + (page == current ? moriPalette.soft : 'transparent')" @click="select(page)">{{ page }}</button><button @keydown.enter.prevent="next" @keydown.space.prevent="next" :aria-disabled="disabled || current >= count" :tabindex="(disabled || current >= count) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.primary" :disabled="disabled || current >= count" aria-label="下一页" @click="next"><mori-icon name="chevron-right" :size="16" /></button></view>
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { clampMoriNumber, moriPageCount, moriPageItems } from '../../numeric.uts'
+const props = defineProps({ modelValue: { type: Number, default: 1 }, total: { type: Number, default: 0 }, pageSize: { type: Number, default: 10 }, showPageSize: { type: Number, default: 5 }, simple: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, label: { type: String, default: '分页' } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const count = computed((): number => moriPageCount(props.total, props.pageSize))
+const current = computed((): number => Math.floor(clampMoriNumber(props.modelValue, 1, count.value)))
+const pages = computed((): number[] => moriPageItems(current.value, count.value, props.showPageSize))
+function select(page: number) { if (props.disabled) return; const value = Math.floor(clampMoriNumber(page, 1, count.value)); if (value != props.modelValue) { emit('update:modelValue', value); emit('change', value) } }
+function prev() { if (current.value > 1) select(current.value - 1) }
+function next() { if (current.value < count.value) select(current.value + 1) }
+defineExpose({ next, prev, select })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-pagination { display: flex; flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; }
+.mori-pagination__page { min-width: 36px; margin: 0 2px; }
+.mori-pagination__summary { min-width: 76px; font-size: 13px; line-height: 36px; text-align: center; }
+</style>

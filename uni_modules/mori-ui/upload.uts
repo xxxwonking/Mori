@@ -1,0 +1,15 @@
+export type MoriPickedFile = { path: string; name: string; size: number; type: string }
+export type MoriUploadFile = { id: string; url: string; name: string; size: number; status: string; progress: number; message: string }
+export type MoriUploadInstance = { choose: () => void; submit: () => void; retry: (id: string) => void; remove: (id: string) => void; clear: () => void }
+export type MoriUploadRequest = { url: string; name: string; header: UTSJSONObject; formData: UTSJSONObject; timeout: number }
+export type MoriUploadJob = { id: string; abort: () => void }
+let fileSequence = 0
+export function createMoriUploadFile(file: MoriPickedFile): MoriUploadFile { return { id: 'mori-file-' + Date.now() + '-' + (++fileSequence), url: file.path, name: file.name, size: file.size, status: 'ready', progress: 0, message: '' } }
+export function copyMoriUploadFile(file: MoriUploadFile): MoriUploadFile { return { id: file.id, url: file.url, name: file.name, size: file.size, status: file.status, progress: file.progress, message: file.message } }
+export function moriUploadCapacity(count: number, maxCount: number): number { return Math.max(0, Math.floor(maxCount) - count) }
+export function moriUploadFileIssue(file: MoriPickedFile, maxSize: number): string {
+  if (file.path.length == 0) return '文件路径为空'
+  if (!Number.isFinite(file.size) || file.size < 0) return '无法读取文件大小'
+  if (maxSize > 0 && file.size > maxSize) return '文件超过大小限制'
+  return ''
+}

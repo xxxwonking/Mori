@@ -60,7 +60,7 @@
 
 ## 组件一览
 
-已提供十三个基础、表单与反馈组件，配套组件工作台、表单示例和反馈弹层示例。
+已提供 **72 个组件**，每个都有 [独立详细使用指南](docs/component-guides.md)，覆盖属性、事件、方法、示例和边界。下面是原有基础；新增组件可在工作台的「组件全览」直接体验。
 
 | 组件 | 已实现的能力 | API |
 | :--- | :--- | :--- |
@@ -80,9 +80,18 @@
 
 通过 `uni_modules` 整包复用，组件按 easycom 规则自动导入。当前是 **uni-app x / `.uvue` / UTS** 工程。
 
+| 新增分类 | 组件与用法 |
+| :--- | :--- |
+| 基础与展示 | [Text](docs/components/text.md)、[Icon](docs/components/icon.md)、[Loading](docs/components/loading.md)、[Transition](docs/components/transition.md)、[Divider](docs/components/divider.md)、[Cell](docs/components/cell.md)、[Tag](docs/components/tag.md)、[Badge](docs/components/badge.md)、[Progress](docs/components/progress.md)、[Skeleton](docs/components/skeleton.md)、[Empty](docs/components/empty.md)、[Collapse](docs/components/collapse.md) |
+| 导航 | [Navbar](docs/components/navbar.md)、[Tabs](docs/components/tabs.md)、[Tabbar](docs/components/tabbar.md)、[Pagination](docs/components/pagination.md) |
+| 反馈 | [ActionSheet](docs/components/action-sheet.md)、[Popover](docs/components/popover.md)、[Notify](docs/components/notify.md) |
+| 录入 | [Stepper](docs/components/stepper.md)、[Slider](docs/components/slider.md)、[Rate](docs/components/rate.md)、[Search](docs/components/search.md)、[Picker](docs/components/picker.md)、[Calendar](docs/components/calendar.md)、[DatetimePicker](docs/components/datetime-picker.md)、[Upload](docs/components/upload.md) |
+
+上传具备图片选择、预览、进度、重试和主动提交，服务端由业务配置。iOS 权限、临时路径、HEIC 和后台任务等差异已在代码中编号并记录于 [平台适配跟踪](docs/platform-adaptation.md)，尚无原生设备验收。
+
 ## 快速开始
 
-准备 **Node.js 22.13+**、**HBuilderX 及其 Vue3 编译器插件**。此前基础版使用 HBuilderX 5.34；最新 macOS 验证环境见 [兼容记录](docs/compatibility.md)。App 蒸汽模式建议 5.31+。
+准备 **Node.js 22.13+**、**HBuilderX 及其 Vue3 编译器插件**。本轮 Windows 验证使用 HBuilderX 5.34，具体版本及历史 macOS 记录见 [兼容记录](docs/compatibility.md)。App 蒸汽模式建议 5.31+。
 
 ```sh
 git clone https://github.com/xxxwonking/Mori.git
@@ -116,10 +125,11 @@ npm run dev
 
 ### 体验组合示例
 
-从工作台进入「表单基础」或「反馈组件」，也可访问：
+从工作台进入「表单基础」「反馈组件」或「组件全览」，也可访问：
 
 - `http://127.0.0.1:5173/#/pages/forms/forms`：必填校验、单选、多选、多行输入与本地提交。
 - `http://127.0.0.1:5173/#/pages/feedback/feedback`：Toast、不同位置与嵌套 Popup、确认及等待中的 Dialog。
+- `http://127.0.0.1:5173/#/pages/catalog/catalog`：展示与动画、导航、反馈、数值与日期选择、图片选择和预览。
 
 端口以终端实际输出为准。接入代码见 [使用手册](docs/user-guide.md)。
 
@@ -251,11 +261,13 @@ const enabled = ref(true)
 | `npm run build:weixin` | 微信小程序发行构建 |
 | `npm run preview` | 预览已构建的 H5 产物 |
 | `npm run check` | 配置、easycom 目录与浏览器依赖边界检查 |
-| `npm run test:unit` | 颜色对比度、校验、选择、反馈生命周期和构建环境回归 |
+| `npm run check:docs` | 72 份组件指南的示例属性／事件与本地链接检查 |
+| `npm run test:unit` | 颜色、校验、选择、日历时间、上传与反馈生命周期、构建环境回归 |
 | `npm test` | 浏览器交互与布局检查 |
 | `npm run test:motion` | 动画中间帧、快速反向切换与减少动态效果检查 |
 | `npm run test:forms` | 表单校验、选择组、多行输入和主题交互 |
 | `npm run test:feedback` | Toast 计时、弹层方向与淡入、焦点和 Dialog 交互 |
+| `npm run test:catalog` | 新增组件交互、快速数值编辑、日期、真实选图、主题与布局 |
 
 浏览器测试需先完成 H5 构建，并在另一个终端保持 `npm run preview` 运行。首次使用 Playwright 时执行 `npx playwright install chromium`。具体步骤见 [验证与排障](docs/testing.md)。
 
@@ -265,7 +277,7 @@ const enabled = ref(true)
 ```text
 Mori/
 ├── uni_modules/mori-ui/    # 可复用组件库
-│   ├── components/        # 十三个基础、表单与反馈组件
+│   ├── components/        # 七十二个基础、展示、导航、表单与反馈组件
 │   ├── styles/            # 尺寸与间距基础
 │   ├── platform/          # 平台适配
 │   ├── static/icons/      # 随包分发的 SVG 图标
@@ -273,6 +285,7 @@ Mori/
 ├── pages/index/           # 组件工作台
 ├── pages/forms/           # 表单基础示例
 ├── pages/feedback/        # Toast、Popup、Dialog 示例
+├── pages/catalog/         # 新增组件分类体验页
 ├── components/demo-form/  # 可操作的组合示例
 ├── scripts/               # 开发、构建、预览与验证
 ├── tests/                 # 颜色、表单、选择、反馈与构建环境回归
@@ -292,7 +305,8 @@ Mori/
 - [ ] 微信运行、iOS / Android 与 Safari 实际验证
 - [x] Form / FormItem、Radio / RadioGroup、CheckboxGroup、Textarea
 - [x] Toast / Popup / Dialog 与反馈示例
-- [ ] 按需求评估 Cell、ActionSheet、Notify 等后续组件
+- [x] 展示与动画、导航分页、ActionSheet / Popover / Notify、日期时间与图片上传
+- [x] 72 份逐组件用法、参数/事件/方法与平台适配跟踪
 - [ ] 鸿蒙工具链与逐组件验证、分发方式和最低系统版本
 
 后续清单是候选方向，按项目需要逐步推进。详细记录见 [当前进度](docs/progress.md)。
@@ -302,6 +316,8 @@ Mori/
 | 想了解什么 | 从这里开始 |
 | :--- | :--- |
 | 怎么接入、怎么用 | [使用手册](docs/user-guide.md) · [组件 API](docs/components.md) |
+| 每个组件的详细用法 | [72 份组件指南](docs/component-guides.md) |
+| iOS 上传与跨端跟进 | [平台适配清单](docs/platform-adaptation.md) |
 | 为什么长这样 | [设计规范](DESIGN.md) · [设计参考](docs/design-references.md) |
 | 代码放在哪里、怎么维护 | [架构说明](docs/architecture.md) · [验证与排障](docs/testing.md) |
 | 哪些已经完成 | [当前进度](docs/progress.md) · [兼容记录](docs/compatibility.md) |

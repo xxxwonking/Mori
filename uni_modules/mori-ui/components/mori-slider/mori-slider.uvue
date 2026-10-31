@@ -1,0 +1,28 @@
+<template>
+<view class="mori-slider"><slider :id="controlId" class="mori-slider__control" :value="value" :min="min" :max="maximum" :step="interval" :disabled="disabled" :active-color="color.length > 0 ? color : moriPalette.primary" :background-color="moriPalette.border" :block-color="color.length > 0 ? color : moriPalette.primary" :block-size="20" :show-value="showValue" :aria-label="label" @changing="changing" @change="change" /></view>
+</template>
+
+<script setup lang="uts">
+import { computed, onMounted, watch, nextTick } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { snapMoriNumber } from '../../numeric.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { syncMoriSlider } from '../../platform/slider.uts'
+const props = defineProps({ modelValue: { type: Number, default: 0 }, min: { type: Number, default: 0 }, max: { type: Number, default: 100 }, step: { type: Number, default: 1 }, disabled: { type: Boolean, default: false }, showValue: { type: Boolean, default: false }, color: { type: String, default: '' }, label: { type: String, default: '滑块' } })
+const emit = defineEmits(['update:modelValue', 'change', 'changing'])
+const controlId = createMoriFieldId()
+function sync() { nextTick(() => syncMoriSlider(controlId, props.label, props.disabled)) }
+onMounted(sync)
+watch((): string => props.label + '|' + props.disabled, sync)
+const maximum = computed((): number => Math.max(props.min + 1, props.max))
+const interval = computed((): number => props.step > 0 ? props.step : 1)
+const value = computed((): number => snapMoriNumber(props.modelValue, props.min, maximum.value, interval.value))
+function changing(event: UniSliderChangeEvent) { if (props.disabled) return; const result = snapMoriNumber(event.detail.value, props.min, maximum.value, interval.value); emit('update:modelValue', result); emit('changing', result) }
+function change(event: UniSliderChangeEvent) { if (props.disabled) return; const result = snapMoriNumber(event.detail.value, props.min, maximum.value, interval.value); emit('update:modelValue', result); emit('change', result) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-slider { width: 100%; min-height: 36px; }
+.mori-slider__control { margin: 10px 4px; }
+</style>

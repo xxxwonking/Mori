@@ -9,6 +9,7 @@
         <button class="guide-link" :class="{ 'guide-link--active': current == 'guide' }" @click="selectComponent('guide')"><text class="guide-link-text">开始使用</text><text class="guide-link-arrow">指南</text></button>
         <button class="guide-link" @click="openForms"><text class="guide-link-text">表单基础</text><text class="guide-link-arrow">组合体验</text></button>
         <button class="guide-link" @click="openFeedback"><text class="guide-link-text">反馈组件</text><text class="guide-link-arrow">Toast / Popup</text></button>
+        <button class="guide-link" @click="uni.navigateTo({ url: '/pages/catalog/catalog' })"><text class="guide-link-text">组件全览</text><text class="guide-link-arrow">基础 / 导航 / 录入</text></button>
         <text class="nav-group-title">基础组件</text>
         <button class="nav-item" :class="{ 'nav-item--active': current == 'button' }" @click="selectComponent('button')"><text class="nav-item-text">Button</text><text class="nav-item-cn">按钮</text></button>
         <text class="nav-group-title nav-group-title--second">表单组件</text>

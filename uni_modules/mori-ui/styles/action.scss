@@ -1,0 +1,13 @@
+/* Shared interactive reset; each component owns its semantic colors. */
+.mori-action { display: flex; flex-direction: row; align-items: center; justify-content: center; min-height: 36px; padding: 0 10px; margin: 0; border: 0; border-radius: 6px; background-color: transparent; font-size: 13px; line-height: 20px; }
+.mori-action[aria-disabled="true"] { opacity: 0.4; }
+/* #ifdef WEB */
+.mori-action { box-sizing: border-box; cursor: pointer; font-family: inherit; }
+.mori-action:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.mori-action[aria-disabled="true"] { cursor: default; }
+.mori-action:not([aria-disabled="true"]):hover { opacity: 0.8; }
+uni-button.mori-action[disabled]:not([type]) { background-color: transparent; color: inherit; }
+/* #endif */
+/* #ifdef WEB || MP-WEIXIN */
+.mori-action::after { border: none; }
+/* #endif */

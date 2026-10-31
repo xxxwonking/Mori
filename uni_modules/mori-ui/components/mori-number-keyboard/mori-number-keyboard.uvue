@@ -1,0 +1,24 @@
+<template>
+
+<view v-if="show" class="mori-number-keyboard" :style="'background-color:' + moriPalette.ground" role="group" :aria-label="title"><view class="mori-number-keyboard__header"><text :style="'color:' + moriPalette.muted">{{ title }}</text><mori-button :label="confirmText" size="sm" variant="text" :disabled="disabled" @click="confirm" /></view><view class="mori-number-keyboard__keys"><view v-for="key in keys" :key="key" class="mori-number-keyboard__cell"><button class="mori-action mori-number-keyboard__key" role="button" :aria-label="key == 'delete' ? '删除一位' : key == 'clear' ? '清空输入' : key" :aria-disabled="disabled" :disabled="disabled" :tabindex="disabled ? -1 : 0" :style="'background-color:' + moriPalette.surface + ';color:' + moriPalette.text" @click="press(key)" @keydown.enter.prevent="press(key)" @keydown.space.prevent="press(key)"><mori-icon v-if="key == 'delete'" name="chevron-left" :size="20" /><text v-else>{{ key == 'clear' ? '清空' : key }}</text></button></view></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, watch, computed } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriKeyboardValue } from '../../extended-input.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, show: { type: Boolean, default: true }, title: { type: String, default: '数字键盘' }, maxLength: { type: Number, default: 6 }, extraKey: { type: String, default: '' }, disabled: { type: Boolean, default: false }, confirmText: { type: String, default: '完成' } })
+const emit = defineEmits(['update:modelValue', 'update:show', 'input', 'delete', 'confirm'])
+const draft = ref(props.modelValue)
+watch((): string => props.modelValue, (value: string) => { draft.value = value })
+const keys = computed((): string[] => ['1','2','3','4','5','6','7','8','9', props.extraKey == '.' || props.extraKey == 'X' ? props.extraKey : 'clear', '0','delete'])
+function press(key: string) { if (props.disabled || !props.show) return; const value = moriKeyboardValue(draft.value, key, props.maxLength, props.extraKey); if (value == draft.value) return; draft.value = value; emit('update:modelValue', value); if (key == 'delete' || key == 'clear') emit('delete', value); else emit('input', key) }
+function confirm() { if (props.disabled || !props.show) return; emit('confirm', draft.value); emit('update:show', false) }
+
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-number-keyboard { border-radius: 12px; padding: 8px; }.mori-number-keyboard__header { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 4px 8px; font-size: 12px; }.mori-number-keyboard__keys { display: flex; flex-direction: row; flex-wrap: wrap; }.mori-number-keyboard__cell { width: 33.3333%; padding: 3px; box-sizing: border-box; }.mori-number-keyboard__key { width: 100%; min-height: 44px; font-size: 18px; }
+</style>

@@ -41,3 +41,49 @@ export const checkboxApi: ApiRow[] = [
   { name: 'disabled', valueType: 'boolean', initial: 'false', description: '禁用交互' },
   { name: '@change', valueType: 'event', initial: 'boolean', description: '返回新的选中状态' }
 ]
+
+
+/** Extended public catalogue. Detailed contracts live in docs/components/<name>.md. */
+export type MoriCatalogueEntry = { name: string; title: string; category: string }
+export const moriComponentCatalogue: MoriCatalogueEntry[] = [
+  { name: 'mori-button', title: '按钮', category: '基础' },
+  { name: 'mori-text', title: '文本', category: '基础' },
+  { name: 'mori-icon', title: '图标', category: '基础' },
+  { name: 'mori-loading', title: '加载', category: '基础' },
+  { name: 'mori-transition', title: '过渡动画', category: '基础' },
+  { name: 'mori-divider', title: '分割线', category: '基础' },
+  { name: 'mori-cell', title: '单元格', category: '基础' },
+  { name: 'mori-tag', title: '标签', category: '基础' },
+  { name: 'mori-badge', title: '徽标', category: '基础' },
+  { name: 'mori-progress', title: '进度条', category: '展示' },
+  { name: 'mori-skeleton', title: '骨架屏', category: '展示' },
+  { name: 'mori-empty', title: '空状态', category: '展示' },
+  { name: 'mori-collapse', title: '折叠面板', category: '展示' },
+  { name: 'mori-navbar', title: '导航栏', category: '导航' },
+  { name: 'mori-tabs', title: '标签页', category: '导航' },
+  { name: 'mori-tabbar', title: '底部导航', category: '导航' },
+  { name: 'mori-pagination', title: '分页', category: '导航' },
+  { name: 'mori-popup', title: '弹出层', category: '反馈' },
+  { name: 'mori-dialog', title: '弹框', category: '反馈' },
+  { name: 'mori-toast', title: '轻提示', category: '反馈' },
+  { name: 'mori-action-sheet', title: '动作面板', category: '反馈' },
+  { name: 'mori-popover', title: '气泡菜单', category: '反馈' },
+  { name: 'mori-notify', title: '顶部通知', category: '反馈' },
+  { name: 'mori-input', title: '输入框', category: '录入' },
+  { name: 'mori-textarea', title: '多行输入', category: '录入' },
+  { name: 'mori-switch', title: '开关', category: '录入' },
+  { name: 'mori-checkbox', title: '复选框', category: '录入' },
+  { name: 'mori-checkbox-group', title: '复选框组', category: '录入' },
+  { name: 'mori-radio', title: '单选框', category: '录入' },
+  { name: 'mori-radio-group', title: '单选框组', category: '录入' },
+  { name: 'mori-form', title: '表单', category: '录入' },
+  { name: 'mori-form-item', title: '表单项', category: '录入' },
+  { name: 'mori-stepper', title: '步进器', category: '录入' },
+  { name: 'mori-slider', title: '滑块', category: '录入' },
+  { name: 'mori-rate', title: '评分', category: '录入' },
+  { name: 'mori-search', title: '搜索', category: '录入' },
+  { name: 'mori-picker', title: '选项选择器', category: '录入' },
+  { name: 'mori-calendar', title: '日历', category: '录入' },
+  { name: 'mori-datetime-picker', title: '日期时间选择器', category: '录入' },
+  { name: 'mori-upload', title: '上传', category: '录入' }
+]

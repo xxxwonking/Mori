@@ -1,0 +1,124 @@
+<template>
+  <view class="mori-upload" :aria-label="label" :aria-busy="selecting">
+    <view class="mori-upload__list">
+      <view v-for="file in files" :key="file.id" class="mori-upload__file" :style="'border-color:' + moriPalette.border + ';background-color:' + moriPalette.surface">
+        <button @keydown.enter.prevent="preview(file)" @keydown.space.prevent="preview(file)" :tabindex="0" role="button" class="mori-action mori-upload__preview" :aria-label="'预览' + file.name" @click="preview(file)"><image class="mori-upload__image" :src="file.url" mode="aspectFill" /></button>
+        <view class="mori-upload__details"><text class="mori-upload__name" :style="'color:' + moriPalette.text">{{ file.name }}</text><mori-progress v-if="file.status == 'uploading'" :percentage="file.progress" :label="file.name + '上传进度'" /><text v-else class="mori-upload__status" :style="'color:' + (file.status == 'error' ? moriPalette.danger : moriPalette.muted)">{{ file.status == 'error' ? file.message : file.status == 'success' ? '上传完成' : '等待上传' }}</text></view>
+        <button @keydown.enter.prevent="retry(file.id)" @keydown.space.prevent="retry(file.id)" :aria-disabled="disabled" :tabindex="(disabled) ? -1 : 0" role="button" v-if="file.status == 'error' && uploadUrl.length > 0" class="mori-action" :disabled="disabled" :style="'color:' + moriPalette.primary" :aria-label="'重试' + file.name" @click="retry(file.id)">重试</button>
+        <button @keydown.enter.prevent="remove(file.id)" @keydown.space.prevent="remove(file.id)" :aria-disabled="disabled" :tabindex="(disabled) ? -1 : 0" role="button" v-if="deletable" class="mori-action mori-upload__remove" :disabled="disabled" :style="'color:' + moriPalette.text" :aria-label="'删除' + file.name" @click="remove(file.id)"><mori-icon name="x" :size="16" /></button>
+      </view>
+    </view>
+    <mori-button v-if="capacity > 0" :label="buttonText" variant="outline" :disabled="disabled" :loading="selecting" @click="choose" />
+    <text v-if="hint.length > 0" class="mori-upload__hint" :style="'color:' + moriPalette.muted">{{ hint }}</text>
+    <text v-if="errorMessage.length > 0" class="mori-upload__hint" role="alert" :style="'color:' + moriPalette.danger">{{ errorMessage }}</text>
+  </view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, nextTick, onBeforeUnmount, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { MoriPickedFile, MoriUploadFile, MoriUploadJob, createMoriUploadFile, copyMoriUploadFile, moriUploadCapacity, moriUploadFileIssue } from '../../upload.uts'
+import { chooseMoriImages, startMoriUpload, previewMoriImages } from '../../platform/upload.uts'
+const props = defineProps({
+  modelValue: { type: Array as PropType<MoriUploadFile[]>, default: (): MoriUploadFile[] => [] },
+  label: { type: String, default: '图片上传' },
+  buttonText: { type: String, default: '选择图片' },
+  hint: { type: String, default: '' },
+  maxCount: { type: Number, default: 9 },
+  maxSize: { type: Number, default: 10485760 },
+  sourceType: { type: Array as PropType<string[]>, default: (): string[] => ['album', 'camera'] },
+  disabled: { type: Boolean, default: false },
+  deletable: { type: Boolean, default: true },
+  previewImage: { type: Boolean, default: true },
+  autoUpload: { type: Boolean, default: true },
+  uploadUrl: { type: String, default: '' },
+  name: { type: String, default: 'file' },
+  header: { type: Object as PropType<UTSJSONObject>, default: (): UTSJSONObject => ({} as UTSJSONObject) },
+  formData: { type: Object as PropType<UTSJSONObject>, default: (): UTSJSONObject => ({} as UTSJSONObject) },
+  timeout: { type: Number, default: 60000 },
+  chooseFiles: { type: Function as PropType<() => Promise<MoriPickedFile[]>>, default: null },
+  beforeRead: { type: Function as PropType<(files: MoriPickedFile[]) => Promise<boolean>>, default: null },
+  resolveUrl: { type: Function as PropType<(response: string) => string>, default: null }
+})
+const emit = defineEmits(['update:modelValue', 'afterRead', 'delete', 'oversize', 'error', 'cancel', 'progress', 'success', 'preview'])
+const files = ref<MoriUploadFile[]>(props.modelValue.map(copyMoriUploadFile))
+const selecting = ref(false)
+const errorMessage = ref('')
+const jobs: MoriUploadJob[] = []
+let disposed = false
+let selectionGeneration = 0
+const capacity = computed((): number => moriUploadCapacity(files.value.length, props.maxCount))
+function publish() { if (!disposed) emit('update:modelValue', files.value.map(copyMoriUploadFile)) }
+function abort(id: string) { const index = jobs.findIndex((job: MoriUploadJob): boolean => job.id == id); if (index >= 0) { const job = jobs[index]; jobs.splice(index, 1); job.abort() } }
+watch(() => props.modelValue, (value: MoriUploadFile[]) => { jobs.slice().forEach((job: MoriUploadJob) => { if (!value.some((file: MoriUploadFile): boolean => file.id == job.id && file.status == 'uploading')) abort(job.id) }); files.value = value.map(copyMoriUploadFile) }, { deep: true })
+function fail(message: string) { if (disposed) return; errorMessage.value = message; emit('error', message) }
+async function accept(picked: MoriPickedFile[], ticket: number) {
+  try {
+    if (disposed || ticket != selectionGeneration || props.disabled) return
+    if (props.beforeRead != null && !(await props.beforeRead!(picked))) return
+    if (disposed || ticket != selectionGeneration || props.disabled) return
+    const accepted: MoriUploadFile[] = []
+    picked.forEach((file: MoriPickedFile) => { const issue = moriUploadFileIssue(file, props.maxSize); if (issue.length > 0) { emit('oversize', file); fail(issue) } else if (accepted.length < capacity.value) accepted.push(createMoriUploadFile(file)) })
+    files.value = files.value.concat(accepted); publish(); emit('afterRead', accepted.map(copyMoriUploadFile))
+    nextTick(() => { if (!disposed && props.autoUpload && props.uploadUrl.length > 0) submit() })
+  } catch (error) { if (!disposed && ticket == selectionGeneration && !props.disabled) fail('文件处理失败，请重试。') }
+  finally { if (ticket == selectionGeneration) selecting.value = false }
+}
+function choose() {
+  if (props.disabled || selecting.value || capacity.value == 0) return
+  selecting.value = true; errorMessage.value = ''; const ticket = ++selectionGeneration
+  if (props.chooseFiles != null) {
+    try { props.chooseFiles!().then((picked: MoriPickedFile[]) => accept(picked, ticket)).catch(() => { if (ticket != selectionGeneration || disposed) return; selecting.value = false; fail('选择文件失败，请重试。') }) }
+    catch (error) { selecting.value = false; fail('选择文件失败，请重试。') }
+    return
+  }
+  chooseMoriImages(capacity.value, props.sourceType, (picked: MoriPickedFile[]) => { accept(picked, ticket) }, (message: string, cancelled: boolean) => { if (disposed || ticket != selectionGeneration) return; selecting.value = false; if (cancelled) emit('cancel'); else fail(message) })
+}
+function update(id: string, status: string, progress: number, message: string, url: string = ''): MoriUploadFile | null {
+  if (disposed) return null
+  const item = files.value.find((file: MoriUploadFile): boolean => file.id == id)
+  if (item == null) return null
+  item.status = status; item.progress = progress; item.message = message; if (url.length > 0) item.url = url
+  publish(); return copyMoriUploadFile(item)
+}
+function retry(id: string) {
+  if (props.disabled || props.uploadUrl.length == 0 || jobs.some((job: MoriUploadJob): boolean => job.id == id)) return
+  const file = files.value.find((item: MoriUploadFile): boolean => item.id == id)
+  if (file == null || file.status == 'success') return
+  update(id, 'uploading', 0, '')
+  // Register before starting: a platform may reject an invalid request synchronously.
+  const job: MoriUploadJob = { id, abort: () => {} }
+  jobs.push(job)
+  const stop = startMoriUpload(copyMoriUploadFile(file), { url: props.uploadUrl, name: props.name, header: props.header, formData: props.formData, timeout: props.timeout },
+    (progress: number) => { if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return; const item = update(id, 'uploading', progress, ''); if (item != null) emit('progress', item) },
+    (response: string) => {
+      if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return
+      abort(id)
+      try { const url = props.resolveUrl != null ? props.resolveUrl!(response) : ''; if (props.resolveUrl != null && url.length == 0) { update(id, 'error', 0, '服务器未返回有效文件地址'); fail('服务器未返回有效文件地址'); return }; const item = update(id, 'success', 100, '', url); if (item != null) emit('success', item, response) }
+      catch (error) { update(id, 'error', 0, '上传响应处理失败'); fail('上传响应处理失败') }
+    },
+    (message: string) => { if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return; abort(id); update(id, 'error', 0, message); fail(message) })
+  if (jobs.includes(job)) job.abort = stop
+  else stop()
+}
+function submit() { if (props.disabled) return; if (props.uploadUrl.length == 0) { fail('请配置 uploadUrl 或在 afterRead 中处理上传。'); return }; files.value.filter((file: MoriUploadFile): boolean => file.status == 'ready' || file.status == 'error').forEach((file: MoriUploadFile) => retry(file.id)) }
+function remove(id: string) { if (props.disabled || !props.deletable) return; const file = files.value.find((item: MoriUploadFile): boolean => item.id == id); if (file == null) return; abort(id); files.value = files.value.filter((item: MoriUploadFile): boolean => item.id != id); publish(); emit('delete', copyMoriUploadFile(file)) }
+function clear() { if (props.disabled) return; selectionGeneration++; selecting.value = false; jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)); files.value = []; errorMessage.value = ''; publish() }
+function preview(file: MoriUploadFile) { emit('preview', copyMoriUploadFile(file)); if (props.previewImage) previewMoriImages(file.url, files.value.map((item: MoriUploadFile): string => item.url)) }
+onBeforeUnmount(() => { disposed = true; selectionGeneration++; jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)) })
+defineExpose({ choose, submit, retry, remove, clear })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-upload { width: 100%; }
+.mori-upload__list { display: flex; flex-direction: column; }
+.mori-upload__file { display: flex; flex-direction: row; align-items: center; padding: 8px; border-width: 1px; border-style: solid; border-radius: 8px; margin-bottom: 8px; }
+.mori-upload__preview { padding: 0; width: 48px; height: 48px; flex-shrink: 0; overflow: hidden; }
+.mori-upload__image { width: 48px; height: 48px; }
+.mori-upload__details { flex: 1; min-width: 0; margin-left: 10px; }
+.mori-upload__name { display: block; font-size: 12px; line-height: 20px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mori-upload__status, .mori-upload__hint { display: block; font-size: 11px; line-height: 18px; }
+.mori-upload__hint { margin-top: 6px; }
+.mori-upload__remove { width: 36px; flex-shrink: 0; padding: 0; }
+</style>

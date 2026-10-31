@@ -1,0 +1,9 @@
+/** Text editing preserves '-' and '0.' drafts; nonnegative fields can still request a decimal keyboard. */
+export function syncMoriStepperInputMode(id: string, allowNegative: boolean) {
+  // #ifdef WEB
+  const wrapper = document.getElementById(id)
+  if (wrapper == null) return
+  const input = Element.prototype.querySelector.call(wrapper, 'input') as HTMLInputElement | null
+  if (input != null) input.setAttribute('inputmode', allowNegative ? 'text' : 'decimal')
+  // #endif
+}

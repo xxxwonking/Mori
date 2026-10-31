@@ -1,0 +1,32 @@
+<template>
+
+<scroll-view class="mori-list" scroll-y :style="'height:' + height" :lower-threshold="offset" @scrolltolower="check"><view :aria-busy="loading"><slot /></view><mori-load-more :status="finished ? 'finished' : error ? 'error' : loading || requested ? 'loading' : 'more'" @load="retry" /></scroll-view>
+</template>
+
+<script setup lang="uts">
+
+import { ref, watch, onMounted, nextTick } from 'vue'
+const props = defineProps({ loading: { type: Boolean, default: false }, finished: { type: Boolean, default: false }, error: { type: Boolean, default: false }, height: { type: String, default: '320px' }, offset: { type: Number, default: 80 }, immediateCheck: { type: Boolean, default: true } })
+const emit = defineEmits(['update:loading', 'update:error', 'load'])
+const requested = ref(false)
+watch((): boolean => props.loading, (loading: boolean) => { if (!loading) requested.value = false })
+watch((): boolean => props.error, (error: boolean) => { if (error) requested.value = false })
+watch((): boolean => props.finished, (finished: boolean) => { if (finished) requested.value = false })
+function request() {
+  if (props.loading || requested.value || props.finished) return
+  requested.value = true
+  emit('update:loading', true)
+  emit('load')
+  // Synchronous completion may batch true -> false without a prop watcher edge.
+  nextTick(() => { if (!props.loading) requested.value = false })
+}
+function check() { if (!props.error) request() }
+function retry() { if (props.loading || requested.value || props.finished) return; if (props.error) emit('update:error', false); request() }
+onMounted(() => { if (props.immediateCheck) check() })
+defineExpose({ check })
+
+</script>
+
+<style lang="scss">
+.mori-list { width: 100%; }
+</style>

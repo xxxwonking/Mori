@@ -1,0 +1,7 @@
+/** MEDIA-02: keyboard focus must not scroll the host wrapper during a slide transition. */
+export function focusMoriSwiper(id: string) {
+  // #ifdef WEB
+  const control = document.getElementById(id)
+  if (control != null) control.focus({ preventScroll: true })
+  // #endif
+}

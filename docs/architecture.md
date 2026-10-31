@@ -6,7 +6,7 @@
 |---|---|
 | `App.uvue` / `main.uts` | 应用入口；启动时初始化一次主题监听 |
 | `manifest.json` / `pages.json` / `theme.json` | 平台开关、页面与导航主题配置 |
-| `uni_modules/mori-ui/components/` | 十三个可复用组件，目录和文件同名，供 easycom 发现 |
+| `uni_modules/mori-ui/components/` | 七十二个可复用组件，目录和文件同名，供 easycom 发现 |
 | `uni_modules/mori-ui/theme.uts` | 全局响应式配置、主题来源、语义颜色 |
 | `uni_modules/mori-ui/styles/tokens.scss` | 浅色基础 token 和公共尺寸；不是全部动态主题来源 |
 | `uni_modules/mori-ui/contrast.uts` | 不透明 hex／rgb 的黑白前景选择 |
@@ -94,4 +94,27 @@ H5 的 `uni-input` 报告的标准化 `tagName` 可能也是 `INPUT`，但它并
 
 沿用 `uni_modules/mori-ui/components/mori-名称/mori-名称.uvue`，先明确 props、事件与状态。复用主题与必要的基础样式，处理平台差异，再添加工作台示例、`catalogue.uts` 说明、组件 API 和进度条目。
 
-`scripts/check.mjs` 当前对十三个导出组件做精确断言，新组件需要有意更新列表。浏览器脚本依赖示例结构；新增有意义的行为覆盖，避免为简单样式常量堆叠重复测试。`scripts/verify-forms.mjs` 覆盖表单基础示例；校验和选择逻辑分别由 `tests/validation.mjs`、`tests/selection.mjs` 检查。反馈组件使用 `scripts/verify-feedback.mjs`、`tests/feedback.mjs` 和 `tests/overlay.mjs` 检查。Node 逻辑测试不替代 UTS 编译或平台运行验证。
+`scripts/check.mjs` 通过 `scripts/component-manifest.mjs` 对七十二个导出组件做精确断言，并校验每组件独立文档。新增组件需要有意更新清单。浏览器脚本依赖示例结构；新增有意义的行为覆盖，避免为简单样式常量堆叠重复测试。`scripts/verify-forms.mjs` 覆盖表单基础示例；校验和选择逻辑分别由 `tests/validation.mjs`、`tests/selection.mjs` 检查。反馈组件使用 `scripts/verify-feedback.mjs`、`tests/feedback.mjs` 和 `tests/overlay.mjs` 检查。Node 逻辑测试不替代 UTS 编译或平台运行验证。
+
+
+## 常用组件扩展的归属
+
+- numeric.uts：步进与分页的有限数值、边界与浮点处理。
+- calendar.uts / datetime.uts：严格日期、UTC日历运算、禁用区间、业务本地日期时间字符串；不隐式转换时区。
+- navigation.uts / actions.uts / input.uts：公开数据结构与实例方法类型；组件继续遵循字符串选项值。
+- upload.uts：文件结构、容量与路径/大小检查；platform/upload.uts 封装选择、预览、HTTP上传与abort。iOS差异用 MORI-UP-IOS 编号连接 [适配记录](platform-adaptation.md)。
+- Picker / DatetimePicker / ActionSheet 复用 Popup；草稿与提交模型分离。Popover 使用同一层级管理，视口监听留在 platform/popover.uts。
+- styles/action.scss 处理新增按钮在uni宿主上的尺寸、键盘焦点和禁用重置，不能依赖Web原生button语义自动存在；组件显式设置role、tabindex、aria-disabled与Enter/Space行为。
+- pages/catalog/catalog.uvue 与两个 demo-extended 组件属于工作台，不是可发布组件。
+- docs/components/ 是逐组件完整用法；scripts/check-docs.mjs 校验示例结构与真实props/events以及本地链接，不等同原生编译。
+
+
+## 通用组件第二轮扩展
+
+- content.uts：媒体／宫格／步骤数据结构、有限数值、高亮文本拆分、倒计时显示。extended-input.uts：级联树路径、可见树节点、数字键盘输入规则与公开实例类型。
+- Cascader 保留路径草稿，只有末级确认写入 v-model；TreeSelect 只选叶子，不隐式父子联动。NumberKeyboard 用本地草稿处理同一轮连续按键。
+- List／PullRefresh 使用宿主 scroll-view，业务回写 loading／modelValue；同步请求锁防止回写前重复触发。ScrollView 与页面级滚动不混用。
+- CountDown 使用 Date.now 截止点，CountTo 使用经过时间插值；重启与卸载取消旧任务。没有后台常驻服务。
+- Sticky 在 WEB／MP 使用 CSS sticky；APP 默认普通流，可用受控 fixed＋height 手动接入。SafeArea 为独立占位；BackTop 由父级提供滚动位置。
+- 4 个 demo-media／demo-navigation／demo-choice／demo-data 组合演示属于工作台。共享 demo-catalog.scss 必须在各 .uvue 引入，因为父页面作用域样式不会穿透子组件。
+- tests/extended-catalog.mjs 检查真实 Vue setup 生命周期；scripts/verify-expanded.mjs 检查新增组件真实 H5 交互。

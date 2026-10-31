@@ -1,0 +1,18 @@
+<template>
+
+<view class="mori-sticky" :class="{ 'mori-sticky--flow': !fixed }" :style="'top:' + offsetTop + 'px;z-index:' + zIndex + ';' + (fixed ? 'height:' + height + 'px' : '')"><view class="mori-sticky__content" :class="{ 'mori-sticky__content--fixed': fixed }" :style="'top:' + offsetTop + 'px;z-index:' + zIndex + ';background-color:' + moriPalette.surface"><slot /></view></view>
+</template>
+
+<script setup lang="uts">
+
+import { moriPalette } from '../../theme.uts'
+defineProps({ offsetTop: { type: Number, default: 0 }, zIndex: { type: Number, default: 20 }, fixed: { type: Boolean, default: false }, height: { type: Number, default: 44 } })
+
+</script>
+
+<style lang="scss">
+.mori-sticky__content--fixed { position: fixed; left: 0; right: 0; }
+/* #ifdef WEB || MP-WEIXIN */
+.mori-sticky--flow { position: sticky; }
+/* #endif */
+</style>

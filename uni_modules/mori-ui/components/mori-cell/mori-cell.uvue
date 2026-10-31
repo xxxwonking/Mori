@@ -1,0 +1,23 @@
+<template>
+<view class="mori-cell" :style="'background-color:' + moriPalette.surface + ';border-bottom-color:' + (border ? moriPalette.border : 'transparent')" :role="clickable ? 'button' : 'group'" :tabindex="clickable && !disabled ? 0 : -1" :aria-disabled="disabled" :aria-label="title" :class="{ 'mori-cell--disabled': disabled }" @click="activate" @keydown.enter.prevent="activate" @keydown.space.prevent="activate"><view class="mori-cell__main"><text class="mori-cell__title" :style="'color:' + moriPalette.text">{{ title }}</text><text v-if="label.length > 0" class="mori-cell__label" :style="'color:' + moriPalette.muted">{{ label }}</text></view><view class="mori-cell__value"><slot><text class="mori-cell__value-text" :style="'color:' + moriPalette.muted">{{ value }}</text></slot></view><mori-icon v-if="isLink" name="chevron-right" :size="16" /></view>
+</template>
+
+<script setup lang="uts">
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ title: { type: String, default: '' }, label: { type: String, default: '' }, value: { type: String, default: '' }, clickable: { type: Boolean, default: false }, isLink: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, border: { type: Boolean, default: true } })
+const emit = defineEmits(['click'])
+function activate() { if (props.clickable && !props.disabled) emit('click') }
+</script>
+
+<style lang="scss">
+.mori-cell { display: flex; flex-direction: row; align-items: center; min-height: 44px; padding: 10px 0; border-bottom-width: 1px; border-bottom-style: solid; }
+.mori-cell__main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.mori-cell__title, .mori-cell__value-text { font-size: 13px; line-height: 20px; }
+.mori-cell__label { font-size: 11px; line-height: 18px; margin-top: 3px; }
+.mori-cell__value { max-width: 55%; margin: 0 8px 0 12px; }
+.mori-cell--disabled { opacity: 0.4; }
+/* #ifdef WEB */
+.mori-cell { box-sizing: border-box; overflow-wrap: anywhere; }
+.mori-cell:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; border-radius: 6px; }
+/* #endif */
+</style>
