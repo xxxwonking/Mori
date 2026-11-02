@@ -1,0 +1,8 @@
+<template>
+  <mori-button label="打开确认弹框" @click="show = true" />
+  <mori-dialog v-model="show" title="保存修改？" message="确认后将保存本地演示状态。" @confirm="show = false" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const show = ref(false)
+</script>

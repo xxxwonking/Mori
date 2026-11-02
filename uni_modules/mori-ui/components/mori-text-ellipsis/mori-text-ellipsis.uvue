@@ -1,0 +1,22 @@
+<template>
+<view><text class="mori-text-ellipsis" :style="textStyle" :selectable="selectable">{{ text }}</text><mori-button v-if="expandable && text.length > 0" :label="expanded ? collapseText : expandText" size="sm" variant="text" @click="toggle" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch } from 'vue'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ text: { type: String, default: '' }, rows: { type: Number, default: 3 }, expandable: { type: Boolean, default: true }, expandText: { type: String, default: '展开全文' }, collapseText: { type: String, default: '收起' }, selectable: { type: Boolean, default: true } })
+const emit = defineEmits(['change'])
+const expanded = ref(false)
+watch(() => props.text, () => { expanded.value = false })
+const textStyle = computed((): string => 'color:' + moriPalette.value.text + ';' + (expanded.value ? '' : 'max-height:' + Math.max(1, props.rows) * 22 + 'px;line-clamp:' + Math.max(1, props.rows) + ';-webkit-line-clamp:' + Math.max(1, props.rows)))
+function toggle() { expanded.value = !expanded.value; emit('change', expanded.value) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-text-ellipsis { font-size: 13px; line-height: 22px; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+/* #ifdef WEB */
+.mori-text-ellipsis { display: -webkit-box; -webkit-box-orient: vertical; }
+/* #endif */
+</style>

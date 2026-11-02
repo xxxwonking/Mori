@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-查看终端报告的地址，默认请求 5173 端口。也可以在 HBuilderX 导入 **mori-ui 根目录**，通过运行菜单启动浏览器、小程序或 App。App 目前需要通过 HBuilderX 操作，仓库没有 `build:ios` / `build:android` 命令。
+查看终端报告的地址，默认请求 5173 端口。也可以在 HBuilderX 导入 **mori-ui 根目录**，通过运行菜单启动浏览器、小程序或 App。HBuilderX 直接运行打开工作台；官网预览页由 npm 构建时生成并启用，无需为直接 IDE 运行先生成官网文件。App 目前需要通过 HBuilderX 操作，仓库没有 `build:ios` / `build:android` 命令。
 
 脚本查找不到 HBuilderX 时：
 
@@ -40,6 +40,8 @@ npm run test:feedback
 
 ## 2. 使用组件工作台
 
+宣传官网与逐组件文档可通过 `npm run site:dev` 启动（默认 5180 端口），包含组件搜索、88 份指南及真实 H5 手机预览。构建、主题、二维码和静态部署说明见 [官网维护指南](website.md)。以下是原有组件工作台的使用方式。
+
 左侧导航选择组件；手机宽度时导航位于顶部。切换“组件预览／API 参考”可以操作示例或查看参数。右上角的“自动／浅色／深色”和主题色会同步影响样例与组合表单。
 
 Button 可切换大小、加载和禁用。Input 展示普通、校验、密码和禁用字段。Switch 展示状态文字、独立开启／关闭颜色和尺寸。Checkbox 展示选择与禁用。组合表单支持必填、邮箱、同意选项校验，以及模拟保存和重置。
@@ -55,6 +57,10 @@ Button 可切换大小、加载和禁用。Input 展示普通、校验、密码�
 目标应是 **uni-app x** 工程。当前包不能被当作普通 uni-app `.vue` 组件或标准 Web Vue 包直接安装。
 
 复制 `uni_modules/mori-ui` 整个目录，保留 `components`、`styles`、`platform`、`static`、`theme.uts`、`contrast.uts`、`validation.uts`、`form-context.uts`、`selection.uts`、`feedback.uts`、`overlay.uts`、`package.json` 和 `THIRD_PARTY_NOTICES.md`。不需要复制工作台、`demo-form`、`demo-foundation` 或反馈演示页。
+
+同时复制依赖目录 `uni_modules/mori-upload-ios`。它在 APP-IOS 提供系统相册读取、沙盒临时文件与 URLSession 上传；其他平台不调用该原生分支。首次接入或修改 Swift／Info.plist 后重新制作自定义基座或打包，配置与文件生命周期见 [iOS 模块说明](../uni_modules/mori-upload-ios/README.md)。目前该原生实现仍待 iOS 编译和设备验收。
+
+业务页面的完整接入示例、权限配置、插件 API 与排障步骤见 [iOS 上传插件使用指南](ios-upload.md)，官网左侧「开始使用」中也可进入。
 
 组件通过 easycom 目录规则使用，无需逐个全局注册。在目标 `App.uvue` 的启动回调初始化主题：
 
@@ -245,7 +251,7 @@ function save() {
 
 FormItem 的 name、model 顶层键和规则的 name 应一致。required 视觉标记与校验规则分别配置。嵌套使用时，把标签、错误和提示放在 FormItem 上，Input／Textarea 的标题与消息由父级接管；每个 FormItem 建议只包含一个输入控件或选择组。
 
-需要失焦校验时，在业务处理函数中调用 `profileForm.value!.validateField('name')`；该方法只更新指定字段，返回值不能代表全表单有效。`clearValidate('name')` 清一项错误，`clearValidate()` 清全部错误；这两个方法都不重置业务值。当前不提供自动监听、异步校验、嵌套路径和 `resetFields`。
+需要失焦校验时，在业务处理函数中调用 `profileForm.value!.validateField('name')`；该方法只更新指定字段，返回值不能代表全表单有效。`clearValidate('name')` 清一项错误，`clearValidate()` 清全部错误；这两个方法都不重置业务值。新增异步规则请用 validateAsync / validateFieldAsync；name 可使用嵌套路径。resetFields 返回并发出初始 JSON 数据，使用 v-model:model 或 reset 回调接收；详情见 [Form 指南](components/form.md)。
 
 单选值和选项 value 使用 string；多选值使用 string[]，options 的 value 保持唯一。CheckboxGroup 的 max 默认 0，表示不限制；min 控制用户取消操作，不自动补选。校验必选由 Form 的 required／minLength 负责。
 
@@ -311,7 +317,7 @@ Dialog 的 confirm 不会自动关闭。实际异步提交时，在处理函数�
 
 ## 10. 常用组件与逐组件文档
 
-当前共72个组件。完整目录及每个组件的最小示例、进阶状态、属性、事件、插槽、方法与平台边界见 [逐组件使用指南](component-guides.md)。新增展示页为 pages/catalog/catalog，可从工作台「组件全览」进入。
+当前共88个组件。完整目录及每个组件的最小示例、进阶状态、属性、事件、插槽、方法与平台边界见 [逐组件使用指南](component-guides.md)。全部组件在官网文档页提供真实预览；pages/catalog/catalog 保留组合场景，可从工作台「组件全览」进入。
 
 新增选择器使用两个模型：v-model 是已提交值，v-model:show 是显示状态。临时选择只在确认后写回；取消不会覆盖业务值。Calendar 内联组件使用 string[]，单选也是一个日期的数组；日期为 YYYY-MM-DD，DatetimePicker 时间字符串没有隐式时区转换。
 
@@ -331,3 +337,7 @@ Dialog 的 confirm 不会自动关闭。实际异步提交时，在处理函数�
 - 反馈与加载：NoticeBar／Result／LoadMore／List／PullRefresh／SwipeCell／CountDown／CountTo。加载类组件需回写完成状态，组件不发真实业务请求。
 
 [当前覆盖范围与后续缺口](component-coverage.md) 明确区分已实现、有限能力和下一批候选，不把同名组件视为完全兼容 Vant／Wot／uview-plus 的全部参数。
+
+## 通用能力补强
+
+本轮新增 16 个组件，总计 88 个。表格、结构化富文本、定高虚拟列表、瀑布流、裁剪、签名、二维码与拖拽等的契约见 [全部指南](component-guides.md)。官网每个文档页提供实际示例；复杂组件的使用范围与原生差异在对应指南明确记录。

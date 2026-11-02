@@ -10,22 +10,36 @@
     "build:weixin": "node scripts/uni.mjs build mp-weixin",
     "preview": "node scripts/serve.mjs",
     "test": "node scripts/verify.mjs",
-    "test:unit": "node tests/contrast.mjs && node tests/validation.mjs && node tests/selection.mjs && node tests/uni-environment.mjs && node tests/overlay.mjs && node tests/feedback.mjs && node tests/feedback-component.mjs && node tests/extension-logic.mjs && node tests/extension-components.mjs && node tests/upload-transport.mjs && node tests/extended-catalog.mjs",
+    "test:unit": "node tests/contrast.mjs && node tests/validation.mjs && node tests/selection.mjs && node tests/uni-environment.mjs && node tests/overlay.mjs && node tests/feedback.mjs && node tests/feedback-component.mjs && node tests/extension-logic.mjs && node tests/extension-components.mjs && node tests/upload-transport.mjs && node tests/upload-ios.mjs && node tests/extended-catalog.mjs && node tests/strengthened-components.mjs && node tests/platform-geometry.mjs && node tests/preview-entry.mjs",
     "test:motion": "node scripts/verify-motion.mjs",
     "check": "node scripts/check.mjs",
     "test:forms": "node scripts/verify-forms.mjs",
     "test:feedback": "node scripts/verify-feedback.mjs",
     "test:catalog": "node scripts/verify-catalog.mjs",
     "check:docs": "node scripts/check-docs.mjs",
-    "test:expanded": "node scripts/verify-expanded.mjs"
+    "test:expanded": "node scripts/verify-expanded.mjs",
+    "site:dev": "node scripts/site.mjs dev",
+    "site:build": "node scripts/site.mjs build",
+    "site:preview": "node scripts/site.mjs preview",
+    "site:refresh": "node scripts/site.mjs refresh",
+    "test:site": "node scripts/verify-site.mjs",
+    "test:strengthened": "node scripts/verify-strengthened.mjs"
   },
   "devDependencies": {
     "@dcloudio/uni-app-x": "^0.7.138",
     "@playwright/test": "1.58.2",
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4",
     "sass": "^1.86.0",
+    "vitepress": "^1.6.4",
     "vue": "^3.5.42"
   },
   "engines": {
     "node": ">=22.13"
+  },
+  "overrides": {
+    "vitepress": {
+      "vite": "6.4.5"
+    }
   }
 }

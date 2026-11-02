@@ -1,0 +1,4 @@
+export type ChooseIOSImages = (options: string, success: (files: string) => void, fail: (message: string, cancelled: boolean) => void) => string
+export type UploadIOSFile = (filePath: string, fileName: string, options: string, progress: (value: string) => void, success: (response: string) => void, fail: (message: string) => void) => string
+export type CancelIOSTask = (id: string) => void
+export type ReleaseIOSFile = (path: string) => void

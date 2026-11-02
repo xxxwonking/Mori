@@ -1,5 +1,7 @@
 # 验证、构建与排障
 
+官网验证单独使用 `npm run site:build`、`npm run site:preview`、`npm run test:site`。测试会检查全部 72 个 H5 示例的实际挂载与 360px 溢出、72 个文档地址，以及首页交互、搜索、二维码、预览主题／重置、弹层及 1440／1280／768／390px 布局。`node scripts/verify-site.mjs --layout` 只复核官网交互和布局，保留先前的全组件巡检记录。产物为 `.impeccable/review/site-*.png` 和 `site-verification.json`／`site-layout-verification.json`，详见 [官网说明](website.md)。这不是全部组件全状态或真机验收。
+
 先根据改动范围选检查。以下是可复现流程，不要求每个任务重复全部执行。已经取得的平台证据见 [兼容记录](compatibility.md)。
 
 ## 按改动选择检查
@@ -137,3 +139,24 @@ Search 同时覆盖连续填入两次文本后立即 Enter／点击搜索，必�
 - 同步执行 H5／微信构建；原组件的 npm test 与 test:catalog 检查分类入口整合没有破坏既有行为。
 
 命令同样支持 MORI_BASE_URL 和 MORI_BROWSER_EXECUTABLE。临时资源 geometry.svg 为本地几何测试图，不作为用户业务图。
+
+## 88 组件补强回归
+
+`node tests/strengthened-components.mjs`（也在 test:unit 中）运行真实 Vue setup：异步表单过期结果、重置、异常清理，联动选择、级联失败与取消、树半选、双侧操作、不可变排序、输入去重、日期边界、虚拟窗口、裁剪几何与二维码解码。
+
+先 `npm run site:build`、`npm run site:preview`，再运行 `npm run test:strengthened`；可用 MORI_SITE_URL 指向其他端口。浏览器检查真实 Canvas 笔迹／PNG、裁剪取样、显示二维码解码、千条列表跳转、表单／选择操作及本地视频帧播放，输出 strengthened-verification.json 与 strengthen-*.png。手势自动化是 Chromium 合成输入，不是真机证据。
+
+`npm run test:site` 继续按 manifest 巡检全部 88 个指南和真实示例。`check:docs` 同时识别 LF / CRLF 的 Vue fenced 示例，避免 Windows 新文档漏检。jsqr 仅为开发测试解码依赖，未进入可复制组件运行时。
+
+
+## iOS 上传适配回归
+
+iOS 上传定向检查：`node tests/upload-ios.mjs` 运行 APP-IOS 的真实 UTS 适配器与原生桥接替身，覆盖路由、参数、路径、进度、失败、取消和迟到文件释放；`node tests/extension-components.mjs` 运行真实组件，覆盖旧上传回调与新重试隔离、拒绝／异常／禁用／删除／清空／卸载、外部移除、远端 URL 替换及自定义文件所有权。两项均在 `npm run test:unit` 中。这些测试不执行 Swift，不等于 iOS 编译／真机验证。
+
+原生模块新增或修改后，执行 check／check:docs、单元测试与 H5／微信构建以排查其他分支回归；H5 实际选图可用 `npm run test:catalog`（MORI_BASE_URL 支持指向官网 `/demo/` 构建）。iOS 必须重新制作含插件的自定义基座或打包，并按 [适配编号](platform-adaptation.md) 验证本地／iCloud 照片、HEIC、权限、取消、真实上传和文件清理，接入步骤见 [模块说明](../uni_modules/mori-upload-ios/README.md)。
+
+## 2026-11-02 审查修复回归
+
+`node tests/platform-geometry.mjs` 使用仅提供异步查询的微信 UniElement 接口替身，覆盖尺寸失败、窗口变化竞态、取消监听、快速签名、坐标换算及清空／禁用／卸载取消待处理触点。接口替身不等于真机验收。`test:strengthened` 新增自动补全连续输入后立即选中、级联加载中点击当前路径；不能用等待输入稳定来规避竞态。
+
+`node tests/preview-entry.mjs` 核对默认 IDE 页面不引用生成的预览入口，npm 入口显式启用 MORI_PREVIEW。干净检出验证需复制 Git 可见源码（不带被忽略的预览生成文件），直接调用 HBuilderX 编译器且不传 UNI_CUSTOM_CONTEXT；npm 构建继续验证包含 88 示例的分支。

@@ -1,0 +1,8 @@
+{
+  "id": "mori-upload-ios",
+  "displayName": "Mori Upload iOS",
+  "version": "0.1.0",
+  "description": "Mori UI 的 iOS 相册、可读临时文件与前台上传适配",
+  "engines": { "HBuilderX": "^5.31" },
+  "uni_modules": { "dependencies": [], "encrypt": [] }
+}

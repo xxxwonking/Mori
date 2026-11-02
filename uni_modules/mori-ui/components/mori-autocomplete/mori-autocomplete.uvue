@@ -1,0 +1,32 @@
+<template>
+<view class="mori-autocomplete">
+  <mori-input :key="editorKey" :model-value="modelValue" :label="label" :placeholder="placeholder" :disabled="disabled" clearable @update:modelValue="input" @focus="opened = true" @confirm="finish" />
+  <view v-if="opened && !disabled" class="mori-autocomplete__list" :style="'border-color:' + moriPalette.border + ';background-color:' + moriPalette.surface">
+    <mori-loading v-if="loading" text="搜索中" />
+    <mori-text v-else-if="error.length > 0" :text="error" tone="danger" />
+    <mori-text v-else-if="matches.length == 0" text="没有匹配的建议" tone="muted" />
+    <button v-for="item in matches" v-else :key="item.value" class="mori-action mori-autocomplete__option" role="button" :tabindex="item.disabled == true ? -1 : 0" :aria-disabled="item.disabled == true" :disabled="item.disabled == true" :aria-label="'选择 ' + item.label" :style="'color:' + moriPalette.text" @click="select(item)" @keydown.enter.prevent="select(item)" @keydown.space.prevent="select(item)">{{ item.label }}</button>
+    <mori-button label="收起建议" size="sm" variant="text" @click="opened = false" />
+  </view>
+</view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, PropType } from 'vue'
+import { MoriChoiceOption } from '../../selection.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ modelValue: { type: String, default: '' }, options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] }, label: { type: String, default: '搜索建议' }, placeholder: { type: String, default: '输入关键词' }, disabled: { type: Boolean, default: false }, loading: { type: Boolean, default: false }, error: { type: String, default: '' }, filter: { type: Boolean, default: true }, limit: { type: Number, default: 8 } })
+const emit = defineEmits(['update:modelValue', 'search', 'select', 'confirm'])
+const opened = ref(false)
+const editorKey = ref(0)
+const matches = computed((): MoriChoiceOption[] => props.options.filter((item: MoriChoiceOption): boolean => !props.filter || item.label.toLowerCase().includes(props.modelValue.toLowerCase())).slice(0, Math.max(1, props.limit)))
+function input(value: string) { if (props.disabled) return; opened.value = true; emit('update:modelValue', value); emit('search', value) }
+function select(item: MoriChoiceOption) { if (props.disabled || props.loading || item.disabled == true) return; opened.value = false; editorKey.value++; emit('update:modelValue', item.label); emit('select', item.value, item) }
+function finish(value: string) { if (props.disabled) return; opened.value = false; editorKey.value++; emit('update:modelValue', value); emit('confirm', value) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-autocomplete__list { border: 1px solid; border-radius: 8px; margin-top: 6px; padding: 8px; max-height: 300px; overflow: auto; }
+.mori-autocomplete__option { width: 100%; text-align: left; justify-content: flex-start; }
+</style>

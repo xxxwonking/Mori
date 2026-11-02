@@ -1,0 +1,20 @@
+<template>
+<view class="mori-rich-text" :style="'color:' + moriPalette.text"><rich-text :nodes="nodes" :selectable="selectable" /><mori-empty v-if="blocks.length == 0" title="暂无内容" description="" /></view>
+</template>
+
+<script setup lang="uts">
+import { computed, PropType } from 'vue'
+import { MoriRichBlock } from '../../advanced.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ blocks: { type: Array as PropType<MoriRichBlock[]>, default: (): MoriRichBlock[] => [] }, selectable: { type: Boolean, default: true } })
+const nodes = computed((): UTSJSONObject[] => props.blocks.map((block: MoriRichBlock): UTSJSONObject => {
+ if (block.type == 'image' && block.src != null && (/^https:\/\//.test(block.src!) || /^\/(?!\/)/.test(block.src!))) return { name: 'img', attrs: { src: block.src!, alt: block.text ?? '', style: 'max-width:100%;height:auto;border-radius:8px' } }
+ const tag = block.type == 'heading' ? 'h3' : block.type == 'bold' ? 'strong' : block.type == 'italic' ? 'em' : block.type == 'quote' ? 'blockquote' : 'p'
+ return { name: tag, attrs: { style: 'margin:0 0 12px;line-height:1.7;overflow-wrap:anywhere' }, children: [{ type: 'text', text: block.text ?? '' }] }
+}))
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-rich-text { width: 100%; font-size: 13px; line-height: 22px; }
+</style>

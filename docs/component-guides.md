@@ -1,6 +1,6 @@
 # 逐组件使用指南
 
-72 个独立 easycom 组件，每个都有完整用法。先阅读 [安装与主题](user-guide.md)，平台待办见 [适配跟踪](platform-adaptation.md)。
+88 个独立 easycom 组件，每个都有完整用法。先阅读 [安装与主题](user-guide.md)，平台待办见 [适配跟踪](platform-adaptation.md)。
 
 | 分类 | 组件 | 用法 |
 |---|---|---|
@@ -78,3 +78,24 @@
 | 展示 | mori-image-preview | [图片预览](components/image-preview.md) |
 
 示例入口为组件全览，按内容、导航、反馈、录入及新增组合分类组织。正式请求、权限说明与业务路由由接入方配置。
+
+## 新增通用与复杂组件
+
+| 组件 | 指南 |
+|---|---|
+| autocomplete | [自动补全](components/autocomplete.md) |
+| tag-input | [标签输入](components/tag-input.md) |
+| color-picker | [颜色选择](components/color-picker.md) |
+| date-range-picker | [日期区间](components/date-range-picker.md) |
+| table | [表格](components/table.md) |
+| descriptions | [描述列表](components/descriptions.md) |
+| text-ellipsis | [文本展开](components/text-ellipsis.md) |
+| rich-text | [富文本展示](components/rich-text.md) |
+| virtual-list | [虚拟列表](components/virtual-list.md) |
+| waterfall | [瀑布流](components/waterfall.md) |
+| image-cropper | [图片裁剪](components/image-cropper.md) |
+| signature | [签名](components/signature.md) |
+| qrcode | [二维码](components/qrcode.md) |
+| video | [视频](components/video.md) |
+| draggable | [拖拽排序](components/draggable.md) |
+| floating-panel | [浮动面板](components/floating-panel.md) |

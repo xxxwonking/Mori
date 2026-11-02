@@ -1,23 +1,36 @@
 <template>
-<mori-popup :model-value="show" :title="title" :closable="false" @close="cancel"><view class="mori-picker"><mori-loading v-if="loading" text="正在加载选项" /><mori-radio-group v-else-if="options.length > 0" v-model="draft" :options="options" :label="title" :disabled="disabled" /><mori-empty v-else title="暂无可选项" description="请稍后重试。" /><view class="mori-picker__actions"><mori-button :label="cancelText" variant="outline" @click="cancel" /><mori-button :label="confirmText" :disabled="!valid || loading || disabled" @click="confirm" /></view></view></mori-popup>
+<mori-popup :model-value="show" :title="title" :closable="false" @close="cancel"><view class="mori-picker"><mori-loading v-if="loading" text="正在加载选项" /><view v-else-if="columns.length > 0" class="mori-picker__columns"><scroll-view v-for="(column,index) in columns" :key="index" scroll-y class="mori-picker__column"><mori-radio-group :model-value="columnDraft[index] || ''" :options="column" :label="title + ' 第 ' + (index + 1) + ' 列'" :disabled="disabled" @change="setColumn(index, $event)" /><mori-text v-if="column.length == 0" text="暂无选项" tone="muted" /></scroll-view></view><mori-radio-group v-else-if="options.length > 0" v-model="draft" :options="options" :label="title" :disabled="disabled" /><mori-empty v-else title="暂无可选项" description="请稍后重试。" /><view class="mori-picker__actions"><mori-button :label="cancelText" variant="outline" @click="cancel" /><mori-button :label="confirmText" :disabled="!valid || loading || disabled" @click="confirm" /></view></view></mori-popup>
 </template>
 
 <script setup lang="uts">
 import { ref, computed, watch, PropType } from 'vue'
 import { MoriChoiceOption } from '../../selection.uts'
-const props = defineProps({ modelValue: { type: String, default: '' }, show: { type: Boolean, default: false }, title: { type: String, default: '请选择' }, options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] }, disabled: { type: Boolean, default: false }, loading: { type: Boolean, default: false }, confirmText: { type: String, default: '确认' }, cancelText: { type: String, default: '取消' } })
-const emit = defineEmits(['update:modelValue', 'update:show', 'confirm', 'cancel'])
+const props = defineProps({ modelValue: { type: String, default: '' }, values: { type: Array as PropType<string[]>, default: (): string[] => [] }, columns: { type: Array as PropType<MoriChoiceOption[][]>, default: (): MoriChoiceOption[][] => [] }, linkage: { type: Boolean, default: true }, show: { type: Boolean, default: false }, title: { type: String, default: '请选择' }, options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] }, disabled: { type: Boolean, default: false }, loading: { type: Boolean, default: false }, confirmText: { type: String, default: '确认' }, cancelText: { type: String, default: '取消' } })
+const emit = defineEmits(['update:modelValue', 'update:values', 'update:show', 'columnChange', 'confirmColumns', 'confirm', 'cancel'])
 const draft = ref('')
-const valid = computed((): boolean => props.options.some((item: MoriChoiceOption): boolean => item.value == draft.value && item.disabled != true))
-watch((): boolean => props.show, (open: boolean) => { if (open) draft.value = props.modelValue }, { immediate: true })
+const columnDraft = ref<string[]>([])
+const valid = computed((): boolean => props.columns.length > 0 ? props.columns.every((column: MoriChoiceOption[], index: number): boolean => column.some((item: MoriChoiceOption): boolean => item.value == columnDraft.value[index] && item.disabled != true)) : props.options.some((item: MoriChoiceOption): boolean => item.value == draft.value && item.disabled != true))
+function sync() { draft.value = props.modelValue; columnDraft.value = props.values.slice() }
+watch((): boolean => props.show, (open: boolean) => { if (open) sync() }, { immediate: true })
 watch((): string => props.modelValue, (value: string) => { if (props.show) draft.value = value })
+watch(() => props.values, () => { if (props.show) columnDraft.value = props.values.slice() }, { deep: true })
+watch(() => props.columns, () => { columnDraft.value = props.columns.map((column: MoriChoiceOption[], index: number): string => column.some((item: MoriChoiceOption): boolean => item.value == columnDraft.value[index] && item.disabled != true) ? columnDraft.value[index] : '') }, { deep: true })
+function setColumn(index: number, value: string) {
+  if (!props.show || props.disabled || props.loading || index < 0 || index >= props.columns.length || !props.columns[index].some((item: MoriChoiceOption): boolean => item.value == value && item.disabled != true)) return
+  if (columnDraft.value[index] == value) return
+  const next = props.columns.map((_, i: number): string => i == index ? value : props.linkage && i > index ? '' : columnDraft.value[i] || '')
+  columnDraft.value = next
+  emit('columnChange', index, value, next.slice())
+}
 function cancel() { if (props.show) { emit('cancel'); emit('update:show', false) } }
-function confirm() { if (!props.show || !valid.value || props.disabled || props.loading) return; emit('update:modelValue', draft.value); emit('confirm', draft.value); emit('update:show', false) }
+function confirm() { if (!props.show || !valid.value || props.disabled || props.loading) return; if (props.columns.length > 0) { emit('update:values', columnDraft.value.slice()); emit('confirmColumns', columnDraft.value.slice()) } else { emit('update:modelValue', draft.value); emit('confirm', draft.value) }; emit('update:show', false) }
 defineExpose({ confirm, cancel })
 </script>
 
 <style lang="scss">
 @import '../../styles/action.scss';
 .mori-picker { width: 100%; }
+.mori-picker__columns { display: flex; flex-direction: row; gap: 8px; }
+.mori-picker__column { flex: 1; min-width: 0; height: 260px; }
 .mori-picker__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 16px; }
 </style>

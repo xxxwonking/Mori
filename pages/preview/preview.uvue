@@ -1,0 +1,72 @@
+<template>
+  <!-- #ifdef APP -->
+  <scroll-view scroll-y class="preview-scroll">
+  <!-- #endif -->
+  <view class="preview-page" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
+    <view class="preview-heading" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border">
+      <mori-button :label="showMenu ? '返回示例' : '组件目录'" variant="text" size="sm" @click="showMenu = !showMenu" />
+      <text class="preview-title">{{ title }}</text>
+      <mori-button label="重置" variant="text" size="sm" @click="reset" />
+    </view>
+    <view v-if="showMenu" class="preview-menu">
+      <mori-search v-model="query" :placeholder="'搜索 ' + previewItems.length + ' 个组件'" />
+      <view v-for="item in filteredItems" :key="item.name" class="preview-menu-item">
+        <mori-cell :title="item.title" :value="item.name" clickable is-link @click="select(item.name)" />
+      </view>
+    </view>
+    <view v-else class="preview-body">
+      <view class="preview-meta"><text>基础用法</text><text>可直接操作</text></view>
+      <view class="preview-example" :style="'background-color:' + moriPalette.surface">
+        <site-preview-content :key="current + revision.toString()" :current="current" />
+      </view>
+      <text class="preview-note" :style="'color:' + moriPalette.muted">当前为 H5 组件示例，数据仅用于演示。</text>
+      <view class="preview-appearance">
+        <mori-button label="跟随系统" size="sm" variant="text" @click="setMoriConfig({ theme: 'auto' })" />
+        <mori-button label="浅色" size="sm" variant="text" @click="setMoriConfig({ theme: 'light' })" />
+        <mori-button label="深色" size="sm" variant="text" @click="setMoriConfig({ theme: 'dark' })" />
+      </view>
+    </view>
+  </view>
+  <!-- #ifdef APP -->
+  </scroll-view>
+  <!-- #endif -->
+</template>
+
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { moriPalette, setMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
+import { previewItems } from './catalog.uts'
+const current = ref('button')
+const revision = ref(0)
+const showMenu = ref(false)
+const query = ref('')
+const title = computed((): string => {
+  const item = previewItems.find(item => item.name == current.value)
+  return item != null ? item.title : '组件示例'
+})
+const filteredItems = computed(() => previewItems.filter(item => (item.name + item.title).toLowerCase().includes(query.value.toLowerCase())))
+onLoad((options) => {
+  const component = options['component']
+  if (component != null && previewItems.some(item => item.name == component)) current.value = component
+  const theme = options['theme']
+  if (theme == 'light' || theme == 'dark') setMoriConfig({ theme: theme })
+})
+function reset() { revision.value++ }
+function select(name: string) { current.value = name; showMenu.value = false; revision.value++ }
+</script>
+
+<style>
+.preview-scroll { flex: 1; }
+.preview-page { min-height: 100vh; }
+.preview-heading { display: flex; flex-direction: row; align-items: center; justify-content: space-between; min-height: 52px; padding: 8px 4px; border-bottom: 1px solid; }
+.preview-title { font-size: 14px; font-weight: 600; }
+.preview-body, .preview-menu { padding: 20px 16px; }
+.preview-meta { display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 12px; font-size: 12px; }
+.preview-example { padding: 18px 14px; border-radius: 12px; }
+.preview-note { display: block; margin-top: 18px; font-size: 11px; line-height: 18px; }
+.preview-appearance { display: flex; flex-direction: row; margin-top: 10px; }
+.preview-menu-item { margin-top: 4px; }
+/* #ifdef WEB */
+.preview-page { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+/* #endif */
+</style>

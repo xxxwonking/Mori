@@ -1,0 +1,21 @@
+<template>
+<mori-popup :model-value="show" :title="title" @close="cancel"><mori-calendar v-model="draft" type="range" :min-date="minDate" :max-date="maxDate" :disabled-dates="disabledDates" :max-range="maxRange" :disabled="disabled" :default-date="draft.length > 0 ? draft[0] : defaultDate" @confirm="confirm" @overRange="emit('overRange', $event)" /><mori-button label="取消" variant="text" block @click="cancel" /></mori-popup>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, PropType } from 'vue'
+import { validMoriCalendarValue } from '../../calendar.uts'
+const props = defineProps({ modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] }, show: { type: Boolean, default: false }, title: { type: String, default: '选择日期区间' }, minDate: { type: String, default: '' }, maxDate: { type: String, default: '' }, defaultDate: { type: String, default: '' }, disabledDates: { type: Array as PropType<string[]>, default: (): string[] => [] }, maxRange: { type: Number, default: 0 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'update:show', 'confirm', 'cancel', 'overRange'])
+const draft = ref<string[]>(props.modelValue.slice())
+watch(() => props.show, () => { draft.value = props.modelValue.slice() })
+watch(() => props.modelValue, () => { draft.value = props.modelValue.slice() }, { deep: true })
+function cancel() { emit('cancel'); emit('update:show', false) }
+function confirm() { if (!props.show || props.disabled || !validMoriCalendarValue(draft.value, 'range', props.minDate, props.maxDate, props.disabledDates, props.maxRange)) return; emit('update:modelValue', draft.value.slice()); emit('confirm', draft.value.slice()); emit('update:show', false) }
+defineExpose({ confirm, cancel })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+
+</style>

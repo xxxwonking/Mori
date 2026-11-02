@@ -2,15 +2,17 @@
 
 ## 代码分层
 
+新增宣传官网位于 `site/`，用 VitePress 构建；文档从 `docs/` 生成，手机示例由独立的 uni-app x H5 构建提供。`pages/preview/preview.uvue` 和 `site/demos/` 均属于演示层，未改变 `uni_modules/mori-ui/` 发布边界。官网 H5 使用 `unpackage/dist/site/h5` 与 `/demo/` base；普通工作台保持原输出路径。细节见 [官网维护指南](website.md)。
+
 | 路径 | 职责 |
 |---|---|
 | `App.uvue` / `main.uts` | 应用入口；启动时初始化一次主题监听 |
 | `manifest.json` / `pages.json` / `theme.json` | 平台开关、页面与导航主题配置 |
-| `uni_modules/mori-ui/components/` | 七十二个可复用组件，目录和文件同名，供 easycom 发现 |
+| `uni_modules/mori-ui/components/` | 八十八个可复用组件，目录和文件同名，供 easycom 发现 |
 | `uni_modules/mori-ui/theme.uts` | 全局响应式配置、主题来源、语义颜色 |
 | `uni_modules/mori-ui/styles/tokens.scss` | 浅色基础 token 和公共尺寸；不是全部动态主题来源 |
 | `uni_modules/mori-ui/contrast.uts` | 不透明 hex／rgb 的黑白前景选择 |
-| `uni_modules/mori-ui/validation.uts` | 顶层字段同步校验、错误集合操作、Form 公开类型 |
+| `uni_modules/mori-ui/validation.uts` | 嵌套字段同步／异步校验、错误集合操作、Form 公开类型 |
 | `uni_modules/mori-ui/form-context.uts` | Form 的错误状态及 FormItem 的标签／必填／错误／描述上下文 |
 | `uni_modules/mori-ui/selection.uts` | 字符串单选、不可变多选数组、方向键索引和输入长度限制 |
 | `uni_modules/mori-ui/feedback.uts` | Toast 选项／实例类型和可取消的提示计时逻辑 |
@@ -51,14 +53,14 @@ Input／Textarea 接收字符串 `modelValue`，发出 `update:modelValue` / `ch
 ## 表单数据与错误如何流动
 
 1. 使用方持有字段 ref，通过 computed 组合成 `UTSJSONObject` model；Form 不修改 model。
-2. 使用方明确调用 `validate()` 或 `validateField(name)`；`validation.uts` 按规则顺序同步校验，返回每个字段的第一项错误。没有深层监听或隐式校验触发。
+2. 使用方明确调用 `validate()` 或 `validateField(name)`；`validation.uts` 按规则顺序同步校验，返回每个字段的第一项错误。深层监听仅使未完成的异步校验失效，不隐式触发校验。
 3. Form 保存错误数组并提供 `MoriFormContext`。全量校验替换全部错误，字段校验只替换该字段错误，`clearValidate` 只清消息。
 4. FormItem 用 name 查找错误；自身非空 error 优先。FormItem 绘制标题／提示／错误并提供 `MoriFieldContext`，通过 `useMoriField()` 读取。
 5. Input／Textarea 在 FormItem 内隐藏本地标题和消息，读取上下文错误及描述 ID；H5 适配把名称与错误关联到实际输入。RadioGroup／CheckboxGroup 读取字段名称、错误与描述，并保留各选项自身名称。
 
 FormItem 的 required 是明确的展示／无障碍属性，不从规则自动推导。业务需要同时配置规则才能阻止无效提交。控件本地 label 非空可覆盖其无障碍名称，因此示例统一把字段标签放在 FormItem 上。每个 FormItem 应承载一个输入控件或一个选择组，避免多个输入共用一个字段名。
 
-校验范围仅限顶层键及同步规则；不实现 Promise validator、嵌套字段解析或 resetFields。若以后扩展异步规则，需要先解决过期结果覆盖、取消及提交等待，再修改公开返回类型，不能把当前同步接口悄悄换成 Promise。
+Form 通过独立 validateAsync / validateFieldAsync 扩展异步规则，保留同步返回类型。模型、规则或请求代数变化时拒绝旧结果写入；resetFields 返回 JSON 初始快照并 emit，不修改 props。
 
 ## 反馈组件的生命周期与平台边界
 
@@ -94,7 +96,7 @@ H5 的 `uni-input` 报告的标准化 `tagName` 可能也是 `INPUT`，但它并
 
 沿用 `uni_modules/mori-ui/components/mori-名称/mori-名称.uvue`，先明确 props、事件与状态。复用主题与必要的基础样式，处理平台差异，再添加工作台示例、`catalogue.uts` 说明、组件 API 和进度条目。
 
-`scripts/check.mjs` 通过 `scripts/component-manifest.mjs` 对七十二个导出组件做精确断言，并校验每组件独立文档。新增组件需要有意更新清单。浏览器脚本依赖示例结构；新增有意义的行为覆盖，避免为简单样式常量堆叠重复测试。`scripts/verify-forms.mjs` 覆盖表单基础示例；校验和选择逻辑分别由 `tests/validation.mjs`、`tests/selection.mjs` 检查。反馈组件使用 `scripts/verify-feedback.mjs`、`tests/feedback.mjs` 和 `tests/overlay.mjs` 检查。Node 逻辑测试不替代 UTS 编译或平台运行验证。
+`scripts/check.mjs` 通过 `scripts/component-manifest.mjs` 对八十八个导出组件做精确断言，并校验每组件独立文档。新增组件需要有意更新清单。浏览器脚本依赖示例结构；新增有意义的行为覆盖，避免为简单样式常量堆叠重复测试。`scripts/verify-forms.mjs` 覆盖表单基础示例；校验和选择逻辑分别由 `tests/validation.mjs`、`tests/selection.mjs` 检查。反馈组件使用 `scripts/verify-feedback.mjs`、`tests/feedback.mjs` 和 `tests/overlay.mjs` 检查。Node 逻辑测试不替代 UTS 编译或平台运行验证。
 
 
 ## 常用组件扩展的归属
@@ -102,7 +104,7 @@ H5 的 `uni-input` 报告的标准化 `tagName` 可能也是 `INPUT`，但它并
 - numeric.uts：步进与分页的有限数值、边界与浮点处理。
 - calendar.uts / datetime.uts：严格日期、UTC日历运算、禁用区间、业务本地日期时间字符串；不隐式转换时区。
 - navigation.uts / actions.uts / input.uts：公开数据结构与实例方法类型；组件继续遵循字符串选项值。
-- upload.uts：文件结构、容量与路径/大小检查；platform/upload.uts 封装选择、预览、HTTP上传与abort。iOS差异用 MORI-UP-IOS 编号连接 [适配记录](platform-adaptation.md)。
+- upload.uts：文件结构、容量与路径/大小检查；platform/upload.uts 按 APP-IOS 分流选择、上传与临时文件释放，预览仍用宿主 API。platform/upload-ios.uts 将 UTS 数据传给同级 uni_modules/mori-upload-ios 的 Swift 模块（PHPicker、临时副本、URLSession 前台 multipart）；其他平台沿用 uni.chooseImage／uni.uploadFile。mori-ui/package.json 声明原生模块依赖，两目录一起分发；它是适配模块，不计入 88 个组件。组件按请求实例屏蔽旧回调，并管理默认选择所得文件的生命周期。iOS差异用 MORI-UP-IOS 编号连接 [适配记录](platform-adaptation.md)。
 - Picker / DatetimePicker / ActionSheet 复用 Popup；草稿与提交模型分离。Popover 使用同一层级管理，视口监听留在 platform/popover.uts。
 - styles/action.scss 处理新增按钮在uni宿主上的尺寸、键盘焦点和禁用重置，不能依赖Web原生button语义自动存在；组件显式设置role、tabindex、aria-disabled与Enter/Space行为。
 - pages/catalog/catalog.uvue 与两个 demo-extended 组件属于工作台，不是可发布组件。
@@ -118,3 +120,9 @@ H5 的 `uni-input` 报告的标准化 `tagName` 可能也是 `INPUT`，但它并
 - Sticky 在 WEB／MP 使用 CSS sticky；APP 默认普通流，可用受控 fixed＋height 手动接入。SafeArea 为独立占位；BackTop 由父级提供滚动位置。
 - 4 个 demo-media／demo-navigation／demo-choice／demo-data 组合演示属于工作台。共享 demo-catalog.scss 必须在各 .uvue 引入，因为父页面作用域样式不会穿透子组件。
 - tests/extended-catalog.mjs 检查真实 Vue setup 生命周期；scripts/verify-expanded.mjs 检查新增组件真实 H5 交互。
+
+## 复杂通用组件
+
+advanced.uts 提供数据／列／描述类型、定高窗口、不可变重排、瀑布流分列与裁剪几何。platform/canvas.uts 封装 uni Canvas 创建及 H5 指针；核心组件不引入浏览器全局。qrcode.uts 使用 vendor/qrcodegen.uts 中保留 MIT 许可的 Nayuki 便携算法，不依赖 Node Buffer。Canvas 导出为 data URL，业务负责保存／上传。官网演示短片 static/mori-demo.webm 由本地 Canvas 生成，无第三方素材。
+
+platform/geometry.uts 为图片预览和 Canvas 提供尺寸测量：WEB 使用 DOM／ResizeObserver，非 WEB 使用 getBoundingClientRectAsync 并响应窗口变化，手势使用缓存宽度。签名每笔异步测量当前位置，排队处理查询期间的触点和结束事件，清空／禁用／卸载取消队列；签名显示与固定输出统一为 5:3。Autocomplete 选择／确认以及 TagInput/ColorPicker 成功提交后重建输入编辑器，沿用 Stepper 清理宿主缓存的模式，避免迟到 input 覆盖新值。

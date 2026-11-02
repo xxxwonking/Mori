@@ -39,7 +39,7 @@ async function save() { if (saving.value) return; saving.value = true; try { /* 
 | block | boolean | false | 占满可用宽度 |
 | round | boolean | false | 胶囊圆角 |
 
-事件：`click`，仅在未禁用、未加载时触发，不携带业务参数。默认 slot 用于文字内容；图标组件尚未包含在首版中。
+事件：`click`，仅在未禁用、未加载时触发，不携带业务参数。默认 slot 用于文字内容；独立图标组件的用法见 [Icon 图标](icon.md)。
 
 H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成功失败逻辑由业务提供。
 

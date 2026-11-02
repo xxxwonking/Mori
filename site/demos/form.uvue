@@ -1,0 +1,17 @@
+<template>
+  <mori-form ref="form" :model="model" :rules="rules" @reset="applyReset"><mori-form-item name="profile.name" label="用户名" required><mori-input v-model="name" placeholder="试试 mori，再换一个名字" /></mori-form-item></mori-form>
+  <mori-text text="本地模拟异步查重，mori 为已占用的示例名称。" tone="muted" />
+  <view style="display:flex;flex-direction:row;gap:8px"><mori-button label="异步校验" :loading="pending" @click="validate" /><mori-button label="重置" variant="outline" @click="reset" /></view>
+  <mori-text :text="message" />
+</template>
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriFormRule, MoriFormInstance } from '@/uni_modules/mori-ui/validation.uts'
+const name = ref(''), pending = ref(false), message = ref('')
+const form = ref<MoriFormInstance | null>(null)
+const model = computed((): UTSJSONObject => ({ profile: { name: name.value } } as UTSJSONObject))
+const rules: MoriFormRule[] = [{ name: 'profile.name', required: true, message: '请填写用户名', asyncValidator: (value: any | null): Promise<string> => new Promise<string>((resolve) => { setTimeout(() => resolve(value == 'mori' ? '名称已占用，请换一个' : ''),350) }) }]
+async function validate() { pending.value = true; message.value = ''; try { const result = await form.value!.validateAsync(); message.value = result.stale == true ? '内容已变化，请重新校验' : result.valid ? '校验通过' : '请修改提示项' } finally { pending.value = false } }
+function applyReset(value: UTSJSONObject) { name.value = (value['profile'] as UTSJSONObject)['name'] as string; message.value = '' }
+function reset() { form.value?.resetFields() }
+</script>

@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { readFileSync, existsSync } from 'node:fs';
+const root = new URL('..', import.meta.url);
+const source = readFileSync(new URL('pages.json',root),'utf8');
+const comment = /^\s*\/\/.*$/gm;
+const cliPages = JSON.parse(source.replace(comment,'')).pages;
+const idePages = JSON.parse(source.replace(/\s*\/\/ #ifdef MORI_PREVIEW[\s\S]*?\/\/ #endif/g,'').replace(comment,'')).pages;
+assert.ok(cliPages.some(page=>page.path==='pages/preview/preview'));
+assert.ok(!idePages.some(page=>page.path==='pages/preview/preview'), 'direct IDE builds cannot include the generated CLI preview');
+assert.equal(cliPages.length,idePages.length+1);
+for(const page of idePages)assert.ok(existsSync(new URL(page.path+'.uvue',root)));
+console.log('PASS IDE workbench and CLI preview page registration.');

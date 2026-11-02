@@ -1,30 +1,49 @@
 import { MoriPickedFile, MoriUploadFile, MoriUploadRequest } from '../upload.uts'
+// #ifdef APP-IOS
+import { chooseMoriIOSImages, startMoriIOSUpload, releaseMoriIOSFile } from './upload-ios.uts'
+// #endif
 
-/** Platform adapter. Follow-up IDs are defined in docs/platform-adaptation.md. */
-export function chooseMoriImages(count: number, sourceType: string[], success: (files: MoriPickedFile[]) => void, fail: (message: string, cancelled: boolean) => void) {
-  // MORI-UP-IOS-01: limited-library, denied permission and camera permission need device evidence.
-  // MORI-UP-IOS-02: preserve the returned temp path verbatim; do not strip file:// or decode it.
-  // MORI-UP-IOS-03: no silent HEIC conversion; chooseFiles allows a business/native converter.
+/** MORI-UP-IOS-01/02/03: native photo selection and copying; see docs/platform-adaptation.md. */
+export function chooseMoriImages(count: number, sourceType: string[], success: (files: MoriPickedFile[]) => void, fail: (message: string, cancelled: boolean) => void): () => void {
+  // #ifdef APP-IOS
+  return chooseMoriIOSImages(count,sourceType,success,fail)
+  // #endif
+  // #ifndef APP-IOS
+  let stopped = false
+  // Preserve host paths verbatim. Conversion, if needed, belongs to chooseFiles.
   uni.chooseImage({ count: Math.max(1, Math.min(9, count)), sourceType, sizeType: ['original'],
     success: (result) => {
+      if (stopped) return
       const files: MoriPickedFile[] = []
       result.tempFiles.forEach((file) => { files.push({ path: file.path, size: file.size, name: file.name ?? file.path.substring(file.path.lastIndexOf('/') + 1), type: file.type ?? '' }) })
       success(files)
     },
-    fail: (error) => { fail(error.errMsg, error.errCode == 1101001 || error.errMsg.toLowerCase().includes('cancel')) }
+    fail: (error) => { if (!stopped) fail(error.errMsg, error.errCode == 1101001 || error.errMsg.toLowerCase().includes('cancel')) }
   })
+  return () => { stopped = true }
+  // #endif
 }
 
-/** Returns an abort callback; transport success means HTTP 2xx, business success belongs to resolveUrl. */
+/** MORI-UP-IOS-04/06: foreground upload only. HTTP 2xx is transport success; resolveUrl checks business success. */
 export function startMoriUpload(file: MoriUploadFile, options: MoriUploadRequest, progress: (value: number) => void, success: (response: string) => void, fail: (message: string) => void): () => void {
+  // #ifdef APP-IOS
+  return startMoriIOSUpload(file,options,progress,success,fail)
+  // #endif
+  // #ifndef APP-IOS
   let stopped = false
-  // MORI-UP-IOS-04: foreground upload only; suspension/resume/background sessions are not implemented.
   const task = uni.uploadFile({ url: options.url, filePath: file.url, name: options.name, header: options.header, formData: options.formData, timeout: options.timeout,
     success: (result) => { if (stopped) return; if (result.statusCode >= 200 && result.statusCode < 300) success(result.data); else fail('上传失败（HTTP ' + result.statusCode + '）') },
     fail: (error) => { if (!stopped) fail(error.errMsg) }
   })
   task.onProgressUpdate((result) => { if (!stopped) progress(result.progress) })
   return () => { stopped = true; task.abort() }
+  // #endif
+}
+
+export function releaseMoriPickedFile(path: string) {
+  // #ifdef APP-IOS
+  releaseMoriIOSFile(path)
+  // #endif
 }
 
 export function previewMoriImages(current: string, urls: string[]) { uni.previewImage({ current, urls }) }

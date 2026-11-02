@@ -29,7 +29,7 @@ function inspect(node, file) {
 for(const c of componentManifest) {
   const file=join(root,'docs/components',c.name+'.md');const text=readFileSync(file,'utf8');
   assert.ok(text.includes('## 基础用法') && text.includes('## 平台与验证边界'),`${c.name}: missing usage/platform notes`);
-  for(const match of text.matchAll(/```vue\n([\s\S]*?)```/g)) {
+  for(const match of text.matchAll(/```vue\r?\n([\s\S]*?)```/g)) {
     let source=match[1].replace('lang="uts"','lang="ts"');
     if(!/^\s*<(template|script)[\s>]/.test(source))source='<template>\n'+source+'\n</template>';
     const result=parse(source,{filename:c.name+'.vue'});

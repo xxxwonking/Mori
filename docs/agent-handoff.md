@@ -1,10 +1,10 @@
 # 下次接手说明
 
-记录日期：2026-10-31（Asia/Shanghai）。这是接手入口；持续变化的完成情况统一记录在 [当前进度](progress.md)。当前本地扩展为 72 组件，第二轮新增 32 个通用组件；当前验证与复核状态以 progress.md 最后记录为准。详细用法见 [逐组件指南](component-guides.md)，iOS 上传与跨端差异见 [平台适配跟踪](platform-adaptation.md)。
+记录日期：2026-11-01（Asia/Shanghai）。这是接手入口；持续变化的完成情况统一记录在 [当前进度](progress.md)。当前本地补强为 88 组件，最新增加 16 个通用组件并完善已有复杂交互；当前验证与复核状态以 progress.md 最后记录为准。详细用法见 [逐组件指南](component-guides.md)，iOS 上传与跨端差异见 [平台适配跟踪](platform-adaptation.md)。
 
 ## 项目是什么
 
-Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，当前共有72个基础、展示、导航、反馈与录入组件，以及工作台和组合示例。准确清单见 [逐组件指南](component-guides.md)。源码远程为 [GitHub 仓库](https://github.com/xxxwonking/Mori)，本地与远端同步状态以 git status 和 origin/master 为准；尚未发布组件包。
+Mori UI 是个人通用移动组件库，服务多个不同业务项目，名称暂定。已初始化为 uni-app x 工程，当前共有88个基础、展示、导航、反馈与录入组件，以及工作台和组合示例。准确清单见 [逐组件指南](component-guides.md)。源码远程为 [GitHub 仓库](https://github.com/xxxwonking/Mori)，本地与远端同步状态以 git status 和 origin/master 为准；尚未发布组件包。
 
 本机目录为 `C:\Users\Administrator\Desktop\mori-ui`，HBuilderX 在 `D:\HBuilderX`。迁移机器时重新定位项目与 HBuilderX，不照搬本机路径。当前技术路线是 `.uvue` + UTS，通过 `uni_modules` 整包复制复用。
 
@@ -77,3 +77,9 @@ docs/progress.md 和 DESIGN.md，核对当前源码与运行环境，然后执�
 
 
 2026-10-31 第二轮新增 32 个组件，用户随后要求将两轮扩展一起提交并推送到 origin/master。用户明确选择「通用组件全面补齐」；优先扩充覆盖范围，不能继续照旧建议只做设备检查。新清单见 component-coverage.md，源码含 content.uts／extended-input.uts 和四组 demo。历史记录中的“未提交／未推送”对应当时状态，最新状态见 progress.md 与 Git；后续开始前检查 git status。
+
+2026-11-01 已按用户批准执行 88 组件补强，包含官网新预览、异步表单、多列／树选择、定高虚拟列表与 Canvas 等。工作区仍包含未提交的官网及本轮改动，开始前核对 git status；不得覆盖。详细范围、证据、独立复核状态与平台边界以 progress.md 最后一节为准。
+
+88 组件收尾已完成：最终 17 组新增 H5 交互、完整单元、官网/H5/微信构建通过；独立复核五项均 resolved，设计记录已同步。详见 expansion-review-88.md 与 progress.md。
+
+2026-11-02 已继续完成 iOS 相册上传的源码与本机收尾：复制接入须同时包含 uni_modules/mori-ui 和 uni_modules/mori-upload-ios，后者提供 PHPicker／临时副本／URLSession，配置与自定义基座要求见其 README。最新完整单元、H5／官网／微信构建与浏览器上传选图回归通过；Swift 编译、iCloud／相机／原生上传仍待 iOS 设备验证。源码未提交／推送，下一步按 progress.md 最后一节及用户当前指令处理。

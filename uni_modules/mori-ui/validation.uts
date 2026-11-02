@@ -1,4 +1,4 @@
-/** The first release supports top-level field names and synchronous rules. */
+/** Synchronous APIs stay synchronous; async rules use the explicit async APIs. */
 export type MoriFormRule = {
   name: string;
   required?: boolean;
@@ -7,14 +7,37 @@ export type MoriFormRule = {
   pattern?: string;
   message?: string;
   validator?: (value: any | null) => string;
+  asyncValidator?: (value: any | null) => Promise<string>;
 }
 export type MoriFieldError = { name: string; message: string }
-export type MoriValidationResult = { valid: boolean; errors: MoriFieldError[] }
+export type MoriValidationResult = { valid: boolean; errors: MoriFieldError[]; stale?: boolean }
 export type MoriFormInstance = {
+  validating: boolean;
   validate: () => MoriValidationResult;
   validateField: (name: string) => MoriValidationResult;
   clearValidate: (name?: string) => void;
+  validateAsync: () => Promise<MoriValidationResult>;
+  validateFieldAsync: (name: string) => Promise<MoriValidationResult>;
+  resetFields: () => UTSJSONObject;
+  setInitialValues: (model: UTSJSONObject) => void;
 }
+
+/** Exact keys win for compatibility; otherwise resolve dot/bracket paths without prototype access. */
+export function moriFieldValue(model: UTSJSONObject, name: string): any | null {
+  if (name == '__proto__' || name == 'constructor' || name == 'prototype') return null
+  if (Object.keys(model).includes(name)) return model[name] == null ? null : model[name]
+  const keys = name.replace(/\[(\d+)\]/g, '.$1').split('.')
+  let value: any | null = model
+  for (let index = 0; index < keys.length; index++) {
+    const key = keys[index]
+    if (key.length == 0 || key == '__proto__' || key == 'constructor' || key == 'prototype' || value == null) return null
+    if (Array.isArray(value)) { if (!/^(0|[1-9][0-9]*)$/.test(key)) return null; value = (value as any[])[parseInt(key)] }
+    else if (typeof value == 'object') { if (!Object.keys(value as UTSJSONObject).includes(key)) return null; value = (value as UTSJSONObject)[key] }
+    else return null
+  }
+  return value == null ? null : value
+}
+export function cloneMoriModel(model: UTSJSONObject): UTSJSONObject { return JSON.parse(JSON.stringify(model)) as UTSJSONObject }
 
 function isEmpty(value: any | null): boolean {
   if (value == null || value === false) return true
@@ -48,8 +71,25 @@ export function validateMoriForm(model: UTSJSONObject, rules: MoriFormRule[], na
   for (let index = 0; index < rules.length; index++) {
     const rule = rules[index]
     if (name.length > 0 && rule.name != name) continue
+    if (rule.asyncValidator != null) throw new Error('此规则包含异步校验，请使用 validateAsync / validateFieldAsync')
     if (errors.some((error: MoriFieldError): boolean => error.name == rule.name)) continue
-    const message = ruleError(model[rule.name], rule)
+    const message = ruleError(moriFieldValue(model, rule.name), rule)
+    if (message.length > 0) errors.push({ name: rule.name, message })
+  }
+  return { valid: errors.length == 0, errors }
+}
+
+export async function validateMoriFormAsync(model: UTSJSONObject, rules: MoriFormRule[], name: string = ''): Promise<MoriValidationResult> {
+  const errors: MoriFieldError[] = []
+  for (let index = 0; index < rules.length; index++) {
+    const rule = rules[index]
+    if ((name.length > 0 && rule.name != name) || errors.some((error: MoriFieldError): boolean => error.name == rule.name)) continue
+    const value = moriFieldValue(model, rule.name)
+    let message = ruleError(value, rule)
+    if (message.length == 0 && !isEmpty(value) && rule.asyncValidator != null) {
+      try { message = await rule.asyncValidator!(value) }
+      catch (_) { message = rule.message != null && rule.message!.trim().length > 0 ? rule.message! : '校验失败，请重试' }
+    }
     if (message.length > 0) errors.push({ name: rule.name, message })
   }
   return { valid: errors.length == 0, errors }

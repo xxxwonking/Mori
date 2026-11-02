@@ -11,3 +11,8 @@ dist/
 test-results/
 playwright-report/
 .tools/
+site/.generated/
+site/.vitepress/cache/
+components/site-demo-*/
+components/site-preview-content/
+pages/preview/catalog.uts

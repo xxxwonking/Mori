@@ -3,17 +3,26 @@
 </template>
 
 <script setup lang="uts">
-import { ref, provide, PropType } from 'vue'
-import { MoriFormRule, MoriFieldError, MoriValidationResult, validateMoriForm, clearMoriFieldErrors, replaceMoriFieldErrors } from '../../validation.uts'
+import { ref, provide, watch, onUnmounted, PropType } from 'vue'
+import { MoriFormRule, MoriFieldError, MoriValidationResult, validateMoriForm, validateMoriFormAsync, cloneMoriModel, clearMoriFieldErrors, replaceMoriFieldErrors } from '../../validation.uts'
 import { MORI_FORM_KEY, MoriFormContext } from '../../form-context.uts'
 const props = defineProps({
   model: { type: Object as PropType<UTSJSONObject>, required: true },
   rules: { type: Array as PropType<MoriFormRule[]>, default: (): MoriFormRule[] => [] }
 })
-const emit = defineEmits(['validate'])
+const emit = defineEmits(['validate', 'update:model', 'reset'])
 const errors = ref<MoriFieldError[]>([])
+const validating = ref(false)
+let initialModel = cloneMoriModel(props.model)
+let generation = 0
+let alive = true
+function invalidate() { generation++; validating.value = false }
+watch(() => props.model, invalidate, { deep: true, flush: 'sync' })
+watch(() => props.rules, invalidate, { deep: true, flush: 'sync' })
+onUnmounted(() => { alive = false; generation++ })
 provide(MORI_FORM_KEY, { errors } as MoriFormContext)
 function validate(): MoriValidationResult {
+  invalidate()
   const result = validateMoriForm(props.model, props.rules)
   errors.value = result.errors
   emit('validate', result)
@@ -21,13 +30,36 @@ function validate(): MoriValidationResult {
 }
 function validateField(name: string): MoriValidationResult {
   if (name.length == 0) return validate()
+  invalidate()
   const result = validateMoriForm(props.model, props.rules, name)
   errors.value = replaceMoriFieldErrors(errors.value, name, result.errors)
   emit('validate', result)
   return result
 }
-function clearValidate(name: string = '') { errors.value = clearMoriFieldErrors(errors.value, name) }
-defineExpose({ validate, validateField, clearValidate })
+function clearValidate(name: string = '') { invalidate(); errors.value = clearMoriFieldErrors(errors.value, name) }
+async function validateFieldAsync(name: string): Promise<MoriValidationResult> {
+  const request = ++generation
+  validating.value = true
+  const snapshot = cloneMoriModel(props.model)
+  try {
+  const result = await validateMoriFormAsync(snapshot, props.rules.slice(), name)
+  if (!alive || request != generation || JSON.stringify(snapshot) != JSON.stringify(props.model)) return { valid: false, errors: [], stale: true }
+  validating.value = false
+  errors.value = name.length == 0 ? result.errors : replaceMoriFieldErrors(errors.value, name, result.errors)
+  emit('validate', result)
+  return result
+  } finally { if (request == generation) validating.value = false }
+}
+async function validateAsync(): Promise<MoriValidationResult> { return await validateFieldAsync('') }
+function setInitialValues(model: UTSJSONObject) { invalidate(); initialModel = cloneMoriModel(model) }
+function resetFields(): UTSJSONObject {
+  clearValidate()
+  const model = cloneMoriModel(initialModel)
+  emit('update:model', model)
+  emit('reset', model)
+  return model
+}
+defineExpose({ validate, validateField, clearValidate, validateAsync, validateFieldAsync, resetFields, setInitialValues, validating })
 </script>
 
 <style>

@@ -1,0 +1,16 @@
+<template>
+  <view class="switch-demo">
+    <mori-switch v-model="notification" label="消息通知" description="及时收到重要消息" />
+    <mori-divider />
+    <mori-switch v-model="enabled" label="自动保存" active-text="开" inactive-text="关" />
+    <mori-divider />
+    <mori-switch :model-value="true" label="禁用状态" disabled />
+    <mori-text :text="notification ? '消息通知已开启' : '消息通知已关闭'" :size="12" tone="muted" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const notification = ref(true)
+const enabled = ref(false)
+</script>
+<style>.switch-demo { display: flex; flex-direction: column; gap: 16px; }</style>

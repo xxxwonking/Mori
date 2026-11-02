@@ -1,8 +1,10 @@
 # 基础组件 API
 
-所有 **72 个组件**的独立详细用法、参数、事件、方法和边界见 [逐组件使用指南](component-guides.md)。本页保留原 13 个组件的 API；新增组件以对应独立页面为准。平台差异与 iOS 上传后续工作见 [适配跟踪](platform-adaptation.md)。
+所有 **88 个组件**的独立详细用法、参数、事件、方法和边界见 [逐组件使用指南](component-guides.md)。本页保留原 13 个组件的 API；新增组件以对应独立页面为准。平台差异与 iOS 上传后续工作见 [适配跟踪](platform-adaptation.md)。
 
 组件按 `uni_modules` / easycom 规则使用。全局主题由 `theme.uts` 管理，初始化方式见 README。
+
+Upload 的公开属性／事件保持不变；APP-IOS 默认走独立相册与上传模块，复制接入时包含 `mori-upload-ios`。权限配置、临时文件所有权与当前验证边界见 [Upload 指南](components/upload.md)。
 
 ## mori-button
 
@@ -87,6 +89,7 @@ H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | v-model | boolean | false | 是否选中 |
+| indeterminate | boolean | false | 显示半选短横线；父级管理。 |
 | label | string | 空 | 可点击的说明文字，建议始终提供 |
 | color | string | 空 | 选中填充色；为空继承主题品牌色 |
 | disabled | boolean | false | 禁止切换 |
@@ -95,51 +98,13 @@ H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；
 
 ## mori-form
 
-| 属性 | 类型 | 默认值 | 说明 |
-|---|---|---|---|
-| model | UTSJSONObject | 必填 | 顶层字段及其当前值；表单不修改业务数据 |
-| rules | MoriFormRule[] | [] | 按数组顺序执行，同一字段只保留第一个错误 |
-
-默认 slot 放置 FormItem、控件和业务按钮。`validate(result)` 事件在调用 `validate()` 或 `validateField()` 后触发；不会自动提交或调用接口。
-
-通过模板 ref 调用以下同步方法；`MoriFormInstance`、规则和结果类型从 `@/uni_modules/mori-ui/validation.uts` 导入。
-
-| 方法 | 返回值 | 行为 |
-|---|---|---|
-| validate() | MoriValidationResult | 校验全部规则并替换全部错误 |
-| validateField(name: string) | MoriValidationResult | 只校验指定字段，保留其他字段的错误；空 name 等同于 validate |
-| clearValidate(name?: string) | void | 指定非空 name 清除该字段错误；省略或空字符串清除全部错误；不修改 model |
-
-`MoriValidationResult` 为 `{ valid: boolean, errors: MoriFieldError[] }`；每项错误为 `{ name: string, message: string }`。`validateField` 返回的 valid/errors 只表示本次指定字段，不能据此判断整个表单通过。
-
-```ts
-export type MoriFormRule = {
-  name: string;
-  required?: boolean;
-  minLength?: number;
-  maxLength?: number;
-  pattern?: string;
-  message?: string;
-  validator?: (value: any | null) => string;
-}
-```
-
-规则语义：
-
-- `name` 是 model 顶层键，同时与 FormItem 的 name 对应。不解析 `profile.name`、数组路径或嵌套对象。
-- `required` 将 null／缺失值、空白字符串、空数组、false 视为空；数字 0 有效。同意协议可以用 boolean 的 required 规则。
-- 非必填空值跳过该条规则的长度、正则和自定义校验。需要验证空值时显式使用 required。
-- minLength/maxLength 作用于字符串长度或数组项数；字符串使用 JavaScript／UTS 的 UTF-16 长度。其他非空类型不能通过长度限制。
-- pattern 是传给 `new RegExp(pattern)` 的字符串，不是带 `/` 分隔符的表达式。规则由开发者提供，应使用有效正则。
-- validator 同步返回错误文字；空字符串表示通过。内置约束先执行，失败后不再执行该条自定义校验。内置约束使用 message，未设置时为“请检查此项内容”。
-
-当前不支持 Promise／异步校验、自动输入／失焦校验、嵌套字段或 `resetFields`。由业务在提交、change 或 blur 时主动调用方法；修改值后不会隐式清除旧错误。完整组合示例见 [使用手册](user-guide.md#8-使用表单基础组件)。
+支持同步／异步规则、嵌套字段、过期校验丢弃和初始值重置。原同步接口保留；asyncValidator 使用 validateAsync / validateFieldAsync。完整方法、JSON 模型约定、事件及示例见 [Form 指南](components/form.md)。
 
 ## mori-form-item
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| name | string | 空 | 对应 Form model 和规则的顶层字段名 |
+| name | string | 空 | 对应 Form model 路径和规则的 name |
 | label | string | 空 | 字段标题与子控件的无障碍名称 |
 | required | boolean | false | 显示必填提示并提供必填语义；实际校验仍需 rules |
 | hint | string | 空 | 无错误时显示的辅助说明 |
@@ -322,3 +287,6 @@ Dialog 组合居中的 Popup，默认 slot 可自定义正文。`confirm` 只通
 `options`：theme、color、darkColor、softColor、darkSoftColor。所有字段可选。默认 auto；light / dark 为停止跟随系统的方式。
 
 反馈无障碍范围：当前 H5 已实现模态键盘焦点限制与恢复；尚未将页面背景及下层弹窗设为 inert／aria-hidden，未完成真实读屏验收。
+
+
+2026-11-02 行为修正：Autocomplete 选择／确认后丢弃旧输入，Cascader 当前层级的路径按钮保留加载／错误状态；Signature 在非 WEB 触点等待异步绘制时暂缓导出。详见对应独立指南，公开属性与事件名称不变。

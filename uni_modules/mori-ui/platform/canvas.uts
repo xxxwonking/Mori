@@ -1,0 +1,88 @@
+import { ComponentPublicInstance } from 'vue'
+import { MoriPoint } from '../advanced.uts'
+import { MoriElementRect, measureMoriElement, observeMoriElementWidth } from './geometry.uts'
+export function createMoriCanvas(id: string, component: ComponentPublicInstance | null, width: number, height: number): Promise<CanvasContext> {
+ return new Promise<CanvasContext>((resolve, reject) => {
+  uni.createCanvasContextAsync({ id, component: component!, success: (canvas: CanvasContext) => { const ctx = canvas.getContext('2d'); if (ctx == null) { reject(new Error('Canvas 2D 不可用')); return }; ctx.canvas.width = width; ctx.canvas.height = height; resolve(canvas) }, fail: (_) => reject(new Error('无法创建画布')) })
+ })
+}
+export type MoriCanvasImage = { image: Image; width: number; height: number }
+export function loadMoriCanvasImage(canvas: CanvasContext, src: string): Promise<MoriCanvasImage> {
+ return new Promise<MoriCanvasImage>((resolve, reject) => {
+  const image = canvas.createImage()
+  let settled = false
+  const timer = setTimeout(() => fail(),15000)
+  const fail = () => { if (settled) return; settled = true; clearTimeout(timer); reject(new Error('图片加载失败，请检查地址与跨域配置')) }
+  const finish = (width: number,height: number) => { if (settled) return; settled = true; clearTimeout(timer); resolve({ image, width, height }) }
+  // #ifdef WEB
+  const webImage = image as unknown as HTMLImageElement
+  webImage.crossOrigin = 'anonymous'
+  webImage.onload = () => finish(webImage.naturalWidth,webImage.naturalHeight)
+  webImage.onerror = fail
+  webImage.src = src
+  // #endif
+  // #ifndef WEB
+  uni.getImageInfo({ src, success: (info) => { image.onload = () => finish(info.width,info.height); image.src = src }, fail: (_) => fail() })
+  // #endif
+ })
+}
+export type MoriCanvasTouchBinding = { start: (event: UniTouchEvent) => void; move: (event: UniTouchEvent) => void; end: () => void; cancel: () => void }
+/** Measure each stroke's origin after scrolling; queue points/end until that query settles. */
+export function bindMoriCanvasTouch(id: string, width: number, height: number, begin: (x: number, y: number) => void, move: (x: number, y: number) => void, end: () => void, busy: (value: boolean) => void = (_: boolean) => {}): MoriCanvasTouchBinding {
+ let queue: Promise<void> = Promise.resolve()
+ let rect: MoriElementRect | null = null
+ let active = false, generation = 0, pending = 0
+ function draw(point: MoriPoint, first: boolean) {
+  if (rect == null) return
+  const x = (point.x - rect!.left) * width / rect!.width
+  const y = (point.y - rect!.top) * height / rect!.height
+  if (first) begin(x,y); else move(x,y)
+ }
+ function start(event: UniTouchEvent) {
+  if (event.touches.length != 1 || active) return
+  active = true
+  pending++; busy(true)
+  const token = generation, point: MoriPoint = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+  queue = queue.then(async () => {
+   if (token != generation) return
+   const measured = await measureMoriElement(id)
+   if (token != generation) return
+   rect = measured; draw(point,true)
+  })
+ }
+ function drag(event: UniTouchEvent) {
+  if (!active || event.touches.length != 1) return
+  const token = generation, point: MoriPoint = { x: event.touches[0].clientX, y: event.touches[0].clientY }
+  queue = queue.then(() => { if (token == generation) draw(point,false) })
+ }
+ function finish() {
+  if (!active) return
+  active = false
+  const token = generation
+  queue = queue.then(() => { if (token == generation) { rect = null; end(); pending--; busy(pending > 0) } })
+ }
+ function cancel() { generation++; active = false; pending = 0; busy(false); rect = null; queue = Promise.resolve() }
+ return { start, move: drag, end: finish, cancel }
+}
+export function bindMoriCanvasPointer(id: string, width: number, height: number, begin: (x: number, y: number) => void, move: (x: number, y: number) => void, end: () => void): () => void {
+ // #ifdef WEB
+ const host = document.getElementById(id)
+ if (host == null) return () => {}
+ const target = Element.prototype.querySelector.call(host, 'canvas') as HTMLCanvasElement | null
+ if (target == null) return () => {}
+ let active = -1
+ const point = (event: any): number[] => { const rect = target.getBoundingClientRect(); return [(event.clientX - rect.left) * width / rect.width, (event.clientY - rect.top) * height / rect.height] }
+ const down = (event: any) => { if (event.button != 0 || active != -1) return; active = event.pointerId; target.setPointerCapture(active); const p = point(event); begin(p[0], p[1]); event.preventDefault() }
+ const drag = (event: any) => { if (event.pointerId != active) return; const p = point(event); move(p[0], p[1]); event.preventDefault() }
+ const up = (event: any) => { if (event.pointerId != active) return; active = -1; end() }
+ target.addEventListener('pointerdown', down); target.addEventListener('pointermove', drag); target.addEventListener('pointerup', up); target.addEventListener('pointercancel', up); target.addEventListener('lostpointercapture', up)
+ return () => { target.removeEventListener('pointerdown', down); target.removeEventListener('pointermove', drag); target.removeEventListener('pointerup', up); target.removeEventListener('pointercancel', up); target.removeEventListener('lostpointercapture', up) }
+ // #endif
+ // #ifndef WEB
+ return () => {}
+ // #endif
+}
+
+export function observeMoriCanvasWidth(id: string, change: (width: number) => void): () => void {
+ return observeMoriElementWidth(id,change)
+}

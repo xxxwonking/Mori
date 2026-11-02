@@ -5,5 +5,5 @@
   "description": "轻量、可换肤的 uni-app x 移动端组件",
   "keywords": ["uni-app-x", "button", "input", "ui"],
   "engines": { "HBuilderX": "^5.31" },
-  "uni_modules": { "dependencies": [], "encrypt": [] }
+  "uni_modules": { "dependencies": ["mori-upload-ios"], "encrypt": [] }
 }

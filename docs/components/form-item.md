@@ -27,7 +27,7 @@ const nickname = ref('')
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
-| name | string | 空 | 对应 Form model 和规则的顶层字段名 |
+| name | string | 空 | 对应 Form model 路径和规则的 name |
 | label | string | 空 | 字段标题与子控件的无障碍名称 |
 | required | boolean | false | 显示必填提示并提供必填语义；实际校验仍需 rules |
 | hint | string | 空 | 无错误时显示的辅助说明 |

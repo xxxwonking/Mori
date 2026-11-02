@@ -28,11 +28,16 @@ const accepted = ref(false)
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
 | v-model | boolean | false | 是否选中 |
+| indeterminate | boolean | false | 显示半选短横线；父级管理。 |
 | label | string | 空 | 可点击的说明文字，建议始终提供 |
 | color | string | 空 | 选中填充色；为空继承主题品牌色 |
 | disabled | boolean | false | 禁止切换 |
 
 事件：`update:modelValue(boolean)`、`change(boolean)`。方框为 16px、5px 圆角，选中填充主题色，Lucide 勾图标自动选择黑白；整行可点击，H5 支持 Enter / Space，禁用时退出 Tab 顺序。勾通过 opacity / transform 过渡 160ms，尺寸与行布局保持稳定。此组件保持单项 boolean 模型；数组多选使用 `mori-checkbox-group`。
+
+## 半选状态
+
+indeterminate:boolean 默认 false，显示短横线并设置 aria-checked=mixed。点击仍发出下一 boolean 值；半选状态由父级计算，组件不会自行修改 indeterminate。
 
 ## 平台与验证边界
 

@@ -1,0 +1,20 @@
+<template>
+<view class="mori-color-picker"><view class="mori-color-picker__colors" role="group" :aria-label="label"><button v-for="color in colors" :key="color" class="mori-action mori-color-picker__swatch" role="button" :tabindex="disabled ? -1 : 0" :aria-disabled="disabled" :style="'background-color:' + color + ';border-color:' + (modelValue.toLowerCase() == color.toLowerCase() ? moriPalette.text : moriPalette.border)" :aria-label="color" :aria-pressed="modelValue.toLowerCase() == color.toLowerCase()" :disabled="disabled" @click="select(color)" @keydown.enter.prevent="select(color)" @keydown.space.prevent="select(color)"><mori-icon v-if="modelValue.toLowerCase() == color.toLowerCase()" name="check" :size="16" :color="getMoriButtonTextColor(color)" /></button></view><mori-input :key="editorKey" v-model="draft" @blur="draft = $event" :label="label" placeholder="#0066D6" :disabled="disabled" :error="error" @confirm="select" /><mori-button label="应用颜色" variant="text" :disabled="disabled" @click="select(draft)" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, PropType } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+const props = defineProps({ modelValue: { type: String, default: '#0066D6' }, colors: { type: Array as PropType<string[]>, default: (): string[] => ['#0066D6', '#6857D9', '#C03045', '#B85A00', '#25835A', '#1D2430', '#FFFFFF'] }, label: { type: String, default: '十六进制颜色' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change', 'invalid'])
+const editorKey = ref(0)
+const draft = ref(props.modelValue), error = ref('')
+watch(() => props.modelValue, (value: string) => { draft.value = value; error.value = '' })
+function select(raw: string) { if (props.disabled) return; let value = raw.trim(); if (!/^#[0-9a-fA-F]{6}$/.test(value) && !/^#[0-9a-fA-F]{3}$/.test(value)) { error.value = '请输入 #RGB 或 #RRGGBB 颜色'; emit('invalid', raw); return }; if (value.length == 4) value = '#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3]; value = value.toUpperCase(); draft.value = value; editorKey.value++; error.value = ''; emit('update:modelValue', value); emit('change', value) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-color-picker__colors { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }.mori-color-picker__swatch { width: 32px; min-height: 32px; padding: 0; border: 2px solid; border-radius: 8px; }
+</style>

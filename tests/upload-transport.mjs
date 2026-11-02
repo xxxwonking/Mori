@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
-let source=readFileSync(new URL('../uni_modules/mori-ui/platform/upload.uts',import.meta.url),'utf8').replace(/^import .+\n/,'');
+let source=readFileSync(new URL('../uni_modules/mori-ui/platform/upload.uts',import.meta.url),'utf8').replace(/\s*\/\/ #ifdef APP-IOS[\s\S]*?\/\/ #endif/g,'').replace(/^import .+\n/,'');
 let options, progressListener, aborted=0;
 globalThis.uni={ uploadFile(value){options=value;return {onProgressUpdate(fn){progressListener=fn},abort(){aborted++}}},chooseImage(value){options=value},previewImage(){} };
 const {startMoriUpload,chooseMoriImages}=await import('data:text/javascript;base64,'+Buffer.from(stripTypeScriptTypes(source)).toString('base64'));

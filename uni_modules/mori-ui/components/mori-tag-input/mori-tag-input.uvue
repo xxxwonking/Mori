@@ -1,0 +1,29 @@
+<template>
+<view class="mori-tag-input"><view class="mori-tag-input__tags"><mori-tag v-for="tag in modelValue" :key="tag" :text="tag" :closable="!disabled" @close="remove(tag)" /></view><view class="mori-tag-input__entry"><view class="mori-tag-input__field"><mori-input :key="editorKey" v-model="draft" @blur="draft = $event" :label="label" :placeholder="placeholder" :disabled="disabled" @confirm="add" /></view><mori-button label="添加" variant="outline" :disabled="disabled || draft.trim().length == 0" @click="add(draft)" /></view><mori-text v-if="message.length > 0" :text="message" tone="danger" role="status" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, PropType } from 'vue'
+const props = defineProps({ modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] }, label: { type: String, default: '标签' }, placeholder: { type: String, default: '输入后按回车添加' }, max: { type: Number, default: 0 }, maxLength: { type: Number, default: 24 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change', 'invalid'])
+const editorKey = ref(0)
+const draft = ref(''), message = ref('')
+let values = props.modelValue.slice()
+watch(() => props.modelValue, (next: string[]) => { values = next.slice() }, { deep: true })
+function fail(text: string) { message.value = text; emit('invalid', text) }
+function add(raw: string) {
+ if (props.disabled) return
+ const value = raw.trim()
+ if (value.length == 0) return
+ if (value.length > props.maxLength) { fail('标签最多 ' + props.maxLength + ' 个字符'); return }
+ if (values.includes(value)) { fail('标签已存在'); return }
+ if (props.max > 0 && values.length >= props.max) { fail('最多添加 ' + props.max + ' 个标签'); return }
+ values = values.concat([value]); draft.value = ''; editorKey.value++; message.value = ''; emit('update:modelValue', values.slice()); emit('change', values.slice())
+}
+function remove(value: string) { if (props.disabled) return; values = values.filter((item: string): boolean => item != value); message.value = ''; emit('update:modelValue', values.slice()); emit('change', values.slice()) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-tag-input__tags { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }.mori-tag-input__entry { display: flex; flex-direction: row; align-items: flex-end; gap: 8px; }.mori-tag-input__field { flex: 1; min-width: 0; }
+</style>

@@ -15,18 +15,20 @@
 import { ref } from 'vue'
 const index = ref(0)
 const show = ref(false)
-const images = ['/static/example.png']
+const images = ['/static/example.png', '/static/mori-demo.svg']
 </script>
 ```
 
 ## 状态与进阶使用
 
-受控预览弹窗：show 控制显隐，v-model 控制当前索引；change(index) 为手动翻页，close() 请求关闭。空数组展示空态，越界索引钳制。默认只查看／翻页，不实现自定义缩放手势；nativePreview=true 时点图调用宿主预览单张图，缩放与保存由宿主提供。MEDIA-03 跟踪平台支持。
+受控预览弹窗：show 控制显隐，v-model 控制当前索引；change(index) 为手动翻页，close() 请求关闭。空数组展示空态，越界索引钳制。默认支持缩放和平移；nativePreview=true 时点图调用宿主预览单张图，缩放与保存由宿主提供。MEDIA-03 跟踪平台支持。
 
 ## 属性
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| zoomable | boolean | true | 启用缩放和平移。 |
+| maxZoom | number | 4 | 最大倍率，1–8。 |
 | show | boolean | false | 受控显示状态，可用 v-model:show。 |
 | modelValue | number | 0 | 受控状态，使用 v-model 绑定；类型与触发时机见下文。 |
 | images | string[] | [] | 图片地址数组。 |
@@ -40,6 +42,10 @@ const images = ['/static/example.png']
 公开实例方法：无。需要 ref 时，从 extended-input.uts 导入对应 Mori*Instance 类型；不直接访问内部 setup 状态。
 
 插槽：无。位置见基础用法及状态说明。
+
+## 缩放和平移
+
+zoomable 默认 true、maxZoom 默认 4（范围 1–8）。按钮或双指缩放，单指与方向键在有界区域平移；换图、关闭／重开或关闭缩放时重置。nativePreview 继续可选。H5 缩放区独占触摸，不接管页面其它位置的手势。
 
 ## 平台与验证边界
 

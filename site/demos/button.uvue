@@ -1,0 +1,27 @@
+<template>
+  <view class="button-demo">
+    <text class="demo-label">操作层级</text>
+    <view class="demo-row"><mori-button label="主要按钮" @click="message = '点击了主要按钮'" /><mori-button label="柔和按钮" variant="soft" @click="message = '点击了柔和按钮'" /></view>
+    <view class="demo-row"><mori-button label="描边按钮" variant="outline" @click="message = '点击了描边按钮'" /><mori-button label="文字按钮" variant="text" @click="message = '点击了文字按钮'" /></view>
+    <text class="demo-label">不同尺寸</text>
+    <view class="demo-row"><mori-button label="小号" size="sm" /><mori-button label="默认" /><mori-button label="大号" size="lg" /></view>
+    <text class="demo-label">状态反馈</text>
+    <view class="demo-row"><mori-button label="禁用按钮" disabled /><mori-button label="加载中" loading variant="soft" /></view>
+    <mori-button label="体验异步保存" :loading="saving" block @click="save" />
+    <text class="demo-status" role="status">{{ message }}</text>
+  </view>
+</template>
+<script setup lang="uts">
+import { ref, onUnmounted } from 'vue'
+const saving = ref(false)
+const message = ref('点击按钮，查看交互反馈。')
+let timer = 0
+function save() { saving.value = true; timer = setTimeout(() => { saving.value = false; message.value = '已保存，这是本地演示。' }, 900) }
+onUnmounted(() => { clearTimeout(timer) })
+</script>
+<style>
+.button-demo { display: flex; flex-direction: column; gap: 14px; }
+.demo-label { display: block; font-size: 12px; font-weight: 500; margin-top: 4px; }
+.demo-row { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 10px; }
+.demo-status { font-size: 11px; line-height: 18px; }
+</style>

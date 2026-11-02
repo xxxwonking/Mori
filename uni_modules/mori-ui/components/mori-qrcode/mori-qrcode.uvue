@@ -1,0 +1,21 @@
+<template>
+<view class="mori-qrcode"><image v-if="image.length > 0" :src="image" :style="'width:' + resolvedSize + 'px;height:' + resolvedSize + 'px'" mode="aspectFit" :aria-label="label" @error="imageError" /><mori-text v-if="error.length > 0" :text="error" tone="danger" /><mori-text v-if="caption.length > 0" :text="caption" tone="muted" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch } from 'vue'
+import { moriQrImage } from '../../qrcode.uts'
+import { moriNumber } from '../../advanced.uts'
+const props = defineProps({ value: { type: String, default: '' }, size: { type: Number, default: 200 }, label: { type: String, default: '二维码' }, caption: { type: String, default: '' } })
+const emit = defineEmits(['ready', 'error'])
+const image = ref(''), error = ref('')
+const resolvedSize = computed((): number => moriNumber(props.size,200,120,600))
+function render() { image.value = ''; error.value = ''; if (props.value.length == 0) { error.value = '请输入二维码内容'; return }; if (props.value.length > 512) { error.value = '内容过长，请控制在 512 个字符以内'; emit('error',error.value); return }; try { image.value = moriQrImage(props.value); emit('ready',image.value) } catch (_) { error.value = '无法编码此内容，请缩短后重试'; emit('error',error.value) } }
+function imageError() { error.value = '当前平台无法显示二维码图像'; emit('error',error.value) }
+watch(() => props.value, render, { immediate: true })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-qrcode { display: flex; align-items: center; gap: 8px; }.mori-qrcode image { max-width: 100%; }
+</style>

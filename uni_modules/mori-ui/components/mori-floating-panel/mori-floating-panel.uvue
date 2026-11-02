@@ -1,0 +1,29 @@
+<template>
+<view class="mori-floating-panel" :style="'height:' + height + 'px;background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view class="mori-floating-panel__handle" :style="'background-color:' + moriPalette.ground" @touchstart="start" @touchmove="move" @touchend="end" @touchcancel="reset"><text class="mori-floating-panel__title" :style="'color:' + moriPalette.text">{{ title }}</text><mori-button label="收起" size="sm" variant="text" :disabled="disabled || height <= stops[0]" @click="step(-1)" /><mori-button label="展开" size="sm" variant="text" :disabled="disabled || height >= stops[stops.length - 1]" @click="step(1)" /></view><scroll-view scroll-y class="mori-floating-panel__body"><slot /></scroll-view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, PropType } from 'vue'
+import { moriNumber } from '../../advanced.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ modelValue: { type: Number, default: 180 }, anchors: { type: Array as PropType<number[]>, default: (): number[] => [120, 240, 400] }, title: { type: String, default: '浮动面板' }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const stops = computed((): number[] => { const values = props.anchors.filter((n: number): boolean => Number.isFinite(n) && n >= 64 && n <= 1200).sort((a: number,b: number): number => a-b); return values.length > 0 ? values : [120,240,400] })
+const height = ref(180)
+let dragging = false, startY = 0, startHeight = 0
+function reset() { dragging = false; height.value = moriNumber(props.modelValue, stops.value[0], stops.value[0], stops.value[stops.value.length - 1]) }
+watch(() => props.modelValue, reset, { immediate: true }); watch(stops, reset); watch(() => props.disabled, reset)
+function commit(value: number) { if (props.disabled) return; height.value = value; emit('update:modelValue', value); emit('change', value) }
+function step(direction: number) { const candidates = stops.value.filter((n: number): boolean => direction > 0 ? n > height.value : n < height.value); if (candidates.length > 0) commit(direction > 0 ? candidates[0] : candidates[candidates.length - 1]) }
+function start(event: UniTouchEvent) { if (props.disabled || event.touches.length != 1) return; dragging = true; startY = event.touches[0].screenY; startHeight = height.value }
+function move(event: UniTouchEvent) { if (!dragging || event.touches.length != 1) return; height.value = moriNumber(startHeight + startY - event.touches[0].screenY, startHeight, stops.value[0], stops.value[stops.value.length - 1]) }
+function end() { if (!dragging) return; dragging = false; let target = stops.value[0]; stops.value.forEach((n: number) => { if (Math.abs(n - height.value) < Math.abs(target - height.value)) target = n }); commit(target) }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-floating-panel { width: 100%; display: flex; flex-direction: column; border: 1px solid; border-radius: 12px; overflow: hidden; box-sizing: border-box; }.mori-floating-panel__handle { display: flex; flex-direction: row; align-items: center; padding: 8px; flex-shrink: 0; }.mori-floating-panel__title { flex: 1; font-size: 13px; }.mori-floating-panel__body { flex: 1; min-height: 0; padding: 12px; box-sizing: border-box; }
+/* #ifdef WEB */
+.mori-floating-panel__handle { touch-action: none; }
+/* #endif */
+</style>

@@ -3,6 +3,7 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createHBuilderEnvironment, resolveCompilerRuntime } from './hbuilder-env.mjs';
+import './site-prepare.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const [mode = 'dev', platform = 'h5'] = process.argv.slice(2);
@@ -21,15 +22,17 @@ const compiler = join(plugins, 'uniapp-cli-vite/node_modules/@dcloudio/vite-plug
 const meta = JSON.parse(readFileSync(join(plugins, 'uniapp-cli-vite/package.json'), 'utf8'));
 console.log(`Mori UI · ${mode} ${platform} · HBuilderX compiler ${meta.version}`);
 console.log('App 蒸汽模式建议使用 HBuilderX 5.31+；浏览器/小程序构建不代表原生验证。');
-const output = join(root, 'unpackage/dist', mode === 'dev' ? 'dev' : 'build', platform);
+const output = join(root, 'unpackage/dist', process.env.MORI_SITE_BUILD === 'true' && platform === 'h5' ? 'site' : mode === 'dev' ? 'dev' : 'build', platform);
 const args = [compiler, ...(mode === 'build' ? ['build'] : []), '-p', platform, ...(mode === 'dev' && platform === 'h5' ? ['--host', '127.0.0.1', '--port', '5173'] : [])];
 const runtime = resolveCompilerRuntime(hx, platform);
 console.log(`Compiler Node: ${runtime}`);
+// Only CLI builds prepare and register the generated preview. Direct IDE runs use the workbench pages.
+const customContext = { ...JSON.parse(process.env.UNI_CUSTOM_CONTEXT || '{}'), MORI_PREVIEW: true };
 const child = spawn(runtime, args, {
   cwd: root,
   stdio: 'inherit',
   windowsHide: true,
-  env: { ...process.env, HX_APP_ROOT: toolchain.root, UNI_INPUT_DIR: root, UNI_OUTPUT_DIR: output, UNI_HBUILDERX_PLUGINS: plugins, HX_PLUGIN_PATHS: JSON.stringify(pluginPaths), UNI_PROJECT_TYPE: 'hbuilder', RUN_BY_HBUILDERX: 'true', UNI_APP_X: 'true', UNI_CLI_CONTEXT: join(plugins, 'uniapp-cli-vite') }
+  env: { ...process.env, UNI_CUSTOM_CONTEXT: JSON.stringify(customContext), HX_APP_ROOT: toolchain.root, UNI_INPUT_DIR: root, UNI_OUTPUT_DIR: output, UNI_HBUILDERX_PLUGINS: plugins, HX_PLUGIN_PATHS: JSON.stringify(pluginPaths), UNI_PROJECT_TYPE: 'hbuilder', RUN_BY_HBUILDERX: 'true', UNI_APP_X: 'true', UNI_CLI_CONTEXT: join(plugins, 'uniapp-cli-vite') }
 });
 child.on('error', error => { toolchain.cleanup(); console.error(error.message); process.exitCode = 1; });
 child.on('exit', code => { toolchain.cleanup(); process.exitCode = code ?? 1; });

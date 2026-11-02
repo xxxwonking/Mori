@@ -4,7 +4,7 @@ import { resolve, dirname, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const base = resolve(dirname(fileURLToPath(import.meta.url)), '../unpackage/dist/build/h5');
 const port = Number(process.env.PORT || 5173);
-const types = { '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.woff2':'font/woff2', '.json':'application/json' };
+const types = { '.webm': 'video/webm', '.mp4': 'video/mp4', '.html':'text/html; charset=utf-8', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.png':'image/png', '.woff2':'font/woff2', '.json':'application/json' };
 createServer(async (request, response) => {
   try {
     const requested = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);

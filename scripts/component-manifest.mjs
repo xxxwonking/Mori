@@ -359,5 +359,85 @@ export const componentManifest = [
     "name": "image-preview",
     "title": "图片预览",
     "group": "展示"
+  },
+  {
+    "name": "autocomplete",
+    "title": "自动补全",
+    "group": "录入"
+  },
+  {
+    "name": "tag-input",
+    "title": "标签输入",
+    "group": "录入"
+  },
+  {
+    "name": "color-picker",
+    "title": "颜色选择",
+    "group": "录入"
+  },
+  {
+    "name": "date-range-picker",
+    "title": "日期区间",
+    "group": "录入"
+  },
+  {
+    "name": "table",
+    "title": "表格",
+    "group": "展示"
+  },
+  {
+    "name": "descriptions",
+    "title": "描述列表",
+    "group": "展示"
+  },
+  {
+    "name": "text-ellipsis",
+    "title": "文本展开",
+    "group": "展示"
+  },
+  {
+    "name": "rich-text",
+    "title": "富文本展示",
+    "group": "展示"
+  },
+  {
+    "name": "virtual-list",
+    "title": "虚拟列表",
+    "group": "展示"
+  },
+  {
+    "name": "waterfall",
+    "title": "瀑布流",
+    "group": "展示"
+  },
+  {
+    "name": "image-cropper",
+    "title": "图片裁剪",
+    "group": "录入"
+  },
+  {
+    "name": "signature",
+    "title": "签名",
+    "group": "录入"
+  },
+  {
+    "name": "qrcode",
+    "title": "二维码",
+    "group": "展示"
+  },
+  {
+    "name": "video",
+    "title": "视频",
+    "group": "展示"
+  },
+  {
+    "name": "draggable",
+    "title": "拖拽排序",
+    "group": "交互"
+  },
+  {
+    "name": "floating-panel",
+    "title": "浮动面板",
+    "group": "交互"
   }
 ];

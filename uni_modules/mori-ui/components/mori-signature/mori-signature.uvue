@@ -1,0 +1,54 @@
+<template>
+<view class="mori-signature"><text class="mori-signature__label" :style="'color:' + moriPalette.muted">{{ label }}</text><view class="mori-signature__frame" :style="'border-color:' + moriPalette.border"><canvas :id="canvasId" :canvas-id="canvasId" type="2d" class="mori-signature__canvas" :width="600" :height="360" :aria-label="label" :style="'background-color:' + background + ';height:' + displayWidth * 0.6 + 'px'" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd" @touchcancel="touchEnd" /></view><mori-text v-if="error.length > 0" :text="error" tone="danger" /><view class="mori-signature__actions"><mori-button label="撤销" size="sm" variant="text" :disabled="disabled || count == 0" @click="undo" /><mori-button label="清空" size="sm" variant="text" :disabled="disabled || count == 0" @click="clear" /><mori-button label="导出签名" size="sm" :disabled="disabled || count == 0 || !ready || processing" @click="exportImage" /></view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, onMounted, onUnmounted, getCurrentInstance } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { createMoriCanvas, bindMoriCanvasTouch, bindMoriCanvasPointer, observeMoriCanvasWidth } from '../../platform/canvas.uts'
+import { MoriPoint, moriNumber } from '../../advanced.uts'
+const props = defineProps({ label: { type: String, default: '在此处手写签名' }, color: { type: String, default: '#1D2430' }, background: { type: String, default: '#FFFFFF' }, lineWidth: { type: Number, default: 3 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['change', 'confirm', 'error'])
+const canvasId = createMoriFieldId(), instance = getCurrentInstance()
+const displayWidth = ref(300)
+const processing = ref(false)
+let cleanupSize: () => void = () => {}
+const ready = ref(false), error = ref(''), count = ref(0)
+let canvas: CanvasContext | null = null, ctx: CanvasRenderingContext2D | null = null, alive = true, drawing = false
+let cleanup: () => void = () => {}
+let strokes: MoriPoint[][] = []
+function redraw() { if (ctx == null) return; const c = ctx!; c.clearRect(0,0,600,360); c.fillStyle = props.background; c.fillRect(0,0,600,360); c.strokeStyle = props.color; c.fillStyle = props.color; c.lineWidth = moriNumber(props.lineWidth,3,1,30); c.lineCap = 'round'; c.lineJoin = 'round'; strokes.forEach((stroke: MoriPoint[]) => { if (stroke.length == 0) return; c.beginPath(); c.moveTo(stroke[0].x,stroke[0].y); stroke.forEach((p: MoriPoint) => c.lineTo(p.x,p.y)); c.stroke(); if (stroke.length == 1) { c.beginPath(); c.arc(stroke[0].x,stroke[0].y,c.lineWidth / 2,0,Math.PI * 2); c.fill() } }); count.value = strokes.length }
+function point(x: number,y: number): MoriPoint { return { x: moriNumber(x,0,0,600), y: moriNumber(y,0,0,360) } }
+function begin(x: number,y: number) { if (props.disabled || !ready.value) return; drawing = true; strokes.push([point(x,y)]); redraw() }
+function move(x: number,y: number) { if (!drawing || props.disabled) return; strokes[strokes.length - 1].push(point(x,y)); redraw() }
+function end() { if (!drawing) return; drawing = false; emit('change', count.value > 0) }
+const touch = bindMoriCanvasTouch(canvasId,600,360,begin,move,end,(value: boolean) => { processing.value = value })
+function touchStart(event: UniTouchEvent) {
+ // #ifndef WEB
+ if (!props.disabled && ready.value) touch.start(event)
+ // #endif
+}
+function touchMove(event: UniTouchEvent) {
+ // #ifndef WEB
+ touch.move(event)
+ // #endif
+}
+function touchEnd() { touch.end() }
+function clear() { if (props.disabled) return; touch.cancel(); drawing = false; strokes = []; redraw(); emit('change',false) }
+function undo() { if (props.disabled) return; touch.cancel(); drawing = false; strokes.pop(); redraw(); emit('change',count.value > 0) }
+function exportImage(): string { if (props.disabled || processing.value || canvas == null || count.value == 0) return ''; try { const result = canvas!.toDataURL(); emit('confirm',result); return result } catch (_) { error.value = '导出失败，请重试'; emit('error',error.value); return '' } }
+onMounted(async () => { try { const result = await createMoriCanvas(canvasId,instance!.proxy,600,360); if (!alive) return; canvas = result; ctx = result.getContext('2d'); ready.value = true; redraw(); cleanup = bindMoriCanvasPointer(canvasId,600,360,begin,move,end); cleanupSize = observeMoriCanvasWidth(canvasId,(value: number) => { displayWidth.value = value }) } catch (_) { if (alive) { error.value = '画布不可用，请检查运行平台'; emit('error',error.value) } } })
+watch(() => props.color + props.background + props.lineWidth, redraw)
+watch(() => props.disabled, () => { touch.cancel(); end() })
+onUnmounted(() => { alive = false; touch.cancel(); cleanup(); cleanupSize(); canvas = null; ctx = null })
+defineExpose({ clear, undo, exportImage })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-signature__label { font-size: 12px; line-height: 20px; margin-bottom: 8px; }.mori-signature__frame { border: 1px solid; border-radius: 8px; overflow: hidden; }.mori-signature__canvas { width: 100%; }.mori-signature__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+/* #ifdef WEB */
+.mori-signature__canvas { touch-action: none; }
+/* #endif */
+</style>

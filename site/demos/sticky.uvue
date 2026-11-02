@@ -1,0 +1,5 @@
+<template>
+  <mori-text text="向下滚动，观察导航栏停留在顶部。" :size="12" />
+  <mori-sticky :offset-top="0"><mori-navbar title="筛选结果" /></mori-sticky>
+  <view v-for="item in 18" :key="item" style="padding:20px 0"><mori-cell :title="'列表内容 ' + item.toString()" /></view>
+</template>

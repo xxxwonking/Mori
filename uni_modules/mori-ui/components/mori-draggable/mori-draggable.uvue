@@ -1,0 +1,29 @@
+<template>
+<view class="mori-draggable"><view v-for="(item,index) in modelValue" :key="item.id" class="mori-draggable__row" :style="'height:' + size + 'px;border-color:' + moriPalette.border + ';background-color:' + (active == index ? moriPalette.soft : moriPalette.surface)" @touchstart="start(index, $event)" @touchmove="move($event)" @touchend="end" @touchcancel="cancel"><view class="mori-draggable__content"><slot :item="item" :index="index"><mori-text :text="item.label" /></slot></view><mori-button label="上移" size="sm" variant="text" :disabled="disabled || index == 0" @click="reorder(index, index - 1)" /><mori-button label="下移" size="sm" variant="text" :disabled="disabled || index == modelValue.length - 1" @click="reorder(index, index + 1)" /></view><mori-text v-if="active >= 0" :text="'松开移至第 ' + (destination + 1) + ' 项'" tone="muted" role="status" /></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, PropType } from 'vue'
+import { MoriDataItem, moriMoveItem, moriNumber } from '../../advanced.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ modelValue: { type: Array as PropType<MoriDataItem[]>, default: (): MoriDataItem[] => [] }, itemHeight: { type: Number, default: 52 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue', 'change'])
+const active = ref(-1), destination = ref(-1)
+let startY = 0
+const size = computed((): number => moriNumber(props.itemHeight, 52, 36, 500))
+function cancel() { active.value = -1; destination.value = -1 }
+watch(() => props.disabled, cancel)
+watch(() => props.modelValue, cancel, { deep: true })
+function reorder(from: number, to: number) { if (props.disabled || from == to || to < 0 || to >= props.modelValue.length) return; const next = moriMoveItem(props.modelValue, from, to); emit('update:modelValue', next); emit('change', next, from, to) }
+function start(index: number, event: UniTouchEvent) { if (props.disabled || event.touches.length != 1) return; active.value = index; destination.value = index; startY = event.touches[0].screenY }
+function move(event: UniTouchEvent) { if (active.value < 0 || event.touches.length != 1) return; destination.value = Math.max(0, Math.min(props.modelValue.length - 1, active.value + Math.round((event.touches[0].screenY - startY) / size.value))) }
+function end() { if (active.value >= 0) reorder(active.value, destination.value); cancel() }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-draggable__row { display: flex; flex-direction: row; align-items: center; border-bottom: 1px solid; box-sizing: border-box; gap: 4px; }.mori-draggable__content { flex: 1; min-width: 0; }
+/* #ifdef WEB */
+.mori-draggable__row { touch-action: none; }
+/* #endif */
+</style>

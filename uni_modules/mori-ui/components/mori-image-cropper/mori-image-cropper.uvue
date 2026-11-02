@@ -1,0 +1,33 @@
+<template>
+<view class="mori-image-cropper"><canvas :id="canvasId" :canvas-id="canvasId" type="2d" class="mori-image-cropper__canvas" :style="'height:' + (previewWidth / safeRatio) + 'px;border-color:' + moriPalette.border" aria-label="裁剪结果预览" /><mori-loading v-if="loading" text="正在载入图片" /><mori-text v-if="error.length > 0" :text="error" tone="danger" /><mori-text text="缩放" tone="muted" /><mori-slider v-model="zoom" label="裁剪缩放" :min="1" :max="4" :step="0.1" :disabled="disabled || !ready" /><mori-text text="水平位置" tone="muted" /><mori-slider v-model="x" label="裁剪水平位置" :disabled="disabled || !ready" /><mori-text text="垂直位置" tone="muted" /><mori-slider v-model="y" label="裁剪垂直位置" :disabled="disabled || !ready" /><view class="mori-image-cropper__actions"><mori-button label="重置" variant="outline" :disabled="disabled || !ready" @click="reset" /><mori-button label="确认裁剪" :disabled="disabled || !ready || loading" @click="exportImage" /></view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, onMounted, onUnmounted, getCurrentInstance } from 'vue'
+import { moriPalette } from '../../theme.uts'
+import { moriCropRect, moriNumber } from '../../advanced.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+import { createMoriCanvas, loadMoriCanvasImage, MoriCanvasImage, observeMoriCanvasWidth } from '../../platform/canvas.uts'
+const props = defineProps({ src: { type: String, default: '' }, ratio: { type: Number, default: 1 }, outputWidth: { type: Number, default: 400 }, disabled: { type: Boolean, default: false } })
+const emit = defineEmits(['confirm', 'error', 'change'])
+const canvasId = createMoriFieldId(), instance = getCurrentInstance()
+const previewWidth = ref(240)
+let cleanup: () => void = () => {}
+const x = ref(50), y = ref(50), zoom = ref(1), loading = ref(false), ready = ref(false), error = ref('')
+const safeRatio = computed((): number => moriNumber(props.ratio,1,0.25,4))
+const width = computed((): number => Math.round(moriNumber(props.outputWidth,400,64,2048)))
+let canvas: CanvasContext | null = null, source: MoriCanvasImage | null = null, mounted = false, generation = 0
+function draw() { if (canvas == null || source == null || !ready.value) return; const c = canvas!.getContext('2d'); if (c == null) return; const h = Math.round(width.value / safeRatio.value); c.canvas.width = width.value; c.canvas.height = h; const rect = moriCropRect(source!.width,source!.height,zoom.value,x.value,y.value,safeRatio.value); c.clearRect(0,0,width.value,h); c.drawImage(source!.image,rect[0],rect[1],rect[2],rect[3],0,0,width.value,h); emit('change',rect) }
+function reset() { if (props.disabled) return; x.value = 50; y.value = 50; zoom.value = 1; draw() }
+async function load() { if (!mounted || canvas == null) return; const token = ++generation; ready.value = false; source = null; error.value = ''; const c = canvas!.getContext('2d'); if (c != null) c.clearRect(0,0,c.canvas.width,c.canvas.height); if (props.src.length == 0) { loading.value = false; error.value = '请选择需要裁剪的图片'; return }; loading.value = true; try { const image = await loadMoriCanvasImage(canvas!,props.src); if (token != generation || !mounted) return; source = image; x.value = 50; y.value = 50; zoom.value = 1; ready.value = true; draw() } catch (_) { if (token == generation && mounted) { error.value = '图片加载失败，请检查地址与跨域权限'; emit('error',error.value) } } finally { if (token == generation) loading.value = false } }
+function exportImage(): string { if (props.disabled || !ready.value || canvas == null) return ''; try { draw(); const result = canvas!.toDataURL(); emit('confirm',result); return result } catch (_) { error.value = '图片无法导出，请使用本地图片或允许跨域的地址'; emit('error',error.value); return '' } }
+onMounted(async () => { mounted = true; try { const result = await createMoriCanvas(canvasId,instance!.proxy,width.value,Math.round(width.value / safeRatio.value)); if (!mounted) return; canvas = result; cleanup = observeMoriCanvasWidth(canvasId,(value: number) => { previewWidth.value = value }); await load() } catch (_) { if (mounted) { error.value = '画布不可用'; emit('error',error.value) } } })
+watch(() => props.src, load); watch(() => [x.value,y.value,zoom.value,safeRatio.value,width.value], draw)
+onUnmounted(() => { mounted = false; generation++; cleanup(); canvas = null; source = null })
+defineExpose({ reset, exportImage })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-image-cropper__canvas { width: 100%; border: 1px solid; border-radius: 8px; }.mori-image-cropper__actions { display: flex; flex-direction: row; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+</style>

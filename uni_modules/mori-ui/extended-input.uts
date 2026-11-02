@@ -3,8 +3,33 @@ export type MoriCountToInstance = { start: () => void; reset: () => void }
 export type MoriCascaderInstance = { confirm: () => void; cancel: () => void }
 export type MoriListInstance = { check: () => void }
 export type MoriRefreshInstance = { refresh: () => void }
-export type MoriSwipeCellInstance = { open: () => void; close: () => void }
-export type MoriTreeNode = { value: string; label: string; disabled?: boolean; children?: MoriTreeNode[] }
+export type MoriSwipeCellInstance = { open: (side?: string) => void; close: () => void }
+export type MoriTreeNode = { value: string; label: string; disabled?: boolean; leaf?: boolean; children?: MoriTreeNode[] }
+export type MoriLazyChildren = { value: string; children: MoriTreeNode[] }
+export function moriLoadedTree(options: MoriTreeNode[], loaded: MoriLazyChildren[]): MoriTreeNode[] {
+  return options.map((node: MoriTreeNode): MoriTreeNode => {
+    const found = loaded.find((item: MoriLazyChildren): boolean => item.value == node.value)
+    const children = found != null ? found.children : node.children
+    const result: MoriTreeNode = { value: node.value, label: node.label, disabled: node.disabled, leaf: found != null && found.children.length == 0 ? true : node.leaf }
+    if (children != null) result.children = moriLoadedTree(children, loaded)
+    return result
+  })
+}
+export function moriTreeLeaves(options: MoriTreeNode[], value: string, ancestorDisabled: boolean = false): string[] {
+  for (let i = 0; i < options.length; i++) {
+    const node = options[i]
+    const disabled = ancestorDisabled || node.disabled == true
+    if (node.value == value) {
+      if (disabled) return []
+      if (node.children == null || node.children!.length == 0) return [node.value]
+      let values: string[] = []
+      node.children!.forEach((child: MoriTreeNode) => { values = values.concat(moriTreeLeaves([child], child.value, disabled)) })
+      return values
+    }
+    if (node.children != null) { const found = moriTreeLeaves(node.children!, value, disabled); if (found.length > 0) return found }
+  }
+  return []
+}
 export type MoriTreeRow = { value: string; label: string; disabled: boolean; depth: number; branch: boolean }
 export type MoriIndexSection = { index: string; title: string; items: string[] }
 export function moriTreePath(options: MoriTreeNode[], path: string[]): MoriTreeNode[] {

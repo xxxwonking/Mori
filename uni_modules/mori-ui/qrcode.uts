@@ -1,0 +1,13 @@
+import { QrCode, Ecc } from './vendor/qrcodegen.uts'
+export function moriQrMatrix(value: string): boolean[][] {
+ const code = QrCode.encodeText(value, Ecc.MEDIUM)
+ const result: boolean[][] = []
+ for (let y = 0; y < code.size; y++) { const row: boolean[] = []; for (let x = 0; x < code.size; x++) row.push(code.getModule(x,y)); result.push(row) }
+ return result
+}
+export function moriQrImage(value: string): string {
+ const matrix = moriQrMatrix(value), size = matrix.length + 8
+ let path = ''
+ for (let y = 0; y < matrix.length; y++) for (let x = 0; x < matrix.length; x++) if (matrix[y][x]) path += 'M' + (x + 4) + ',' + (y + 4) + 'h1v1h-1z'
+ return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" shape-rendering="crispEdges"><path fill="#fff" d="M0 0h' + size + 'v' + size + 'H0z"/><path fill="#000" d="' + path + '"/></svg>')
+}

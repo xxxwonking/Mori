@@ -1,0 +1,11 @@
+<template>
+  <mori-text text="向下滚动，再点击右下角返回顶部。" :size="12" tone="muted" />
+  <view v-for="item in 18" :key="item" style="padding:20px 0"><mori-cell :title="'示例内容 ' + item.toString()" /></view>
+  <mori-back-top :scroll-top="scrollTop" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { onPageScroll } from '@dcloudio/uni-app'
+const scrollTop = ref(0)
+onPageScroll((event) => { scrollTop.value = event.scrollTop })
+</script>

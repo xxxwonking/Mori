@@ -60,7 +60,7 @@
 
 ## 组件一览
 
-已提供 **72 个组件**，每个都有 [独立详细使用指南](docs/component-guides.md)，覆盖属性、事件、方法、示例和边界。下面是原有基础；新增组件可在工作台的「组件全览」直接体验。
+已提供 **88 个组件**，每个都有 [独立详细使用指南](docs/component-guides.md)，覆盖属性、事件、方法、示例和边界。下面是原有基础；全部组件可在官网的逐组件预览中体验，工作台保留组合场景演示。
 
 | 组件 | 已实现的能力 | API |
 | :--- | :--- | :--- |
@@ -91,6 +91,12 @@
 
 ## 快速开始
 
+### 宣传官网与组件文档
+
+执行 `npm run site:dev`，打开终端报告的地址（默认 5180），体验宣传首页、文档搜索和 88 个真实 H5 组件预览。生产构建为 `npm run site:build`，产物位于 `dist/site`，用 `npm run site:preview` 查看。详见 [官网维护与部署](docs/website.md)。
+
+### 组件工作台
+
 准备 **Node.js 22.13+**、**HBuilderX 及其 Vue3 编译器插件**。本轮 Windows 验证使用 HBuilderX 5.34，具体版本及历史 macOS 记录见 [兼容记录](docs/compatibility.md)。App 蒸汽模式建议 5.31+。
 
 ```sh
@@ -119,7 +125,7 @@ export HBUILDERX_HOME='/Applications/HBuilderX.app/Contents/HBuilderX'
 npm run dev
 ```
 
-也可以直接在 HBuilderX 中导入仓库根目录，通过「运行」菜单选择浏览器、小程序或手机。App 的运行与打包目前通过 HBuilderX 操作。
+也可以直接在 HBuilderX 中导入仓库根目录，通过「运行」菜单选择浏览器、小程序或手机。直接 IDE 运行仅注册工作台页面，不依赖官网生成文件；官网请使用 `npm run site:dev`。App 的运行与打包目前通过 HBuilderX 操作。
 
 </details>
 
@@ -136,6 +142,10 @@ npm run dev
 ### 放进你的项目
 
 将 [`uni_modules/mori-ui`](uni_modules/mori-ui) **整个目录**复制到目标 uni-app x 项目的 `uni_modules` 中，保留校验、选择、反馈与弹层逻辑，以及样式、平台适配、图标和许可文件。
+
+同时复制依赖模块 [`uni_modules/mori-upload-ios`](uni_modules/mori-upload-ios/README.md)，用于 iOS 系统相册与上传。首次接入需制作包含该模块的自定义基座或重新打包；原生编译与真机验收仍待完成，详见模块说明。
+
+完整示例、权限配置、服务端协议、插件 API 和常见问题见 [iOS 上传插件使用指南](docs/ios-upload.md)。
 
 在目标 `App.uvue` 的启动回调中初始化主题：
 
@@ -261,7 +271,7 @@ const enabled = ref(true)
 | `npm run build:weixin` | 微信小程序发行构建 |
 | `npm run preview` | 预览已构建的 H5 产物 |
 | `npm run check` | 配置、easycom 目录与浏览器依赖边界检查 |
-| `npm run check:docs` | 72 份组件指南的示例属性／事件与本地链接检查 |
+| `npm run check:docs` | 88 份组件指南的示例属性／事件与本地链接检查 |
 | `npm run test:unit` | 颜色、校验、选择、日历时间、上传与反馈生命周期、构建环境回归 |
 | `npm test` | 浏览器交互与布局检查 |
 | `npm run test:motion` | 动画中间帧、快速反向切换与减少动态效果检查 |
@@ -277,7 +287,7 @@ const enabled = ref(true)
 ```text
 Mori/
 ├── uni_modules/mori-ui/    # 可复用组件库
-│   ├── components/        # 七十二个基础、展示、导航、表单与反馈组件
+│   ├── components/        # 八十八个基础、展示、导航、表单与反馈组件
 │   ├── styles/            # 尺寸与间距基础
 │   ├── platform/          # 平台适配
 │   ├── static/icons/      # 随包分发的 SVG 图标
@@ -306,7 +316,7 @@ Mori/
 - [x] Form / FormItem、Radio / RadioGroup、CheckboxGroup、Textarea
 - [x] Toast / Popup / Dialog 与反馈示例
 - [x] 展示与动画、导航分页、ActionSheet / Popover / Notify、日期时间与图片上传
-- [x] 72 份逐组件用法、参数/事件/方法与平台适配跟踪
+- [x] 88 份逐组件用法、参数/事件/方法与平台适配跟踪
 - [ ] 鸿蒙工具链与逐组件验证、分发方式和最低系统版本
 
 后续清单是候选方向，按项目需要逐步推进。详细记录见 [当前进度](docs/progress.md)。
@@ -316,7 +326,7 @@ Mori/
 | 想了解什么 | 从这里开始 |
 | :--- | :--- |
 | 怎么接入、怎么用 | [使用手册](docs/user-guide.md) · [组件 API](docs/components.md) |
-| 每个组件的详细用法 | [72 份组件指南](docs/component-guides.md) |
+| 每个组件的详细用法 | [88 份组件指南](docs/component-guides.md) |
 | iOS 上传与跨端跟进 | [平台适配清单](docs/platform-adaptation.md) |
 | 为什么长这样 | [设计规范](DESIGN.md) · [设计参考](docs/design-references.md) |
 | 代码放在哪里、怎么维护 | [架构说明](docs/architecture.md) · [验证与排障](docs/testing.md) |

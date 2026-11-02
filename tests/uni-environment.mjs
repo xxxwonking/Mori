@@ -19,14 +19,15 @@ try {
   const bin = join(plugin, 'node_modules/@dcloudio/vite-plugin-uni/bin');
   mkdirSync(bin, { recursive: true });
   writeFileSync(join(plugin, 'package.json'), JSON.stringify({ version: 'test' }));
-  writeFileSync(join(bin, 'uni.js'), `const fs = require('node:fs'); console.log('MORI_ENV=' + JSON.stringify({ root: process.env.HX_APP_ROOT, plugins: process.env.UNI_HBUILDERX_PLUGINS, input: process.env.UNI_INPUT_DIR, compiler: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/uniapp-cli-vite'), sass: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/compile-dart-sass') }));`);
-  const env = { ...process.env, HBUILDERX_HOME: hx };
+  writeFileSync(join(bin, 'uni.js'), `const fs = require('node:fs'); console.log('MORI_ENV=' + JSON.stringify({ root: process.env.HX_APP_ROOT, plugins: process.env.UNI_HBUILDERX_PLUGINS, input: process.env.UNI_INPUT_DIR, context: JSON.parse(process.env.UNI_CUSTOM_CONTEXT), compiler: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/uniapp-cli-vite'), sass: fs.realpathSync(process.env.UNI_HBUILDERX_PLUGINS + '/compile-dart-sass') }));`);
+  const env = { ...process.env, HBUILDERX_HOME: hx, UNI_CUSTOM_CONTEXT: JSON.stringify({ BUSINESS_FLAG: true }) };
   delete env.HX_APP_ROOT;
   const result = spawnSync(process.execPath, ['scripts/uni.mjs', 'build', 'h5'], { cwd: new URL('..', import.meta.url), env, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   const marker = result.stdout.split('\n').find(line => line.startsWith('MORI_ENV='));
   assert.ok(marker, 'Compiler must execute');
   const actual = JSON.parse(marker.slice('MORI_ENV='.length));
+  assert.deepEqual(actual.context, { BUSINESS_FLAG: true, MORI_PREVIEW: true });
   assert.ok(actual.root, 'Compiler needs HX_APP_ROOT to recognize IDE mode and load its Vue/UTS plugins');
   assert.equal(actual.plugins, join(actual.root, 'plugins'));
   assert.equal(actual.compiler, realpathSync(plugin));

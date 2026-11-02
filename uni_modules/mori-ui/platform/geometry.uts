@@ -1,0 +1,48 @@
+/** Cross-platform element measurements remain outside common components. */
+export type MoriElementRect = { left: number; top: number; width: number; height: number }
+export async function measureMoriElement(id: string): Promise<MoriElementRect | null> {
+ try {
+  // #ifdef WEB
+  const element = document.getElementById(id)
+  if (element == null) return null
+  const rect = element.getBoundingClientRect()
+  // #endif
+  // #ifndef WEB
+  const element = uni.getElementById(id)
+  if (element == null) return null
+  const rect = await element.getBoundingClientRectAsync()
+  // #endif
+  if (rect.width <= 0 || rect.height <= 0) return null
+  return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+ } catch (_) { return null }
+}
+
+export function moriElementWidth(id: string, fallback: number): number {
+ // #ifdef WEB
+ const element = document.getElementById(id)
+ if (element != null) { const width = element.getBoundingClientRect().width; if (width > 0) return width }
+ // #endif
+ // Non-Web gestures use the last asynchronously measured width.
+ return fallback
+}
+
+export function observeMoriElementWidth(id: string, change: (width: number) => void): () => void {
+ // #ifdef WEB
+ const element = document.getElementById(id)
+ if (element == null) return () => {}
+ const update = () => { const width = element.getBoundingClientRect().width; if (width > 0) change(width) }
+ const observer = new ResizeObserver(update); observer.observe(element); update()
+ return () => observer.disconnect()
+ // #endif
+ // #ifndef WEB
+ let active = true, generation = 0
+ const update = async () => {
+  const token = ++generation
+  const rect = await measureMoriElement(id)
+  if (active && token == generation && rect != null) change(rect.width)
+ }
+ update()
+ uni.onWindowResize(update)
+ return () => { active = false; generation++; uni.offWindowResize(update) }
+ // #endif
+}

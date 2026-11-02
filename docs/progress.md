@@ -1,6 +1,6 @@
 # 当前进度与下一步
 
-更新日期：2026-10-31（Asia/Shanghai）。阶段：**0.1.0 通用组件扩展到 72 个，72 份详细指南；第二轮构建与自动检查通过，独立复核四项修复均已解决，跨端真机验证未完成，尚未发布**。
+更新日期：2026-11-01（Asia/Shanghai）。阶段：**0.1.0 通用组件补强到 88 个，88 份指南与官网真实预览；本轮构建、单元和 H5 交互检查通过，独立复核五项修复均解决；跨端真机验证未完成，尚未发布**。
 
 本文件是接力状态记录。更新任务后修改这里，不用把聊天历史当作唯一进度来源。
 
@@ -238,3 +238,97 @@ H5 首次焦点使用 preventScroll，弹层外壳 overflow: clip 禁止因聚�
 按用户要求，将此前 13→40 和本轮 40→72 的源码、示例、独立指南、平台适配记录、设计规范及测试作为同一版本提交，推送目标为 `origin/master`。提交前 fetch 核对远端基线仍为 `e08185e`；四个一次性生成脚本归档至被忽略的 `.impeccable/review/generation-scripts/`，截图、日志和构建产物继续保留在本地。
 
 本次只整理版本记录与提交范围，沿用上文已经完成的 H5／微信构建、单元与浏览器回归证据；提交前核对目录、文档链接及暂存差异。提交／远端最终状态以 Git 记录为准，历史“未提交／未推送”不代表当前状态。尚未发布组件包或 Release，原生真机及真实业务后端的缺项不变；下一步继续按覆盖清单与平台编号推进。
+
+## 2026-10-31：检查并拉取最新代码
+
+按用户要求在 `master` 执行 `git pull --ff-only origin master`，返回 `Already up to date.`。拉取前工作区干净；本地与 `origin/master` 均为 `59f2cdd`（扩充通用组件至72个），`git rev-list --left-right --count HEAD...origin/master` 为 `0 0`。本次没有新的远端代码变更，仅追加本进度记录并检查文档差异，未重跑构建或 UI 测试。平台验收等既有缺项不变，下一步按用户指定任务继续。
+
+## 2026-10-31：宣传官网、组件文档与手机效果预览
+
+按用户要求核查组件并实现类似 Wot UI 的官网结构。查阅线上 generator 与 Wot 仓库，确认其使用 VitePress，手机效果区是实际 H5 示例的 iframe，附有二维码和独立打开入口。Mori 新增 `site/` 官网，沿用已有灰蓝、系统字体和紧凑组件；首页提供真实组件体验、分类检索和平台进度，文档提供左侧目录、中间正文、右侧手机预览，窄屏可在正文前展开。
+
+72 份文档继续以 `docs/components/` 为来源，预览默认由其示例生成；`site/demos/` 为按钮、输入、上传等提供完整可操作示例。所有预览运行现有 `.uvue` / UTS 组件，核心模块没有替换为普通 Vue。新增 `pages/preview/preview.uvue`，提供组件目录、主题与重置；工具栏支持浅深主题、刷新、二维码与独立窗口。官网 H5 输出独立到 `unpackage/dist/site/h5`，普通工作台输出路径保持原样。
+
+新增 `site:dev`、`site:build`、`site:preview`、`site:refresh`、`test:site`。开发与构建流程、生成文件边界、局域网二维码及根路径静态部署见 [官网指南](website.md)。VitePress 使用 1.6.4，旧 Vite 链通过 override 固定到 6.4.5；开发服务与静态构建均实测，npm audit 为 0。修正 Upload 文档泛型被识别为 HTML 的写法及 Button 指南旧图标说明。
+
+本次验证：目录与打包检查、72 份指南／74 段示例结构和链接检查、完整单元测试通过；官网 H5、VitePress 与微信构建通过。Chromium 145 下全部 72 个真实示例完成 360px 挂载与溢出巡检；官网五组交互检查、1440／1280／768／390px 浅深布局、独立强制深色与弹层最终位置检查通过，无 pageerror／HTTP 资源错误。原基础 9 组和分类回归通过。修复文档右栏 flex 收缩造成的裁切、独立预览文本主题字段和开发服务器 demo 入口；弹层截图等待进入完成后重新采集。
+
+原始产物在被忽略的 `.impeccable/review/site-*`，兼容范围同步记录。官网本地地址为 `http://127.0.0.1:5180`，构建产物在 `dist/site`。没有提交、推送、发布组件包或部署公网；后续按用户反馈调整页面或接入域名与托管。现有原生／微信真机／Safari／鸿蒙／真实上传后端缺项不变，72 个挂载示例不等于全平台全状态验收。
+
+官网独立复核最终为 `ship`，范围为本次官网、文档和真实预览；十张指定截图有效，无剩余实质修复项，不替代用户视觉验收或目标设备验证。首轮要求重拍弹层，已等待透明度与实际位置到达终点后复核。独立 documenter 已同步 DESIGN.md 与 design.json 的官网字号、圆角、断点和行为，核对既有核心 token 与组件条目完整保留；旧 sidecar 的 kind／refersTo 漂移没有顺带改动。详细原始报告为 `.impeccable/review/site-independent-review.md`，本段保存最终结论。
+
+## 2026-11-01：核对开源准备与下一轮组件缺口
+
+用户询问开源组件库还需哪些工作，并再次指出 72 个组件不足。核对当前导出清单、能力边界、包元信息和仓库根目录，整理 16 个通用组件与 5 个可选业务组件候选，同时列出 Picker／Form／Cascader／TreeSelect 等现有组件的能力补强，见 [组件覆盖规划](component-coverage.md)。清单是建议，未新增组件，未将候选数写入官网或 manifest。
+
+根目录尚无项目自身 LICENSE、CONTRIBUTING、SECURITY、CHANGELOG 或 .github CI 配置，组件包也未声明 license 等发布元信息；已有测试脚本不等于自动 CI。开源许可、贡献流程、版本分发、官网部署和实际平台验收仍需补齐。本次仅核对并补充规划文档，检查差异，无组件代码改动，未重跑构建或 UI 回归。下一步优先推进通用复杂组件，并同步已有组件深度；许可证选择与正式发布另行明确。
+
+## 2026-11-01：88 组件通用能力补强
+
+用户批准继续补强后，在现有未提交官网工作上新增 16 个独立 easycom 组件：Autocomplete、TagInput、ColorPicker、DateRangePicker、Table、Descriptions、TextEllipsis、RichText、VirtualList、Waterfall、ImageCropper、Signature、QRCode、Video、Draggable、FloatingPanel。每个有独立指南和真实 .uvue 示例，manifest／官网目录与计数同步到 88；没有把组件模式和演示重复计数。
+
+同时补强 Form 异步校验、嵌套路径、JSON 初始值重置与过期结果保护；Picker 多列联动；Cascader 懒加载／失败重试；TreeSelect 父子联动／半选；SwipeCell 双侧多操作；ImagePreview 有界缩放／平移。Checkbox 新增 indeterminate。既有同步 Form、单列 Picker、单侧 SwipeCell 的默认接口保留。
+
+新增 advanced.uts 的数据与几何逻辑、platform/canvas.uts 的跨端 Canvas／H5 指针边界，以及保留 MIT 许可的 Nayuki QR 算法。签名与裁剪能导出真实 PNG；二维码以独立 jsQR 解码器验内容，jsqr 仅为开发测试依赖。static/mori-demo.webm 为本地 Canvas 生成的两秒 VP8 演示短片，无第三方素材。浏览器检查修复了裁剪预览比例和签名画布边框。文档检查现在兼容 CRLF，避免 Windows 示例被漏检。
+
+本轮已完成的验证：
+
+- check 与 check:docs：88 个精确目录、88 份指南、94 段 Vue/UTS 示例及 612 个本地链接通过。
+- 完整 test:unit 通过；新增真实 Vue setup 覆盖异步过期／清除／重置／异常、级联取消／失败、半选与上限、不可变排序、标签去重、日期取消、虚拟窗口、裁剪几何、拖拽／面板和双侧操作。二维码包含 ASCII、网址、中文／Emoji 与长数字解码回环。
+- H5、官网 VitePress、微信发行构建成功，Windows HBuilderX 5.34、Node 24.21.0。保留既有 Sass legacy/import、H5 withKeys／NodeListOf／onPageScroll 提示；最终构建未新增上述 Canvas 类型警告。
+- Chromium 145.0.7632.6：test:strengthened 16 组真实浏览器交互通过，包括 Canvas 像素／PNG、裁剪取样、显示二维码解码、千条列表第 500 行跳转且挂载行数受限、异步表单／选择、树半选、双侧动作、缩放重置与实际视频帧播放。
+- test:site 五组通过，全部 88 个文档和真实示例在 360px 挂载，无 pageerror／HTTP 错误／页面级横向溢出；1440／1280／768／390px 浅深主题与窄屏文档预览通过。一次设计检测为空列表。
+
+当前证据在被忽略的 .impeccable/review/strengthen-*、strengthened-verification.json 和 site-verification.json。独立复核与设计文档同步的最终结论见下段。未提交、推送、发布或公网部署；本地官网为 http://127.0.0.1:5180。
+
+边界：VirtualList 固定行高；Waterfall 依赖给定高度；RichText 为结构化展示；ColorPicker 为色板／hex；裁剪通过滑块定位，不含旋转；拖拽不含跨列表或边缘自动滚动；FloatingPanel 的屏幕定位由宿主负责。原生自动 Sticky、业务组件、地区包和文档上传未纳入本轮。原生 iOS／Android、微信真机、Safari、鸿蒙和真实业务服务仍待验收，Canvas/SVG/媒体格式的设备差异按新平台编号跟进。下一步按实际平台接入与开源发布要求推进。
+
+补充回归：在本轮官网 H5 产物上，原基础 9 组、表单、分类与第二轮扩展套件全部通过；扩展套件对操作区定位改为按具体动作识别，保留旧默认单侧模式的断言，不再假定 DOM 永远只有一侧。
+
+独立复核首轮提出五项：签名显示／导出比例、无缓冲虚拟列表半行窗口、空错误文案导致异步拒绝被误判通过、标签／颜色输入最终值、图片预览键盘边界。全部按失败回归修正，最终 reviewer 将五项均评分 resolved，remaining=clear、disposition=ship；该 verdict 只覆盖这五项修复。详见 [88 组件复核记录](expansion-review-88.md)。签名截图使用等长直角笔迹，导出像素宽高差不超过 2px；树半选重拍等待动画稳定。最终浏览器套件为 17 组通过，完整单元、H5／官网／微信构建及目录／指南检查均通过。
+
+独立 documenter 已同步 DESIGN.md 和 design.json：新增组件尺度、半选、多列／树联动、双侧操作、Canvas 图像比例及媒体／面板边界。对象级核验确认既有核心和官网 token、20 个预览条目及旧扩展字段保留。最后更新只补充 TagInput/ColorPicker 成功提交后重建编辑器、丢弃迟到输入的行为，无新 token 变化。
+
+本轮收尾完成；源码、官网和文档仍在当前工作区，未提交／推送。下一步按用户指定任务继续真机验收或开源发布准备，不把这些交付外事项当作本轮已完成。
+
+
+## 2026-11-02：修复未提交代码审查的四项问题
+
+按用户要求修复本轮审查发现的四项问题，保留已有官网与 88 组件扩展工作：
+
+- 非 WEB 尺寸查询统一使用 getBoundingClientRectAsync；Canvas 与图片预览共用几何适配，窗口变化更新缓存，卸载清理监听和迟到结果。签名按笔测量当前位置，查询期间的触点／结束事件按顺序处理，清空／禁用／卸载丢弃待处理触点；等待绘制时禁止导出，避免遗漏刚写下的笔迹。
+- Autocomplete 选择建议或键盘确认后重建 Input，丢弃宿主节流产生的旧回写，保持选中文本与收起状态。
+- Cascader 点击当前层级路径不取消加载／清除错误；返回祖先仍使迟到结果失效。
+- pages.json 的 MORI_PREVIEW 条件由 scripts/uni.mjs 显式开启并保留调用方其他自定义条件。HBuilderX 直接运行四个工作台页面，无需官网生成文件；npm 构建继续生成并编译第五个预览页面和 88 个示例。
+
+验证：check、check:docs（88 指南／94 示例／616 链接）与完整 test:unit 通过。补充的 platform-geometry 测试使用仅有异步查询的微信 UniElement 接口替身，并运行真实 Signature setup，覆盖测量失败／窗口竞态／取消监听、快速连续笔迹、清空、导出等待；最终补充测试通过。H5／VitePress／微信发行构建通过，最终微信产物中 geometry、canvas、image-preview 已无同步 getBoundingClientRect 调用。Chromium 145.0.7632.6 最终 17 组浏览器回归通过，包含快速输入后立即选中与加载中点击当前路径；官网五组／88 个示例巡检通过，签名导出保护补充后重新构建并执行了 17 组回归。
+
+另以 Git 可见源码创建干净副本，确认没有 catalog.uts／site-preview-content，直接调用 HBuilderX 5.34 编译器（不执行 site-prepare、不设置 UNI_CUSTOM_CONTEXT）完成 H5 构建，产物没有预览页面。这验证了直接 IDE 构建路径，不冒充原生 App 或真机验收。既有 Sass 弃用和 H5 withKeys 等提示保留；没有新增设备运行证据。
+
+文档已同步组件指南、API 说明、使用手册、官网／架构／验证说明、设计规范及兼容记录。日志与干净副本验证结果位于被忽略的 .impeccable/review/fix-review-* 和 ide-clean-verification.json。官网静态预览仍为 http://127.0.0.1:5180。未提交、推送或发布。下一步按用户指示继续，微信／iOS／Android／Safari／鸿蒙实际设备验收仍待完成。
+
+## 2026-11-02：任务进度核对与 iOS 上传未完成项
+
+按用户要求查看「拉取一下最新的代码吧」聊天（01a19216-a0d8-7621-b230-2d2d21f231a6）。该聊天在 09:14:51（Asia/Shanghai）因模型 token rate limit 中断，状态为 systemError；最新工作是 iOS 系统相册与上传适配，尚未收尾。
+
+本地已有 mori-upload-ios 原生模块、PHPicker 相册读取与临时文件复制、URLSession 上传、UTS 桥接及取消／文件释放逻辑。原聊天记录显示 upload-transport、upload-ios、extension-components 定向测试通过；iOS 测试使用桥接替身，不能证明 Swift 编译或真机运行通过。本次只核对聊天记录和当前文件，没有重跑测试或构建。
+
+待办：继续复核原生实现，补充模块接入与平台说明，将 upload-ios 测试接入常规测试脚本，验证改动后的跨端构建，并在具备 iOS 工具链与设备时完成原生编译、相册／iCloud 与真实上传验收。上一节四项修复的构建证据早于本次上传修改，不能直接覆盖新代码。当前仍有未提交源码；HEAD 与本地 origin/master 引用均为 59f2cdd，本次未 fetch、提交或推送。下一步由用户指定是否继续此未完成工作。
+
+## 2026-11-02：继续完成 iOS 相册上传源码与本机验证
+
+按用户要求接续此前中断的工作。APP-IOS 的默认选择与上传接入同级 `mori-upload-ios` 模块：PHPicker 读取所选照片（等待 iCloud），在系统回调 URL 失效前复制至应用临时目录；拍照使用 UIImagePickerController 并实际编码 JPEG；URLSession 执行可取消的前台 multipart 上传。原生模块最低 iOS 14，宿主框架更高的最低版本要求仍适用；新增相机用途 Info.plist 和随模块分发的 README。其他平台继续使用 uni 媒体与网络 API，预览仍用 uni.previewImage。
+
+复核时新增回归，实际复现旧上传失败回调会中断同文件新重试；已改为按请求实例检查回调。补齐默认文件在拒绝、异常、清空、禁用、外部移除、远端 URL 替换和卸载时的所有权测试；自定义 chooseFiles 文件仍由调用方管理。Swift 复制失败路径补上部分目标文件清理，但此分支未在原生环境执行。upload-ios 桥接测试已纳入 test:unit，打包检查要求两个模块与原生配置完整。
+
+本次验证：check、check:docs、完整 test:unit 通过；HBuilderX 5.34 的官网 H5／VitePress 与微信发行构建通过（调用者 Node 24.21.0）。保留已有 Sass 弃用、H5 withKeys／onPageScroll 等提示。Chromium 145.0.7632.6 的 test:catalog 通过，另验证 Upload 文档、390px 深色真实选图／中文文件名／等待态／删除，无 pageerror，截图已查看；微信上传产物核对没有 iOS 桥接依赖。日志与截图为 `.impeccable/review/ios-upload-*`，汇总为 ios-upload-verification.json。
+
+接入、生命周期、平台编号、设计行为与兼容记录已同步；官网预览为 http://127.0.0.1:5180/components/upload。源码与本机可执行的收尾已完成，未提交、推送或发布。仍缺 Xcode／iOS SDK／签名／设备与真实业务服务，因此没有 Swift 编译、相册／iCloud 实际读取、HEIC／相机编码、原生上传或后台行为通过的结论。下一步在 iOS 环境制作含本模块的自定义基座，按 MORI-UP-IOS-01 至 06 验收；没有实现后台续传、默认文档选择、HEIC 转码或跨进程持久恢复。
+
+## 2026-11-02：补齐插件使用指南并整理提交与推送
+
+按用户要求，将当前积累的官网、72→88 组件扩展、审查修复、iOS 上传模块及文档统一纳入本次提交，推送目标为 origin/master。提交前 fetch 确认远端仍为 59f2cdd，与本地提交基线一致，无分叉。截图、日志、生成示例、构建输出与依赖目录继续按 .gitignore 排除；源码中保留可复现的生成脚本和关键验证结论。
+
+新增 [iOS 上传插件使用指南](ios-upload.md)：两个模块的复制安装、权限／自定义基座、完整 .uvue 页面示例、服务端协议、临时文件生命周期、插件 API、常见问题与验证边界。README、使用手册、Upload 文档及插件 README 增加入口，官网左侧「开始使用」增加插件导航。
+
+本次 check、check:docs、指南示例结构与真实属性／事件核对通过；VitePress 文档构建成功，Chromium 实际检查 /ios-upload 的标题、内容及侧栏入口，无 pageerror。暂存检查清理了 vendor/qrcodegen.uts 的行尾空格，核对非空白内容完全相同，许可保留。组件行为没有变化，沿用上一节已完成的完整单元、H5／微信构建与上传浏览器回归证据，没有为文档重复整套 UI 构建。提交／远端最终状态以 Git 记录为准，前文“未提交／未推送”对应当时状态。未发布组件包或部署公网，下一步仍是 iOS 原生编译、设备与真实服务验收。

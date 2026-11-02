@@ -1,0 +1,25 @@
+<template>
+<view class="mori-video"><video v-if="src.length > 0" :key="revision" :id="videoId" class="mori-video__player" :style="'height:' + height + 'px'" :src="src" :poster="poster" :controls="controls" :autoplay="autoplay" :muted="muted" :loop="loop" :object-fit="objectFit" :aria-label="title" @play="emit('play')" @pause="emit('pause')" @ended="emit('ended')" @timeupdate="emit('timeUpdate', $event.detail.currentTime, $event.detail.duration)" @error="failed" /><mori-empty v-else title="暂无视频" description="请设置视频地址" /><view v-if="error.length > 0"><mori-text :text="error" tone="danger" /><mori-button label="重试播放" variant="text" @click="retry" /></view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, watch, onUnmounted, getCurrentInstance } from 'vue'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
+const props = defineProps({ src: { type: String, default: '' }, poster: { type: String, default: '' }, title: { type: String, default: '视频' }, height: { type: Number, default: 200 }, controls: { type: Boolean, default: true }, autoplay: { type: Boolean, default: false }, muted: { type: Boolean, default: false }, loop: { type: Boolean, default: false }, objectFit: { type: String, default: 'contain' } })
+const emit = defineEmits(['play', 'pause', 'ended', 'timeUpdate', 'error', 'retry'])
+const videoId = createMoriFieldId(), instance = getCurrentInstance()
+const error = ref(''), revision = ref(0)
+function play() { if (props.src.length > 0) uni.createVideoContext(videoId,instance!.proxy!)?.play() }
+function pause() { if (props.src.length > 0) uni.createVideoContext(videoId,instance!.proxy!)?.pause() }
+function seek(seconds: number) { if (Number.isFinite(seconds) && seconds >= 0 && props.src.length > 0) uni.createVideoContext(videoId,instance!.proxy!)?.seek(seconds) }
+function failed() { error.value = '视频播放失败，请检查网络或文件格式'; emit('error',error.value) }
+function retry() { error.value = ''; revision.value++; emit('retry') }
+watch(() => props.src, () => { error.value = ''; revision.value++ })
+onUnmounted(pause)
+defineExpose({ play, pause, seek })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-video__player { width: 100%; border-radius: 8px; background-color: #14171c; }
+</style>

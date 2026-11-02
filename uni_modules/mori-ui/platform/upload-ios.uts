@@ -1,0 +1,21 @@
+import { MoriPickedFile, MoriUploadFile, MoriUploadRequest } from '../upload.uts'
+import { chooseIOSImages, uploadIOSFile, cancelIOSTask, releaseIOSFile } from '../../mori-upload-ios'
+
+/** APP-IOS only. System photo resources are copied by the native bridge before this callback. */
+export function chooseMoriIOSImages(count: number, sourceType: string[], success: (files: MoriPickedFile[]) => void, fail: (message: string, cancelled: boolean) => void): () => void {
+ let stopped = false
+ const id = chooseIOSImages(JSON.stringify({ count: Math.max(1, Math.min(9,count)), sourceType }), (response: string) => {
+  const entries = JSON.parseArray<UTSJSONObject>(response)
+  if (entries == null) { if (!stopped) fail('原生选择器返回的数据无效',false); return }
+  const files = entries.map((entry: UTSJSONObject): MoriPickedFile => ({ path: entry['path'] as string, name: entry['name'] as string, size: entry['size'] as number, type: entry['type'] as string }))
+  if (stopped) { files.forEach((file: MoriPickedFile) => releaseIOSFile(file.path)); return }
+  success(files)
+ }, (message: string, cancelled: boolean) => { if (!stopped) fail(message,cancelled) })
+ return () => { if (stopped) return; stopped = true; cancelIOSTask(id) }
+}
+export function startMoriIOSUpload(file: MoriUploadFile, options: MoriUploadRequest, progress: (value: number) => void, success: (response: string) => void, fail: (message: string) => void): () => void {
+ let stopped = false
+ const id = uploadIOSFile(file.url,file.name,JSON.stringify(options), (value: string) => { if (!stopped) { const percent = parseFloat(value); if (Number.isFinite(percent)) progress(Math.max(0,Math.min(100,percent))) } }, (response: string) => { if (!stopped) success(response) }, (message: string) => { if (!stopped) fail(message) })
+ return () => { if (stopped) return; stopped = true; cancelIOSTask(id) }
+}
+export function releaseMoriIOSFile(path: string) { releaseIOSFile(path) }

@@ -1,0 +1,26 @@
+<template>
+<scroll-view scroll-y class="mori-virtual-list" :style="'height:' + viewport + 'px'" :scroll-top="targetTop" @scroll="scroll"><view :style="'height:' + range[0] * size + 'px'" /><view v-for="(item,index) in visible" :key="item.id" class="mori-virtual-list__row" :style="'height:' + size + 'px;box-sizing:border-box;border-color:' + moriPalette.border + ';color:' + moriPalette.text"><slot :item="item" :index="range[0] + index"><text>{{ item.label }}</text></slot></view><view :style="'height:' + Math.max(0, items.length - range[1]) * size + 'px'" /><mori-empty v-if="items.length == 0" title="暂无数据" description="" /></scroll-view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, watch, nextTick, PropType } from 'vue'
+import { MoriDataItem, moriVirtualRange, moriNumber } from '../../advanced.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ items: { type: Array as PropType<MoriDataItem[]>, default: (): MoriDataItem[] => [] }, itemHeight: { type: Number, default: 44 }, height: { type: Number, default: 320 }, overscan: { type: Number, default: 3 } })
+const emit = defineEmits(['scroll', 'rangeChange'])
+const top = ref(0), targetTop = ref(0)
+const size = computed((): number => moriNumber(props.itemHeight, 44, 1, 10000))
+const viewport = computed((): number => moriNumber(props.height, 320, 44, 3000))
+const range = computed((): number[] => moriVirtualRange(props.items.length, top.value, size.value, viewport.value, props.overscan))
+const visible = computed((): MoriDataItem[] => props.items.slice(range.value[0], range.value[1]))
+watch(range, (value: number[]) => emit('rangeChange', value.slice()))
+watch(() => props.items.length, () => { const limit = Math.max(0, props.items.length * size.value - viewport.value); if (top.value > limit) { top.value = limit; targetTop.value = limit } })
+function scroll(event: UniScrollEvent) { top.value = Math.max(0, event.detail.scrollTop); emit('scroll', top.value) }
+async function scrollToIndex(index: number) { const next = Math.max(0, Math.min(Math.max(0, props.items.length * size.value - viewport.value), Math.floor(index) * size.value)); targetTop.value = top.value; await nextTick(); targetTop.value = next; top.value = next }
+defineExpose({ scrollToIndex })
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-virtual-list { width: 100%; }.mori-virtual-list__row { display: flex; justify-content: center; padding: 0 12px; border-bottom: 1px solid; overflow: hidden; font-size: 13px; }
+</style>

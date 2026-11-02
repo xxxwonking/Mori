@@ -1,0 +1,22 @@
+<template>
+<view class="mori-table"><mori-loading v-if="loading" text="正在加载表格" /><mori-empty v-else-if="rows.length == 0" :title="emptyText" description="" /><scroll-view v-else scroll-x style="width:100%"><view role="table" :aria-label="label" :style="'min-width:' + tableWidth + 'px'"><view class="mori-table__row" role="row" :style="'background-color:' + moriPalette.ground"><view v-for="column in columns" :key="column.key" role="columnheader" :aria-sort="sortKey == column.key ? (descending ? 'descending' : 'ascending') : 'none'" :style="cellStyle(column)"><button v-if="column.sortable" class="mori-action mori-table__sort" role="button" tabindex="0" :style="'color:' + moriPalette.text" @click="sort(column.key)" @keydown.enter.prevent="sort(column.key)" @keydown.space.prevent="sort(column.key)">{{ column.label }}<mori-icon :name="sortKey == column.key && descending ? 'chevron-down' : 'chevron-up'" :size="14" /></button><text v-else>{{ column.label }}</text></view></view><view v-for="(row,index) in sorted" :key="String(row[rowKey] ?? index)" class="mori-table__row" role="row" :style="'border-color:' + moriPalette.border" @click="emit('rowClick', row, index)"><view v-for="column in columns" :key="column.key" role="cell" :style="cellStyle(column)"><slot name="cell" :row="row" :column="column" :index="index"><text>{{ row[column.key] == null ? '—' : row[column.key] }}</text></slot></view></view></view></scroll-view></view>
+</template>
+
+<script setup lang="uts">
+import { ref, computed, PropType } from 'vue'
+import { MoriTableColumn, moriNumber } from '../../advanced.uts'
+import { moriPalette } from '../../theme.uts'
+const props = defineProps({ rows: { type: Array as PropType<UTSJSONObject[]>, default: (): UTSJSONObject[] => [] }, columns: { type: Array as PropType<MoriTableColumn[]>, default: (): MoriTableColumn[] => [] }, rowKey: { type: String, default: 'id' }, label: { type: String, default: '数据表格' }, loading: { type: Boolean, default: false }, emptyText: { type: String, default: '暂无数据' } })
+const emit = defineEmits(['sortChange', 'rowClick'])
+const sortKey = ref(''), descending = ref(false)
+function width(column: MoriTableColumn): number { return moriNumber(column.width ?? 120, 120, 64, 1000) }
+const tableWidth = computed((): number => props.columns.reduce((sum: number, col: MoriTableColumn): number => sum + width(col), 0))
+function cellStyle(column: MoriTableColumn): string { return 'width:' + width(column) + 'px;flex-shrink:0;padding:10px 8px;box-sizing:border-box;color:' + moriPalette.value.text + ';font-size:13px;line-height:20px' }
+const sorted = computed((): UTSJSONObject[] => { if (sortKey.value.length == 0) return props.rows; return props.rows.slice().sort((a: UTSJSONObject, b: UTSJSONObject): number => { const av = a[sortKey.value], bv = b[sortKey.value]; const diff = av == null ? (bv == null ? 0 : 1) : bv == null ? -1 : typeof av == 'number' && typeof bv == 'number' ? (av as number) - (bv as number) : String(av).localeCompare(String(bv)); return descending.value ? -diff : diff }) })
+function sort(key: string) { if (props.loading || !props.columns.some((column: MoriTableColumn): boolean => column.key == key && column.sortable == true)) return; descending.value = key == sortKey.value ? !descending.value : false; sortKey.value = key; emit('sortChange', key, descending.value ? 'desc' : 'asc') }
+</script>
+
+<style lang="scss">
+@import '../../styles/action.scss';
+.mori-table { width: 100%; overflow: hidden; border-radius: 8px; }.mori-table__row { display: flex; flex-direction: row; border-bottom: 1px solid; }.mori-table__sort { width: 100%; min-height: 24px; padding: 0; justify-content: space-between; }
+</style>

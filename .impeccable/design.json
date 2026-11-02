@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-31T02:48:44.716Z",
+  "generatedAt": "2026-11-01T03:31:24.912Z",
   "title": "Design System: Mori UI",
   "extensions": {
     "colorMeta": {
@@ -269,6 +269,11 @@
           "oklch(86% 0.0000 0.0)",
           "oklch(95% 0.0000 0.0)"
         ]
+      },
+      "video-ground": {
+        "role": "neutral",
+        "displayName": "视频媒体底",
+        "purpose": "Video 的固定媒体背景；只承载未填满的区域，不替换浅深主题内容表面。"
       }
     },
     "typographyMeta": {
@@ -319,6 +324,66 @@
       "count-to": {
         "displayName": "数值展示",
         "purpose": "CountTo 的结果数字；H5 使用 tabular-nums。"
+      },
+      "website-display": {
+        "displayName": "官网主标题",
+        "purpose": "首页首屏标题；最大 1023px 时改用 website-display-compact。"
+      },
+      "website-display-compact": {
+        "displayName": "官网紧凑主标题",
+        "purpose": "中小屏首页主标题，仍使用系统字体。"
+      },
+      "website-doc-title": {
+        "displayName": "官网文档标题",
+        "purpose": "VitePress 文档 h1；未覆盖的行高与字重继承主题。"
+      },
+      "website-heading": {
+        "displayName": "官网分节标题",
+        "purpose": "首页分节标题；手机改用 website-heading-compact。"
+      },
+      "website-heading-compact": {
+        "displayName": "官网紧凑分节标题",
+        "purpose": "首页收尾标题及手机分节标题。"
+      },
+      "website-closing-compact": {
+        "displayName": "官网手机收尾标题",
+        "purpose": "最大 767px 的首页收尾标题。"
+      },
+      "website-lead": {
+        "displayName": "官网首屏说明",
+        "purpose": "首页首屏说明；最大 1023px 时改用 website-body。"
+      },
+      "website-principle-title": {
+        "displayName": "官网特性标题",
+        "purpose": "首页特性小标题；不改变核心 Card 标题。"
+      },
+      "website-body": {
+        "displayName": "官网阅读正文",
+        "purpose": "文档段落及中小屏首页说明。"
+      },
+      "website-mark": {
+        "displayName": "官网字标",
+        "purpose": "顶部 Mori UI 字标，与既有三竖线图形配对。"
+      },
+      "website-action": {
+        "displayName": "官网接入链接",
+        "purpose": "首页接入及浏览入口的文字，独立于核心 Button。"
+      },
+      "website-metadata": {
+        "displayName": "官网预览底注",
+        "purpose": "真实预览框底部说明和独立打开链接。"
+      },
+      "website-count": {
+        "displayName": "官网分类数量",
+        "purpose": "分类标签中的数量，CSS 使用 tabular-nums；不是组件标签字号。"
+      },
+      "reading-content": {
+        "displayName": "结构化阅读内容",
+        "purpose": "TextEllipsis 与 RichText 容器的 13px／22px 阅读尺度；RichText 内部段落另用 1.7 行高。"
+      },
+      "data-label": {
+        "displayName": "数据与画布标签",
+        "purpose": "Descriptions 键名与 Signature 的说明文字，保持 12px 标签尺度。"
       }
     },
     "motion": [
@@ -391,6 +456,16 @@
         "name": "back-top",
         "value": "280ms host scroll",
         "purpose": "默认返回页面顶部；H5 减少动态效果时宿主滚动时长归零。"
+      },
+      {
+        "name": "website-reduced-motion",
+        "value": "scroll-behavior: auto; animation-duration: .01ms; transition-duration: .01ms",
+        "purpose": "官网 prefers-reduced-motion: reduce 的覆盖；默认页面平滑滚动，iframe 内仍由真实组件处理动态效果偏好。"
+      },
+      {
+        "name": "advanced-direct-manipulation",
+        "value": "direct; no added transition",
+        "purpose": "ImagePreview 的变换、ImageCropper 参数和 Signature 笔迹直接响应输入；Draggable 松开更新顺序，FloatingPanel 直接调整高度并吸附最近档位，不引入装饰动画。DateRangePicker 复用 Popup 动效。"
       }
     ],
     "breakpoints": [
@@ -405,6 +480,26 @@
       {
         "name": "workbench-wide",
         "value": "1360px"
+      },
+      {
+        "name": "website-phone",
+        "value": "767px",
+        "purpose": "max-width；首页单列、目录两列，标题与留白缩小。"
+      },
+      {
+        "name": "website-compact",
+        "value": "1023px",
+        "purpose": "max-width；缩小首页左右留白及预览列，采用紧凑主标题。"
+      },
+      {
+        "name": "website-inline-preview",
+        "value": "1279px",
+        "purpose": "max-width；文档正文前显示可展开预览。"
+      },
+      {
+        "name": "website-wide-doc",
+        "value": "1440px",
+        "purpose": "min-width；无侧栏文档仍使用最大 1320px 内容区。"
       }
     ],
     "shadows": [
@@ -412,6 +507,16 @@
         "name": "switch-thumb",
         "value": "0 1px 3px rgba(0,0,0,0.14)",
         "purpose": "H5 滑块轻微投影。"
+      },
+      {
+        "name": "website-hero-light",
+        "value": "0 24px 64px rgba(29, 36, 48, .1)",
+        "purpose": "官网首页真实预览框的浅色投影；文档框与核心控件不使用。"
+      },
+      {
+        "name": "website-hero-dark",
+        "value": "0 24px 64px rgba(0, 0, 0, .28)",
+        "purpose": "官网首页真实预览框的深色投影。"
       }
     ],
     "componentPatterns": [
@@ -519,7 +624,7 @@
           "{components.button-solid}",
           "{components.button-outline}"
         ],
-        "description": "Picker 组合 RadioGroup、Loading、Empty 和底部 Popup，以草稿选择、取消、确认组织操作；加载或无有效选项时禁用确认，不另造滚轮皮肤。\n\nCalendar 使用七列日期网格。日期按钮至少 44px，单元格至少 46px；月标题 14px、星期 11px、日期标记 9px。单选、多选以及范围端点使用 primary／onPrimary，中间日期使用 soft／primary；选择只改变颜色，不能改变日期格外部尺寸。禁用日期不可选，区间受限时显示文字说明，确认使用既有 Button。\n\nDatetimePicker 组合 Calendar 与 Stepper，按 date／time／datetime 显示日期和时间，摘要用辅助色或错误色；取消保留原值，确认才提交有效草稿。Picker 与 DatetimePicker 的操作使用现有 36px Button，继承 Popup 的主题、动效和关闭生命周期。",
+        "description": "Picker 组合 RadioGroup、Loading、Empty 和底部 Popup，以草稿选择、取消、确认组织操作；加载或无有效选项时禁用确认，不另造滚轮皮肤。多列模式将各列并排放入 picker-column 高度的独立滚动区，列间距 8px；联动时上游改变会清空后续列草稿，所有列选择有效后才能确认。单列默认模式保留。\n\nCalendar 使用七列日期网格。日期按钮至少 44px，单元格至少 46px；月标题 14px、星期 11px、日期标记 9px。单选、多选以及范围端点使用 primary／onPrimary，中间日期使用 soft／primary；选择只改变颜色，不能改变日期格外部尺寸。禁用日期不可选，区间受限时显示文字说明，确认使用既有 Button。\n\nDatetimePicker 组合 Calendar 与 Stepper，按 date／time／datetime 显示日期和时间，摘要用辅助色或错误色；取消保留原值，确认才提交有效草稿。Picker 与 DatetimePicker 的操作使用现有 36px Button，继承 Popup 的主题、动效和关闭生命周期。",
         "foreground": "Calendar 选中端点使用运行时 moriPalette.onPrimary；默认浅色前景只是 frontmatter 的静态结果。"
       },
       {
@@ -536,7 +641,7 @@
           "{rounded.control}",
           "{components.button-outline}"
         ],
-        "description": "Upload 以列表展示图片，文件行使用 1px 主题边框、8px 圆角、8px 内边距与 48px 缩略图。文件名 12px，提示与状态 11px；上传中复用 Progress，失败使用 danger 文字与明确重试操作。选择按钮复用 outline Button，删除使用带名称的图标。等待、上传中、完成、失败都保留文字说明，不能仅以图片或颜色表达状态。"
+        "description": "Upload 以列表展示图片，文件行使用 1px 主题边框、8px 圆角、8px 内边距与 48px 缩略图。文件名 12px，提示与状态 11px；上传中复用 Progress，失败使用 danger 文字与明确重试操作。选择按钮复用 outline Button，删除使用带名称的图标。等待、上传中、完成、失败都保留文字说明，不能仅以图片或颜色表达状态。iOS 默认使用系统来源面板与 PHPicker，相册资源读取期间保持选择按钮忙碌，取消不显示错误；拍照单独请求相机权限。视觉尺寸不变，临时文件与原生验证边界见 Upload 指南。"
       },
       {
         "name": "媒体与头像",
@@ -555,7 +660,7 @@
           "{components.avatar}",
           "{components.swiper}"
         ],
-        "description": "Image 默认占满容器宽度、高 160px、8px 圆角，地色承载加载和失败占位；占位沿用 Loading、图标与 12px 文案。换图时重置状态，图片加载不改变外部尺寸。Avatar 默认圆形，方形版本使用 8px 圆角；默认尺寸见 frontmatter，失败后显示姓名首字与主色柔和底。AvatarGroup 用表面色细边分隔重叠头像，超出数量用明确的数字说明。\n\nSwiper 的标题位于图片内的主题表面上，文字 13px；指示点使用主色。只有当前页进入 Tab 顺序，左右键翻页后将焦点移到新页，H5 聚焦不滚动容器。ImagePreview 使用居中 Popup、适应完整图片的 280px 图片区和小档翻页按钮；空集合显示 Empty。默认仅浏览和翻页，宿主缩放需显式启用 nativePreview。"
+        "description": "Image 默认占满容器宽度、高 160px、8px 圆角，地色承载加载和失败占位；占位沿用 Loading、图标与 12px 文案。换图时重置状态，图片加载不改变外部尺寸。Avatar 默认圆形，方形版本使用 8px 圆角；默认尺寸见 frontmatter，失败后显示姓名首字与主色柔和底。AvatarGroup 用表面色细边分隔重叠头像，超出数量用明确的数字说明。\n\nSwiper 的标题位于图片内的主题表面上，文字 13px；指示点使用主色。只有当前页进入 Tab 顺序，左右键翻页后将焦点移到新页，H5 聚焦不滚动容器。ImagePreview 使用居中 Popup、280px 裁切视口和小档翻页按钮；空集合显示 Empty。内置缩放默认开启，上限默认四倍，提供触摸缩放／平移、方向键平移和放大／缩小／重置按钮；变换限制在图片边界内，切换图片或开关预览时复位。nativePreview 仍是另行开启的宿主预览入口。"
       },
       {
         "name": "内容容器与状态",
@@ -623,7 +728,7 @@
           "{colors.primary}",
           "{colors.danger}"
         ],
-        "description": "Cascader 在底部 Popup 中以可换行的已选路径、至少 44px 的分隔选项行和取消／确认按钮呈现层级；末级才允许确认，加载、禁用和无有效路径时禁用确认。TreeSelect 用每层 16px 缩进、分支箭头和既有 Checkbox 组织树，只选择叶子；到达上限仍可取消已选项。\n\nNumberKeyboard 是内联三列键盘，可放入 Popup；地色容器、表面色按键、至少 44px 键高和 keyboard-key 文字层级用于数字操作。PasswordInput 是受控展示格，以一条 1px 边框、6px 圆角和 compact-gap 间距表达每位字符；默认遮掩圆点，焦点与错误只改变描边颜色，说明使用 11px。点击请求业务展开键盘，可访问名称只描述已输入位数；这套组合不提供密码验证或安全键盘能力。"
+        "description": "Cascader 在底部 Popup 中以可换行的已选路径、至少 44px 的分隔选项行和取消／确认按钮呈现层级；末级才允许确认，加载、禁用和无有效路径时禁用确认。懒加载沿用 Loading，失败使用错误文字与明确重试，取消或返回上级后不接收迟到的子项结果。点击当前层级的路径按钮不改变草稿，也不取消加载或清除错误；只有返回更上层才使当前请求失效。TreeSelect 用每层 16px 缩进、分支箭头和既有 Checkbox 组织树；默认只选择叶子，关闭 checkStrictly 后父级联动可选叶子，以全选／半选反映后代状态。超过上限不部分提交，已有选择仍可取消。\n\nNumberKeyboard 是内联三列键盘，可放入 Popup；地色容器、表面色按键、至少 44px 键高和 keyboard-key 文字层级用于数字操作。PasswordInput 是受控展示格，以一条 1px 边框、6px 圆角和 compact-gap 间距表达每位字符；默认遮掩圆点，焦点与错误只改变描边颜色，说明使用 11px。点击请求业务展开键盘，可访问名称只描述已输入位数；这套组合不提供密码验证或安全键盘能力。"
       },
       {
         "name": "列表与手势反馈",
@@ -642,7 +747,156 @@
           "{colors.surface}",
           "{colors.border}"
         ],
-        "description": "LoadMore 以至少 48px 的状态行、加载文案、结束文案与明确重试操作区分状态，错误操作使用 danger。List 组合该状态行与内容插槽，加载中阻止重复请求；PullRefresh 组合宿主下拉刷新与显式刷新按钮，键盘仍有入口。业务完成后应同步归还 loading 状态，包括同一更新批次内完成的请求。\n\nIndexBar 将内容滚动区与 40px 索引栏并排，索引操作为 36px，标题和索引文字 12px；索引选择与有效模型变化驱动定位，异步新增或重排分组后仍按索引值找目标，自由滚动不自动改变模型。SwipeCell 保持外框尺寸，以内容平移揭示右侧单一操作；危险操作用错误柔和底和错误文字，保留显式展开／收起按钮及竖向滚动优先行为。操作只发事件，不替业务删除条目。"
+        "description": "LoadMore 以至少 48px 的状态行、加载文案、结束文案与明确重试操作区分状态，错误操作使用 danger。List 组合该状态行与内容插槽，加载中阻止重复请求；PullRefresh 组合宿主下拉刷新与显式刷新按钮，键盘仍有入口。业务完成后应同步归还 loading 状态，包括同一更新批次内完成的请求。\n\nIndexBar 将内容滚动区与 40px 索引栏并排，索引操作为 36px，标题和索引文字 12px；索引选择与有效模型变化驱动定位，异步新增或重排分组后仍按索引值找目标，自由滚动不自动改变模型。SwipeCell 保持外框尺寸，以内容平移揭示左／右侧多个操作；每项默认宽度见 swipe-cell-action，普通操作使用主色柔和底与主色文字，危险操作使用错误柔和底和错误文字。保留显式左侧入口、展开／收起按钮及竖向滚动优先行为，隐藏侧操作退出 Tab 顺序。未配置动作数组时仍提供原有右侧单一操作；操作只发事件，不替业务删除条目。"
+      },
+      {
+        "name": "官网与真实组件预览",
+        "components": [
+          "website-action-primary",
+          "website-action-secondary",
+          "website-preview-frame",
+          "website-preview-tab-selected",
+          "website-principles"
+        ],
+        "tokenReferences": [
+          "{typography.website-display}",
+          "{typography.website-doc-title}",
+          "{typography.website-action}",
+          "{typography.website-metadata}",
+          "{rounded.website-frame}",
+          "{rounded.website-code}",
+          "{rounded.website-section}",
+          "{rounded.website-tab}",
+          "{spacing.website-gutter}",
+          "{spacing.website-gutter-medium}",
+          "{spacing.website-gutter-small}",
+          "{spacing.website-section-inset}",
+          "{spacing.website-section-gap}",
+          "{spacing.website-grid-gap}",
+          "{spacing.website-action-gap}"
+        ],
+        "description": "官网接入链接使用 website-action-primary／secondary，frontmatter 的 height 记录最小高度；它们是站点链接，不是 Mori Button 的新默认档位。主要链接以蓝色背景强调，次要链接用一条主题边框。浅深主题使用网站的 VitePress 语义变量；深色主操作为浅蓝背景配深色文字。指针悬停改变背景，键盘焦点使用 2px 主色 outline 与 4px 外偏移；该网站焦点样式不进入 iframe，也不替换核心 Input 的单边框规则。\n\n首页预览切换按钮用柔和底与主色标记当前项，并同步 aria-pressed；分类导航始终预留 2px 底边。预览工具栏提供具名的主题、刷新、二维码和独立打开图标入口。桌面工具入口为 30×32px，手机至少 32×36px；工具栏至少 48px。二维码浮层说明当前链接的可访问范围，生成失败保留文字与独立打开入口。\n\nComponentPreview 运行真实 H5 iframe，文档路由决定组件，主题与刷新通过重新挂载示例生效。初始预览随官网浅深主题，工具栏允许单独覆盖；示例页内部继续提供 auto／light／dark 三种选择与重置。示例页沿用核心语义主题、14px 标题、12px 说明和 11px 底注，使用现有小档 Button；外部官网样式不重绘组件效果。预览只能提供实际 H5 体验，不扩展其他平台的验证结论。",
+        "layout": "官网首页容器最大 1200px，左右留白依次使用 website-gutter、website-gutter-medium、website-gutter-small；切换点为最大 1023px 与最大 767px。首屏桌面为正文加 376px 预览双列，中等宽度预览缩为 340px，手机改为单列且预览最大 376px。组件目录桌面四列、手机两列；长组件名允许换行，搜索无结果时保留文字反馈。首页分节留白和双列内容只适用于官网。\n\n文档左侧栏为 244px，带预览的正文最大 760px、整体内容区最大 1320px；右侧预览占 338px，其中左留白 22px、框体 316px。最大 1279px 时在正文前提供可展开预览，展开才挂载其 iframe，切换组件路由后收起。普通预览屏使用 min(580px, calc(100dvh - 220px)) 并至少 340px；手机普通预览为 480px，首页桌面／手机预览分别为 468px／460px。以上尺寸是演示视口，不是组件或设备的支持边界。",
+        "source": [
+          "site/.vitepress/theme/style.css",
+          "site/.vitepress/theme/Layout.vue",
+          "site/.vitepress/theme/MoriHome.vue",
+          "site/.vitepress/theme/ComponentPreview.vue",
+          "pages/preview/preview.uvue"
+        ],
+        "scope": "仅官网与文档展示；组件仍由 uni_modules/mori-ui/ 的 theme.uts、tokens.scss 与 .uvue 实现。website-* 不改变核心 36px 默认高度、13px 控件文字或现有语义颜色。"
+      },
+      {
+        "name": "辅助与复合录入",
+        "components": [
+          "autocomplete",
+          "tag-input",
+          "color-picker",
+          "date-range-picker"
+        ],
+        "tokenReferences": [
+          "{components.autocomplete-list}",
+          "{components.color-picker-swatch}",
+          "{components.input}",
+          "{components.button-outline}",
+          "{components.calendar-selected}",
+          "{components.calendar-range-middle}",
+          "{spacing.compact-gap}"
+        ],
+        "description": "Autocomplete 组合既有 Input 与下方建议列表，列表使用 surface、单边框和 autocomplete-list 形状，上方间距 6px、最大高度 300px；加载、错误和无结果都有文字状态，禁用建议不可选，并保留收起入口。它是布局内建议区，不是浮层。选择建议或键盘确认后重建内部 Input，结束当前编辑并丢弃迟到的输入事件，保持已提交文本与收起状态。TagInput 组合可关闭 Tag、Input 和 outline Button，标签按 compact-gap 换行，录入行底部对齐；重复、超长或超限保留错误文字，禁用时隐藏标签关闭操作。\n\nColorPicker 使用 color-picker-swatch 色块，始终保留 2px 边框，选中只改变边框色并显示 16px 勾。色块间距 8px，可换行；十六进制输入和应用操作复用 Input／Button，非法输入沿用字段错误。TagInput 与 ColorPicker 在结束编辑时接收最终文本，紧接着点击添加／应用也使用当前草稿。成功提交后结束本次编辑并重建内部 Input，清理宿主缓存，丢弃旧编辑器迟到的回写；TagInput 保持已清空的草稿，ColorPicker 保持规范化后的颜色。键盘确认遵循同一行为，失败时保留草稿供继续修正。DateRangePicker 复用范围 Calendar 与 Popup，选中起止与中间区域沿用现有范围颜色；取消丢弃草稿，只有完整有效区间才确认。"
+      },
+      {
+        "name": "结构化内容",
+        "components": [
+          "table",
+          "descriptions",
+          "text-ellipsis",
+          "rich-text"
+        ],
+        "tokenReferences": [
+          "{components.table}",
+          "{components.table-cell}",
+          "{components.descriptions-label}",
+          "{typography.reading-content}",
+          "{typography.data-label}",
+          "{colors.ground}",
+          "{colors.border}"
+        ],
+        "description": "Table 以地色表头、主题文字和细横线组织信息，单元格尺度见 table-cell；可排序列使用方向图标和 aria-sort，同一列再次操作切换排序，空态与加载复用已有组件。Descriptions 用辅助色固定标签列和可换行的正文列排列键值，每行上下 12px、列间距 12px；空值显示破折号。\n\nTextEllipsis 默认限制三行，展开／收起使用已有小档文字按钮，内容变化后回到折叠状态。RichText 以结构化段落、标题、强调、引用和图片组织内容；图片适应容器宽度，段落下间距 12px，空内容显示 Empty。富文本宿主的具体字体和节点差异需要按目标平台确认。"
+      },
+      {
+        "name": "长列表与排序",
+        "components": [
+          "virtual-list",
+          "waterfall",
+          "draggable"
+        ],
+        "tokenReferences": [
+          "{components.virtual-list}",
+          "{components.virtual-list-row}",
+          "{components.waterfall-item}",
+          "{components.draggable-row}",
+          "{components.draggable-row-active}"
+        ],
+        "description": "VirtualList 的窗口与默认行尺度见 frontmatter，默认前后各预留三个行位作为缓冲；只挂载可见窗口附近的数据，提供按索引定位，空集合显示 Empty。Waterfall 的默认项目高度见 waterfall-item，图片占项目高度的 70%，标题沿用 Text；高度数据由调用方提供，不自动测量图片或虚拟化。\n\nDraggable 使用 draggable-row 固定行高和细底边，活动行采用 draggable-row-active 柔和底，并显示松开后的目标序号。触摸松开才更新受控顺序，上移／下移小按钮提供明确替代操作；禁用或列表变化会取消当前拖动。它只排序布局内等高行，不生成悬浮拖拽副本。"
+      },
+      {
+        "name": "画布与编码输出",
+        "components": [
+          "image-cropper",
+          "signature",
+          "qrcode"
+        ],
+        "tokenReferences": [
+          "{components.image-cropper-canvas}",
+          "{components.signature-frame}",
+          "{components.qrcode-image}",
+          "{typography.data-label}",
+          "{colors.surface}",
+          "{colors.ink}",
+          "{colors.on-primary-black}"
+        ],
+        "description": "ImageCropper 使用一条主题边框与 image-cropper-canvas 圆角，显示区域按容器宽度和 ratio 保持裁剪比例。缩放、水平与垂直位置复用 Slider，重置／确认复用原有按钮；默认输出宽度 400px，按比例生成 PNG。载入与导出失败保留错误说明，尚未就绪时不能确认；显示视口和输出像素分别管理。\n\nSignature 在 signature-frame 内绘制圆头、圆连接的笔迹，默认输出画布为 600×360、线宽为三个输出像素；显示高度为实测宽度的 0.6 倍，保持与输出一致的 5:3 比例，不固定为 180px。标签使用 data-label，撤销／清空／导出使用已有小档按钮；空画布与禁用状态不能导出。默认白底深色只用于签名图像，导出不是身份校验或电子签章；尺寸观测与指针监听随卸载清理。非 WEB 每笔异步测量期间按序暂存触点；触点尚未绘制完成时禁用导出，清空／禁用／卸载丢弃未处理触点。\n\nQRCode 默认显示尺度见 qrcode-image，允许 120–600px，并限制在容器宽度内。编码为黑白 SVG，四周保留四个模块宽的静区；不裁静区、不圆角裁剪编码模块。可访问名称、可选说明和错误文字独立于图像；空内容、内容过长、编码或图像显示失败都有明确反馈。"
+      },
+      {
+        "name": "媒体与可调面板",
+        "components": [
+          "video",
+          "floating-panel"
+        ],
+        "tokenReferences": [
+          "{components.video-player}",
+          "{components.floating-panel}",
+          "{components.floating-panel-body}",
+          "{colors.video-ground}",
+          "{rounded.container}"
+        ],
+        "description": "Video 使用 video-player 尺度与深色媒体底，默认 contain、显示宿主控制栏且不自动播放；空地址显示 Empty，失败保留错误和重试入口。播放器控件由宿主提供，不仿造跨端一致的控制皮肤。\n\nFloatingPanel 的初始高度与圆角见 floating-panel，默认停靠高度为 120／240／400px。顶部地色区域承载 13px 标题和展开／收起按钮，内边距 8px；正文使用 floating-panel-body 内边距并独立滚动。触摸拖动与显式按钮共用这些高度档位，禁用时停止调整，外部模型变化后恢复对应高度。"
+      },
+      {
+        "name": "复杂表单与选择状态",
+        "components": [
+          "form",
+          "form-item",
+          "checkbox",
+          "picker",
+          "cascader",
+          "tree-select",
+          "swipe-cell",
+          "image-preview"
+        ],
+        "tokenReferences": [
+          "{components.checkbox-box}",
+          "{components.checkbox-mixed-mark}",
+          "{components.picker-column}",
+          "{components.swipe-cell-action}",
+          "{colors.primary}",
+          "{colors.primary-soft}",
+          "{colors.danger}",
+          "{colors.danger-soft}"
+        ],
+        "description": "FormItem 统一承载 12px 标签、必填说明和 11px 错误／提示，字段间距 16px。内部 Input／Textarea 不再重复显示标签与消息；实际编辑元素继承字段名称、必填、错误和描述关联。显式校验后逐项修正，仅更新当前字段的错误。\n\nForm 的异步校验、嵌套路径与初始值重置继续使用原有字段反馈。validating 暴露等待状态，业务可据此控制已有提交按钮；不新增常驻加载外观。编辑、清错、重置或较新的校验会使旧结果失效，迟到错误不能覆盖当前字段内容；异步异常即使未提供有效 message 也保留兜底错误，同步校验仍保留。\n\nRadio 使用 16px 圆形标记与内点，操作行至少 36px。RadioGroup 只保留一个字符串值；CheckboxGroup 复用已有方框，以数组管理选择，达到数量限制后保留已选项的取消能力。禁用与数量限制必须同时体现在行为和可访问状态上。\n\nTextarea 沿用单一 1px 边框、8px 圆角、13px 文字和 9px 内边距，默认编辑区高 96px；字数显示为 11px。错误和焦点不改变边框宽度，浅深颜色来自全局语义主题。\n\n表单示例页属于工作台：桌面为主表单与说明侧栏，窄屏依次堆叠。页面标题 28px／窄屏 24px、小节标题 15px、表单展示容器 12px 圆角；这些是演示页面层级，不改变可复用控件的尺寸档位。\n\n自绘小方框，选中使用当前主色和对比清晰的勾。整行可点选，Enter／Space 可切换，禁用时退出 Tab 顺序。普通未选／选中切换保留勾图标，使用透明度和缩放过渡；indeterminate 以同一主色框和自动前景短横杠替代勾，并表达 aria-checked=\"mixed\"。半选、全选与未选保持相同外部尺寸。",
+        "composition": "多列 Picker、Cascader 懒加载、TreeSelect 父子联动、SwipeCell 双侧动作及 ImagePreview 有界缩放分别记录在既有模式中。布局内的显式高度调整不改写核心选择状态稳定尺寸的规则。"
       }
     ]
   },
@@ -789,11 +1043,27 @@
       "description": "被动内容容器，使用细边框、主题表面和紧凑标题；静态浅色示例。",
       "html": "<section class=\"ds-card\"><header class=\"ds-card-header\"><h3 class=\"ds-card-title\">资料卡片</h3><p class=\"ds-card-description\">内容按业务组织</p></header><div class=\"ds-card-body\">林同学 · 产品设计</div></section>",
       "css": ".ds-card{border:1px solid #d2dae6;border-radius:12px;padding:16px;background:#fff;color:#1d2430;font:13px/20px -apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;overflow-wrap:anywhere}.ds-card-header{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}.ds-card-title{margin:0;font-size:15px;font-weight:600;line-height:22px}.ds-card-description{margin:0;color:#616e82;font-size:12px;line-height:18px}.ds-card-body{min-width:0}"
+    },
+    {
+      "name": "官网主要接入链接",
+      "kind": "button",
+      "refersTo": "website-action-primary",
+      "description": "官网入口的最小高度为 40px；核心 Button 的默认高度仍为 36px。",
+      "html": "<a class=\"ds-website-primary\" href=\"/user-guide\">开始使用 <svg aria-hidden=\"true\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14M13 6l6 6-6 6\"/></svg></a>",
+      "css": ".ds-website-primary{display:inline-flex;justify-content:center;align-items:center;gap:24px;min-height:40px;padding:0 18px;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;font-size:13px;font-weight:550;background:var(--vp-c-brand-1,#0066d6);color:var(--vp-button-brand-text,#fff);text-decoration:none}.ds-website-primary:hover{background:var(--vp-c-brand-2,#0059bc)}.ds-website-primary:focus-visible{outline:2px solid var(--vp-c-brand-1,#0066d6);outline-offset:4px}"
+    },
+    {
+      "name": "官网次要接入链接",
+      "kind": "button",
+      "refersTo": "website-action-secondary",
+      "description": "用于浏览组件等次级入口，主题细边框配正文色。",
+      "html": "<a class=\"ds-website-secondary\" href=\"/components/button\">浏览组件</a>",
+      "css": ".ds-website-secondary{display:inline-flex;justify-content:center;align-items:center;gap:24px;min-height:40px;padding:0 18px;border:1px solid var(--mori-border,#d2dae6);border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;font-size:13px;font-weight:550;color:var(--vp-c-text-1,#1d2430);text-decoration:none}.ds-website-secondary:hover{background:var(--vp-c-bg-alt,#f6f7f9)}.ds-website-secondary:focus-visible{outline:2px solid var(--vp-c-brand-1,#0066d6);outline-offset:4px}"
     }
   ],
   "narrative": {
     "northStar": "中性灰与清晰蓝的紧凑系统控件",
-    "overview": "Mori UI 采用用户确认的中性灰与清晰蓝、系统字体和紧凑尺寸。颜色说明状态，细边框组织字段；按钮与输入默认 36px，避免高大的控件和宽松的内部留白。\n\n规范以 theme.uts、tokens.scss 和组件源码为准。组件默认跟随系统／宿主主题，light 或 dark 可停止自动跟随。工作台构图不限制业务页面的组织方式。",
+    "overview": "Mori UI 采用用户确认的中性灰与清晰蓝、系统字体和紧凑尺寸。颜色说明状态，细边框组织字段；按钮与输入默认 36px，避免高大的控件和宽松的内部留白。\n\n规范以 theme.uts、tokens.scss 和组件源码为准。组件默认跟随系统／宿主主题，light 或 dark 可停止自动跟随。工作台构图不限制业务页面的组织方式。\n\n官网与文档沿用同一灰蓝和系统字体身份；website-* 仅记录 site/.vitepress/theme/ 的展示尺度。官网的大标题、阅读留白和接入按钮不改变 uni_modules/mori-ui/ 的组件默认值；页面策略见 .impeccable/surfaces/website.md。",
     "keyCharacteristics": [
       "36px 默认按钮与输入、13px 控件文字、12px 标签。",
       "输入只显示一个闭合边框，显隐与清空使用 Lucide 图标。",
@@ -821,7 +1091,8 @@
       "Do 复用已有大小档位和语义主题色。",
       "Do 保留图标按钮的可访问名称、输入错误关联和键盘操作。",
       "Do 检查连续切换与减少动态效果偏好。",
-      "Do 将浏览器验证、微信编译和原生设备验证分别记录。"
+      "Do 将浏览器验证、微信编译和原生设备验证分别记录。",
+      "Do 将官网 website-* 展示尺度与核心控件尺寸分开维护，并用真实 H5 示例展示组件效果。"
     ],
     "donts": [
       "Don't 给输入叠加外置焦点圈或改变聚焦时的边框宽度。",

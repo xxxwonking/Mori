@@ -1,20 +1,43 @@
 <template>
 
-<mori-popup :model-value="show" position="center" :title="title" @close="close"><view class="mori-image-preview"><mori-image v-if="images.length > 0" :src="images[current]" :alt="'图片 ' + (current + 1)" height="280px" mode="aspectFit" :preview="nativePreview" /><mori-empty v-else title="暂无图片" description="" /><view v-if="images.length > 0" class="mori-image-preview__controls"><mori-button label="上一张" size="sm" variant="text" :disabled="current == 0" @click="move(-1)" /><mori-text :text="(current + 1) + ' / ' + images.length" tone="muted" /><mori-button label="下一张" size="sm" variant="text" :disabled="current >= images.length - 1" @click="move(1)" /></view></view></mori-popup>
+<mori-popup :model-value="show" position="center" :title="title" @close="close"><view class="mori-image-preview"><view v-if="images.length > 0" class="mori-image-preview__viewport" :id="viewportId" tabindex="0" aria-label="图片缩放区域，方向键平移" @touchstart="start" @touchmove="pan" @touchend="stop" @touchcancel="stop" @keydown.left.prevent="shift(-20,0)" @keydown.right.prevent="shift(20,0)" @keydown.up.prevent="shift(0,-20)" @keydown.down.prevent="shift(0,20)"><view :style="'transform:translate(' + x + 'px,' + y + 'px) scale(' + scale + ')' "><mori-image :src="images[current]" :alt="'图片 ' + (current + 1)" height="280px" mode="aspectFit" :preview="nativePreview" /></view></view><mori-empty v-else title="暂无图片" description="" /><view v-if="images.length > 0 && zoomable" class="mori-image-preview__controls"><mori-button label="缩小" size="sm" variant="text" :disabled="scale <= 1" @click="zoom(-0.5)" /><mori-button :label="Math.round(scale * 100) + '% · 重置'" size="sm" variant="text" @click="reset" /><mori-button label="放大" size="sm" variant="text" :disabled="scale >= limit" @click="zoom(0.5)" /></view><view v-if="images.length > 0" class="mori-image-preview__controls"><mori-button label="上一张" size="sm" variant="text" :disabled="current == 0" @click="move(-1)" /><mori-text :text="(current + 1) + ' / ' + images.length" tone="muted" /><mori-button label="下一张" size="sm" variant="text" :disabled="current >= images.length - 1" @click="move(1)" /></view></view></mori-popup>
 </template>
 
 <script setup lang="uts">
 
-import { computed, PropType } from 'vue'
+import { computed, ref, watch, nextTick, onUnmounted, PropType } from 'vue'
+import { moriElementWidth, observeMoriElementWidth } from '../../platform/geometry.uts'
+import { createMoriFieldId } from '../../platform/accessibility.uts'
 import { moriBound } from '../../content.uts'
-const props = defineProps({ show: { type: Boolean, default: false }, modelValue: { type: Number, default: 0 }, images: { type: Array as PropType<string[]>, default: (): string[] => [] }, title: { type: String, default: '图片预览' }, nativePreview: { type: Boolean, default: false } })
+const props = defineProps({ zoomable: { type: Boolean, default: true }, maxZoom: { type: Number, default: 4 }, show: { type: Boolean, default: false }, modelValue: { type: Number, default: 0 }, images: { type: Array as PropType<string[]>, default: (): string[] => [] }, title: { type: String, default: '图片预览' }, nativePreview: { type: Boolean, default: false } })
 const emit = defineEmits(['update:show', 'update:modelValue', 'change', 'close'])
 const current = computed((): number => Math.floor(moriBound(props.modelValue, 0, Math.max(0, props.images.length - 1))))
+const viewportId = createMoriFieldId()
+const scale = ref(1), x = ref(0), y = ref(0)
+const limit = computed((): number => moriBound(props.maxZoom,1,8))
+let dragging = false, startX = 0, startY = 0, baseX = 0, baseY = 0, distance = 0, baseScale = 1, width = 280
+let alive = true
+let cleanupWidth: () => void = () => {}
+watch(() => props.show, (show: boolean) => { cleanupWidth(); if (show) nextTick(() => { if (!alive || !props.show) return; cleanupWidth = observeMoriElementWidth(viewportId,(value: number) => { width = value; constrain() }) }) }, { immediate: true })
+onUnmounted(() => { alive = false; cleanupWidth() })
+function reset() { scale.value = 1; x.value = 0; y.value = 0; dragging = false }
+watch(() => props.show + '|' + props.modelValue + '|' + props.images.join('|') + '|' + props.zoomable, reset)
+function constrain() { width = moriElementWidth(viewportId,width); x.value = moriBound(x.value,-width * (scale.value - 1) / 2,width * (scale.value - 1) / 2); y.value = moriBound(y.value,-140 * (scale.value - 1),140 * (scale.value - 1)) }
+function zoom(delta: number) { if (!props.zoomable) return; scale.value = moriBound(scale.value + delta,1,limit.value); constrain() }
+function shift(dx: number,dy: number) { if (!props.zoomable) return; x.value += dx; y.value += dy; constrain() }
+function gap(event: UniTouchEvent): number { const a = event.touches[0], b = event.touches[1]; return Math.sqrt(Math.pow(a.screenX - b.screenX,2) + Math.pow(a.screenY - b.screenY,2)) }
+function start(event: UniTouchEvent) { if (!props.zoomable || event.touches.length == 0) return; width = moriElementWidth(viewportId,width); dragging = true; startX = event.touches[0].screenX; startY = event.touches[0].screenY; baseX = x.value; baseY = y.value; baseScale = scale.value; distance = event.touches.length == 2 ? gap(event) : 0 }
+function pan(event: UniTouchEvent) { if (!dragging || event.touches.length == 0) return; if (event.touches.length == 2 && distance > 0) scale.value = moriBound(baseScale * gap(event) / distance,1,limit.value); else { x.value = baseX + event.touches[0].screenX - startX; y.value = baseY + event.touches[0].screenY - startY }; constrain() }
+function stop() { dragging = false }
 function move(delta: number) { const next = current.value + delta; if (next < 0 || next >= props.images.length) return; emit('update:modelValue', next); emit('change', next) }
 function close() { emit('update:show', false); emit('close') }
 
 </script>
 
 <style lang="scss">
+.mori-image-preview__viewport { height: 280px; overflow: hidden; }
 .mori-image-preview { width: 100%; }.mori-image-preview__controls { margin-top: 12px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+/* #ifdef WEB */
+.mori-image-preview__viewport { touch-action: none; }
+/* #endif */
 </style>

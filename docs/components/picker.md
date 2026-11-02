@@ -2,7 +2,7 @@
 
 [全部组件](../component-guides.md) · [接入与主题](../user-guide.md) · [平台跟踪](../platform-adaptation.md)
 
-单列选项选择器，显隐与选中值使用两个模型。
+单列或多列选项选择器，显隐与选中值分开管理。
 
 ## 基础用法
 
@@ -25,12 +25,15 @@ const options: MoriChoiceOption[] = [{ label: '站内消息', value: 'message' }
 
 ## 状态与进阶使用
 
-每次打开从 modelValue 初始化临时选择；点取消/遮罩/Escape 不提交。confirm(value:string) 仅在有效且未禁用/加载时触发，随后请求 show=false；取消发 cancel。外部 modelValue 在打开期间改变会替换草稿。loading 显示等待，空列表显示空状态且禁止确认。ref.confirm()/cancel() 复用同一规则。当前为单列，不提供级联或滚轮多列。
+每次打开从 modelValue 初始化临时选择；点取消/遮罩/Escape 不提交。confirm(value:string) 仅在有效且未禁用/加载时触发，随后请求 show=false；取消发 cancel。外部 modelValue 在打开期间改变会替换草稿。loading 显示等待，空列表显示空状态且禁止确认。ref.confirm()/cancel() 复用同一规则。多列以并排选项列呈现，通过 columns / values 开启联动，不提供滚轮。
 
 ## 属性
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| values | string[] | [] | 多列已提交值，使用 v-model:values。 |
+| columns | MoriChoiceOption[][] | [] | 非空启用多列。 |
+| linkage | boolean | true | 选择前列后清空后续草稿。 |
 | modelValue | string | "" | 当前受控值，使用 v-model 绑定；类型和提交时机见本页用法。 |
 | show | boolean | false | 弹层显示状态，使用 v-model:show 绑定。 |
 | title | string | "请选择" | 标题；弹层同时用作可访问名称。 |
@@ -47,6 +50,26 @@ const options: MoriChoiceOption[] = [{ label: '站内消息', value: 'message' }
 模板 ref 暴露：`confirm, cancel`。仅在挂载后调用，使用可空 ref 和 `?.`；参数、返回行为见本页状态说明。
 
 没有插槽。
+
+## 多列联动
+
+columns: MoriChoiceOption[][] 非空时启用多列；values: string[] 使用 v-model:values 绑定，原 modelValue 继续是单列 string。linkage 默认 true，选择前列会清空后续草稿；columnChange(index,value,draftValues) 供父级替换后续 columns。确认所有列均选择有效项后发出 confirmColumns(values)，单列仍为 confirm(value)。业务异步加载时绑定 loading，取消不提交 values。
+
+```vue
+<template>
+ <mori-button label="多列联动选择" @click="open" /><mori-text :text="values.length > 0 ? values.join(' / ') : '尚未选择'" />
+ <mori-picker v-model:show="show" v-model:values="values" :columns="columns" title="选择方向与任务" @columnChange="changeColumn" />
+</template>
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriChoiceOption } from '@/uni_modules/mori-ui/selection.uts'
+const show = ref(false), group = ref('design'), values = ref<string[]>([])
+const groups: MoriChoiceOption[] = [{ value: 'design', label: '设计' }, { value: 'development', label: '开发' }]
+const columns = computed((): MoriChoiceOption[][] => [groups, group.value == 'design' ? [{ value: 'layout', label: '页面布局' }, { value: 'icons', label: '图标设计' }] : [{ value: 'component', label: '组件开发' }, { value: 'tests', label: '交互测试' }]])
+function changeColumn(index: number,value: string) { if (index == 0) group.value = value }
+function open() { group.value = values.value.length > 0 ? values.value[0] : 'design'; show.value = true }
+</script>
+```
 
 ## 平台与验证边界
 

@@ -1,0 +1,11 @@
+<template>
+ <mori-button label="按需加载选项" @click="show = true" /><mori-text :text="values.join(' / ')" />
+ <mori-cascader v-model="values" v-model:show="show" :options="options" :load-children="load" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriTreeNode } from '@/uni_modules/mori-ui/extended-input.uts'
+const show = ref(false), values = ref<string[]>([])
+const options: MoriTreeNode[] = [{ value: 'project', label: '示例项目', leaf: false }]
+function load(node: MoriTreeNode,path: string[]): Promise<MoriTreeNode[]> { return new Promise<MoriTreeNode[]>((resolve) => { setTimeout(() => resolve([{ value: 'design', label: '设计' }, { value: 'development', label: '开发' }]),300) }) }
+</script>

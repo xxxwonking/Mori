@@ -1,0 +1,9 @@
+<template>
+  <mori-load-more :status="status" @load="status = 'finished'" />
+  <mori-button label="模拟失败" variant="soft" @click="status = 'error'" />
+  <mori-button label="加载状态" variant="outline" @click="status = 'loading'" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const status = ref('error')
+</script>

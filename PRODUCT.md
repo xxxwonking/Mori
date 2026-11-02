@@ -23,7 +23,7 @@ A personal mobile component library with a consistent visual language, explicit 
 - Required target platforms: H5, WeChat mini-program, iOS App, Android App.
 - HarmonyOS NEXT support is best effort by component; full coverage is not required.
 - Compatibility must distinguish build verification, browser verification and device verification.
-- The initial small foundation has been superseded: the user explicitly requested a general-purpose mobile component library, then rejected the 40-component scope as insufficient and selected broad, balanced coverage. The current workspace contains 72 easycom components with individual guides and runnable examples. Remaining feature and platform gaps must stay explicit in docs/component-coverage.md and docs/platform-adaptation.md.
+- The initial small foundation has been superseded: the user explicitly requested a general-purpose mobile component library, then rejected the 40-component scope as insufficient and selected broad, balanced coverage. The current workspace contains 88 easycom components with individual guides and runnable examples. Remaining feature and platform gaps must stay explicit in docs/component-coverage.md and docs/platform-adaptation.md.
 - User explicitly requested a new folder on the Desktop and project initialization.
 - Components default to following system/host appearance. A single global option must force light/dark and stop following, or restore automatic mode. This is a first-release requirement, not a future feature.
 

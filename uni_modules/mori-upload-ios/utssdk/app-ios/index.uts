@@ -1,0 +1,7 @@
+import { ChooseIOSImages, UploadIOSFile, CancelIOSTask, ReleaseIOSFile } from '../interface.uts'
+
+// Swift sources in this directory are linked by the UTS native-mixing compiler.
+export const chooseIOSImages: ChooseIOSImages = (options, success, fail) => MoriIOSUpload.choose(options, success, fail)
+export const uploadIOSFile: UploadIOSFile = (filePath, fileName, options, progress, success, fail) => MoriIOSUpload.upload(filePath, fileName, options, progress, success, fail)
+export const cancelIOSTask: CancelIOSTask = (id) => MoriIOSUpload.cancel(id)
+export const releaseIOSFile: ReleaseIOSFile = (path) => MoriIOSUpload.release(path)

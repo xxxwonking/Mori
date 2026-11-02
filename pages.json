@@ -28,6 +28,12 @@
         "navigationStyle": "custom"
       }
     }
+    // #ifdef MORI_PREVIEW
+    ,{
+      "path": "pages/preview/preview",
+      "style": { "navigationBarTitleText": "Mori UI 组件示例", "navigationStyle": "custom" }
+    }
+    // #endif
   ],
   "globalStyle": {
     "navigationBarTextStyle": "@navigationText",

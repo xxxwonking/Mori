@@ -1,0 +1,8 @@
+<template>
+  <mori-upload v-model="files" :max-count="3" :auto-upload="false" hint="最多选择 3 张图片，仅在本机预览，不发送到服务器。" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriUploadFile } from '@/uni_modules/mori-ui/upload.uts'
+const files = ref<MoriUploadFile[]>([])
+</script>

@@ -1,0 +1,11 @@
+<template>
+ <mori-swipe-cell v-model="open" v-model:side="side" :left-actions="left" :right-actions="right" @select="selected = $event"><mori-cell title="示例通知" value="左右滑动" /></mori-swipe-cell>
+ <mori-text :text="selected.length > 0 ? '已选择：' + selected : '滑动或用按钮展开操作'" tone="muted" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriSwipeAction } from '@/uni_modules/mori-ui/advanced.uts'
+const open = ref(false), side = ref('right'), selected = ref('')
+const left: MoriSwipeAction[] = [{ value: '归档', label: '归档' }]
+const right: MoriSwipeAction[] = [{ value: '置顶', label: '置顶' }, { value: '删除', label: '删除', danger: true }]
+</script>

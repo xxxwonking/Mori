@@ -18,7 +18,7 @@
 import { ref, computed, watch, nextTick, onBeforeUnmount, PropType } from 'vue'
 import { moriPalette } from '../../theme.uts'
 import { MoriPickedFile, MoriUploadFile, MoriUploadJob, createMoriUploadFile, copyMoriUploadFile, moriUploadCapacity, moriUploadFileIssue } from '../../upload.uts'
-import { chooseMoriImages, startMoriUpload, previewMoriImages } from '../../platform/upload.uts'
+import { chooseMoriImages, startMoriUpload, previewMoriImages, releaseMoriPickedFile } from '../../platform/upload.uts'
 const props = defineProps({
   modelValue: { type: Array as PropType<MoriUploadFile[]>, default: (): MoriUploadFile[] => [] },
   label: { type: String, default: '图片上传' },
@@ -45,24 +45,33 @@ const files = ref<MoriUploadFile[]>(props.modelValue.map(copyMoriUploadFile))
 const selecting = ref(false)
 const errorMessage = ref('')
 const jobs: MoriUploadJob[] = []
+type MoriOwnedUploadPath = { id: string; path: string }
+let ownedPaths: MoriOwnedUploadPath[] = []
+let pendingPaths: string[] = []
+let cancelSelection: (() => void) | null = null
 let disposed = false
 let selectionGeneration = 0
 const capacity = computed((): number => moriUploadCapacity(files.value.length, props.maxCount))
 function publish() { if (!disposed) emit('update:modelValue', files.value.map(copyMoriUploadFile)) }
 function abort(id: string) { const index = jobs.findIndex((job: MoriUploadJob): boolean => job.id == id); if (index >= 0) { const job = jobs[index]; jobs.splice(index, 1); job.abort() } }
-watch(() => props.modelValue, (value: MoriUploadFile[]) => { jobs.slice().forEach((job: MoriUploadJob) => { if (!value.some((file: MoriUploadFile): boolean => file.id == job.id && file.status == 'uploading')) abort(job.id) }); files.value = value.map(copyMoriUploadFile) }, { deep: true })
+function releasePath(id: string) { const paths = ownedPaths.filter((item: MoriOwnedUploadPath): boolean => item.id == id); ownedPaths = ownedPaths.filter((item: MoriOwnedUploadPath): boolean => item.id != id); paths.forEach((item: MoriOwnedUploadPath) => { if (!ownedPaths.some((other: MoriOwnedUploadPath): boolean => other.path == item.path)) releaseMoriPickedFile(item.path) }) }
+function stopChoosing() { selectionGeneration++; selecting.value = false; const cancel = cancelSelection; cancelSelection = null; if (cancel != null) cancel!(); pendingPaths.forEach((path: string) => releaseMoriPickedFile(path)); pendingPaths = [] }
+watch(() => props.disabled, (disabled: boolean) => { if (disabled) stopChoosing() })
+watch(() => props.modelValue, (value: MoriUploadFile[]) => { jobs.slice().forEach((job: MoriUploadJob) => { if (!value.some((file: MoriUploadFile): boolean => file.id == job.id && file.status == 'uploading')) abort(job.id) }); ownedPaths.slice().forEach((item: MoriOwnedUploadPath) => { if (!value.some((file: MoriUploadFile): boolean => file.id == item.id && file.url == item.path)) { abort(item.id); releasePath(item.id) } }); files.value = value.map(copyMoriUploadFile) }, { deep: true })
 function fail(message: string) { if (disposed) return; errorMessage.value = message; emit('error', message) }
-async function accept(picked: MoriPickedFile[], ticket: number) {
+async function accept(picked: MoriPickedFile[], ticket: number, managed: boolean = false) {
+  const paths = managed ? picked.map((file: MoriPickedFile): string => file.path) : []
+  if (ticket == selectionGeneration) pendingPaths = paths.slice()
   try {
     if (disposed || ticket != selectionGeneration || props.disabled) return
     if (props.beforeRead != null && !(await props.beforeRead!(picked))) return
     if (disposed || ticket != selectionGeneration || props.disabled) return
     const accepted: MoriUploadFile[] = []
-    picked.forEach((file: MoriPickedFile) => { const issue = moriUploadFileIssue(file, props.maxSize); if (issue.length > 0) { emit('oversize', file); fail(issue) } else if (accepted.length < capacity.value) accepted.push(createMoriUploadFile(file)) })
+    picked.forEach((file: MoriPickedFile) => { const issue = moriUploadFileIssue(file, props.maxSize); if (issue.length > 0) { emit('oversize', file); fail(issue) } else if (accepted.length < capacity.value) { const item = createMoriUploadFile(file); accepted.push(item); if (managed) ownedPaths.push({ id: item.id, path: file.path }) } })
     files.value = files.value.concat(accepted); publish(); emit('afterRead', accepted.map(copyMoriUploadFile))
     nextTick(() => { if (!disposed && props.autoUpload && props.uploadUrl.length > 0) submit() })
   } catch (error) { if (!disposed && ticket == selectionGeneration && !props.disabled) fail('文件处理失败，请重试。') }
-  finally { if (ticket == selectionGeneration) selecting.value = false }
+  finally { paths.forEach((path: string) => { if (!ownedPaths.some((item: MoriOwnedUploadPath): boolean => item.path == path)) releaseMoriPickedFile(path) }); if (ticket == selectionGeneration) { selecting.value = false; pendingPaths = []; cancelSelection = null } }
 }
 function choose() {
   if (props.disabled || selecting.value || capacity.value == 0) return
@@ -72,7 +81,9 @@ function choose() {
     catch (error) { selecting.value = false; fail('选择文件失败，请重试。') }
     return
   }
-  chooseMoriImages(capacity.value, props.sourceType, (picked: MoriPickedFile[]) => { accept(picked, ticket) }, (message: string, cancelled: boolean) => { if (disposed || ticket != selectionGeneration) return; selecting.value = false; if (cancelled) emit('cancel'); else fail(message) })
+  const cancel = chooseMoriImages(capacity.value, props.sourceType, (picked: MoriPickedFile[]) => { accept(picked, ticket, true) }, (message: string, cancelled: boolean) => { if (disposed || ticket != selectionGeneration) return; selecting.value = false; cancelSelection = null; if (cancelled) emit('cancel'); else fail(message) })
+  if (ticket == selectionGeneration && selecting.value) cancelSelection = cancel
+  else cancel()
 }
 function update(id: string, status: string, progress: number, message: string, url: string = ''): MoriUploadFile | null {
   if (disposed) return null
@@ -90,22 +101,22 @@ function retry(id: string) {
   const job: MoriUploadJob = { id, abort: () => {} }
   jobs.push(job)
   const stop = startMoriUpload(copyMoriUploadFile(file), { url: props.uploadUrl, name: props.name, header: props.header, formData: props.formData, timeout: props.timeout },
-    (progress: number) => { if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return; const item = update(id, 'uploading', progress, ''); if (item != null) emit('progress', item) },
+    (progress: number) => { if (!jobs.includes(job)) return; const item = update(id, 'uploading', progress, ''); if (item != null) emit('progress', item) },
     (response: string) => {
-      if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return
+      if (!jobs.includes(job)) return
       abort(id)
       try { const url = props.resolveUrl != null ? props.resolveUrl!(response) : ''; if (props.resolveUrl != null && url.length == 0) { update(id, 'error', 0, '服务器未返回有效文件地址'); fail('服务器未返回有效文件地址'); return }; const item = update(id, 'success', 100, '', url); if (item != null) emit('success', item, response) }
       catch (error) { update(id, 'error', 0, '上传响应处理失败'); fail('上传响应处理失败') }
     },
-    (message: string) => { if (!jobs.some((job: MoriUploadJob): boolean => job.id == id)) return; abort(id); update(id, 'error', 0, message); fail(message) })
+    (message: string) => { if (!jobs.includes(job)) return; abort(id); update(id, 'error', 0, message); fail(message) })
   if (jobs.includes(job)) job.abort = stop
   else stop()
 }
 function submit() { if (props.disabled) return; if (props.uploadUrl.length == 0) { fail('请配置 uploadUrl 或在 afterRead 中处理上传。'); return }; files.value.filter((file: MoriUploadFile): boolean => file.status == 'ready' || file.status == 'error').forEach((file: MoriUploadFile) => retry(file.id)) }
-function remove(id: string) { if (props.disabled || !props.deletable) return; const file = files.value.find((item: MoriUploadFile): boolean => item.id == id); if (file == null) return; abort(id); files.value = files.value.filter((item: MoriUploadFile): boolean => item.id != id); publish(); emit('delete', copyMoriUploadFile(file)) }
-function clear() { if (props.disabled) return; selectionGeneration++; selecting.value = false; jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)); files.value = []; errorMessage.value = ''; publish() }
+function remove(id: string) { if (props.disabled || !props.deletable) return; const file = files.value.find((item: MoriUploadFile): boolean => item.id == id); if (file == null) return; abort(id); releasePath(id); files.value = files.value.filter((item: MoriUploadFile): boolean => item.id != id); publish(); emit('delete', copyMoriUploadFile(file)) }
+function clear() { if (props.disabled) return; stopChoosing(); jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)); ownedPaths.slice().forEach((item: MoriOwnedUploadPath) => releasePath(item.id)); files.value = []; errorMessage.value = ''; publish() }
 function preview(file: MoriUploadFile) { emit('preview', copyMoriUploadFile(file)); if (props.previewImage) previewMoriImages(file.url, files.value.map((item: MoriUploadFile): string => item.url)) }
-onBeforeUnmount(() => { disposed = true; selectionGeneration++; jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)) })
+onBeforeUnmount(() => { disposed = true; stopChoosing(); jobs.slice().forEach((job: MoriUploadJob) => abort(job.id)); ownedPaths.slice().forEach((item: MoriOwnedUploadPath) => releasePath(item.id)) })
 defineExpose({ choose, submit, retry, remove, clear })
 </script>
 

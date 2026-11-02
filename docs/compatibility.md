@@ -100,3 +100,38 @@ Toast／Popup／Dialog 已通过 H5 和微信发行构建。Chrome 156.0.8078.74
 图片示例使用本地几何 SVG，未依赖外部图片服务。浏览器加载／刷新通过本地延时模拟，不代表真实后端。手势单元测试与 H5 操作不等于 iOS／Android／微信触摸验收。Sticky 的 APP 默认模式为普通流，自动 CSS 吸顶只用于 WEB／MP；SafeArea 的设备转向由使用方更新 size。新增平台编号见 [适配清单](platform-adaptation.md)，原 iOS 上传编号继续保留。
 
 本轮没有新增 Xcode／签名、Android 设备、微信 AppID／开发者工具、Safari 或 HarmonyOS 工具链运行证据，不扩大上轮的平台声明。原始日志为 `.impeccable/review/expansion-h5.log`、`expansion-weixin.log`、`expanded-verification.json`、`expanded-*.png`。独立复核结果另见 progress.md 本轮最终记录。
+
+## 2026-10-31：官网与 72 个独立 H5 预览
+
+官网采用 VitePress，示例由现有 uni-app x 编译器构建到 `/demo/`。本机 HBuilderX 5.34、Node 24.21.0：新增预览页及示例的 H5／微信发行构建成功。Chromium 145.0.7632.6 下全部 72 个示例在 360px 视口挂载成功，无页面级横向溢出；官网的 72 个组件文档地址返回正常，浏览器没有 pageerror 或 HTTP 资源失败。
+
+官网首页按钮／输入／模拟保存、站内全文搜索与分类搜索、二维码、独立打开、预览主题与重置、弹层展开、1440／1280／768／390px 布局和窄屏内联预览通过。补充验证浅色宿主下强制深色预览的文字颜色与弹层完成进入后的实际几何位置；原工作台基础 9 组和分类回归通过。证据位于 `.impeccable/review/site-verification.json`、`site-layout-verification.json`、`site-*.png` 和 `site-*-build.log`。
+
+这些是官网与 H5 示例的新增证据，不表示全部 72 个组件每一种状态、所有平台或触摸交互都已完成验收。保留 Sass、H5 withKeys／NodeListOf 等编译器提示；新 BackTop 示例的 onPageScroll 导入有编译器类型提示，H5 构建成功。微信真机、iOS／Android、Safari、鸿蒙及真实业务服务的待办不变。
+
+## 2026-11-01：88 组件补强
+
+沿用 Windows HBuilderX 5.34.2026102821.2458、Node 24.21.0。最终 H5（含官网示例）、VitePress 与微信发行构建成功；既有 Sass legacy/import、H5 withKeys／NodeListOf／onPageScroll 提示保留，新 Canvas 图片类型／指针提示已处理。
+
+Chromium 145.0.7632.6 下 16 组新增交互通过：真实签名像素与 PNG、裁剪采样变化及 400×400 输出、实际显示二维码解码、定高列表第 500 项定位与有限挂载、标签键盘输入、自动补全、数字排序、异步嵌套表单和重置、多列选择、级联异步加载、树半选、双侧操作、图片缩放重置、排序按钮、面板高度及本地视频帧播放。完整单元套件与 88 份指南检查通过。
+
+官网五组测试与全部 88 个示例在 360px 巡检通过；1440／1280／768／390px 浅深布局、搜索、二维码及窄屏内联预览通过，无 pageerror／HTTP 资源错误或页面级横向溢出。截图经主线程查看。主要报告为 .impeccable/review/strengthened-verification.json、site-verification.json、strengthen-site-build-final.log、strengthen-weixin.log。
+
+鼠标／键盘自动化与单元合成触摸不等于真实设备手感。没有新增原生 iOS／Android 编译、微信运行、Safari、鸿蒙或真实上传后端证据；编译器输出“未检测出鸿蒙兼容性问题”不是鸿蒙编译或设备通过。Canvas 图像导出、SVG data URI 显示、媒体编码及原生容器 resize 按 CANVAS-01/02、QR-01、VIDEO-01、VIRTUAL-01、GESTURE-02、FORM-ASYNC-01 跟进。
+
+独立复核后完成五项定向修复：签名显示和 PNG 同为 5:3（等长笔迹像素对比）、虚拟列表 overscan=0 半行及近尾部、异步 reject 空文案兜底、输入最终值与迟到回写、非 280px 图片视口的双向键盘边界及 resize 收敛。最终 test:strengthened 为 17 组通过；完整 test:unit、H5／VitePress／微信构建再次通过。原基础 9 组、表单、分类和第二轮扩展套件在本轮 H5 产物上通过。独立 verdict 为五项 resolved / ship，仅覆盖修复清单。原始最终记录为 strengthen-review-site-build.log、strengthen-review-weixin.log、strengthen-review-browser.log 与 strengthen-independent-verdict.md。
+
+
+## 2026-11-02：四项审查修复
+
+非 WEB 的图片预览和 Canvas 尺寸查询统一改为 getBoundingClientRectAsync，窗口变化后更新缓存；签名排队处理异步查询期间的触点，并在处理完成前禁止导出。接口替身测试覆盖仅有异步查询的微信 UniElement、查询失败／竞态／卸载、连续快速笔迹、清空与导出时序。此测试不等于微信真机通过。
+
+Windows HBuilderX 5.34 的干净源码 H5 编译通过：只复制 Git 可见文件、不带 catalog.uts 和 site-preview-content，直接调用编译器，不执行 site-prepare。默认 IDE 构建为四个工作台页面；npm 构建显式开启 MORI_PREVIEW，继续编译五个页面及全部 88 示例。构建与浏览器的最终结果见 progress.md 本日记录；iOS／Android、微信真机、Safari 与鸿蒙设备证据仍未增加。
+
+## 2026-11-02：iOS 相册上传独立适配
+
+APP-IOS 新增 mori-upload-ios（PHPicker／临时副本／URLSession），公开 Upload 参数保持不变，复制时需包含两个 uni_modules 模块。原生最低 iOS 14，宿主框架可能要求更高版本；配置、权限及自定义基座步骤见 [模块说明](../uni_modules/mori-upload-ios/README.md)。
+
+本次 Windows HBuilderX 5.34、Node 24.21.0 完成官网 H5／VitePress 和微信发行构建。完整单元、配置与文档检查通过；Chromium 145.0.7632.6 的分类回归、Upload 文档与 390px 深色真实选图／中文文件名／删除通过，无页面错误。微信上传产物继续调用 uni.chooseImage／uni.uploadFile，无 iOS 桥接依赖。原始资料为 `.impeccable/review/ios-upload-*`。
+
+iOS 路由、参数、取消、迟到文件清理使用桥接替身；组件文件所有权与重试隔离运行真实 Vue setup。它们不执行 Swift。**没有新增 iOS 原生编译／真机／iCloud／相机／真实上传服务证据**，也没有新增 Android、微信真机、Safari 或鸿蒙运行证据。仍需按 MORI-UP-IOS-01 至 06 实测，不能沿用 H5／微信构建结果给 iOS 标绿。

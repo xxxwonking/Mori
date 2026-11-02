@@ -1,0 +1,5 @@
+<template>
+  <mori-text text="底部安全区" />
+  <view style="background-color:#eaf2ff"><mori-safe-area position="bottom" :size="24" /></view>
+  <mori-text text="蓝色区域演示 24px 自定义占位。实际接入可使用设备安全区高度。" :size="12" tone="muted" />
+</template>

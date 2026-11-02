@@ -1,15 +1,17 @@
 <template>
 
-<view class="mori-swipe-cell" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd" @touchcancel="cancelDrag"><view class="mori-swipe-cell__actions" :style="'width:' + resolvedWidth + 'px'" :aria-hidden="!modelValue"><button class="mori-action mori-swipe-cell__action" role="button" :tabindex="modelValue && !disabled ? 0 : -1" :disabled="!modelValue || disabled" :aria-disabled="!modelValue || disabled" :style="'background-color:' + moriPalette.dangerSoft + ';color:' + moriPalette.danger" @click="activate" @keydown.enter.prevent="activate" @keydown.space.prevent="activate">{{ actionText }}</button></view><view class="mori-swipe-cell__body mori-animated" :style="'transform:translateX(' + offset + 'px);background-color:' + moriPalette.surface + ';transition-duration:' + (dragging ? 0 : 180) + 'ms'"><view class="mori-swipe-cell__content"><slot /></view><mori-button :label="modelValue ? '收起操作' : '展开操作'" variant="text" size="sm" :disabled="disabled" @click="toggle" /></view></view>
+<view class="mori-swipe-cell" @touchstart="touchStart" @touchmove="touchMove" @touchend="touchEnd" @touchcancel="cancelDrag"><view v-for="direction in ['left', 'right']" :key="direction" class="mori-swipe-cell__actions" :style="direction + ':0;width:' + sideWidth(direction) + 'px'" :aria-hidden="!modelValue || activeSide != direction"><button v-for="(action,index) in actions(direction)" :key="action.value" class="mori-action mori-swipe-cell__action" role="button" :tabindex="modelValue && activeSide == direction && !disabled && action.disabled != true ? 0 : -1" :disabled="!modelValue || activeSide != direction || disabled || action.disabled == true" :style="'background-color:' + (action.danger == true ? moriPalette.dangerSoft : moriPalette.soft) + ';color:' + (action.danger == true ? moriPalette.danger : moriPalette.primary)" @click="activateAction(direction,index)" @keydown.enter.prevent="activateAction(direction,index)" @keydown.space.prevent="activateAction(direction,index)">{{ action.label }}</button></view><view class="mori-swipe-cell__body mori-animated" :style="'transform:translateX(' + offset + 'px);background-color:' + moriPalette.surface + ';transition-duration:' + (dragging ? 0 : 180) + 'ms'"><view class="mori-swipe-cell__content"><slot /></view><mori-button v-if="leftActions.length > 0 && !modelValue" label="左侧操作" variant="text" size="sm" :disabled="disabled" @click="open('left')" /><mori-button :label="modelValue ? '收起操作' : '展开操作'" variant="text" size="sm" :disabled="disabled" @click="toggle" /></view></view>
 </template>
 
 <script setup lang="uts">
 
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, PropType } from 'vue'
 import { moriPalette } from '../../theme.uts'
+import { MoriSwipeAction } from '../../advanced.uts'
 import { moriBound } from '../../content.uts'
-const props = defineProps({ modelValue: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, actionText: { type: String, default: '删除' }, actionWidth: { type: Number, default: 80 } })
-const emit = defineEmits(['update:modelValue', 'open', 'close', 'action'])
+const props = defineProps({ side: { type: String, default: 'right' }, leftActions: { type: Array as PropType<MoriSwipeAction[]>, default: (): MoriSwipeAction[] => [] }, rightActions: { type: Array as PropType<MoriSwipeAction[]>, default: (): MoriSwipeAction[] => [] }, modelValue: { type: Boolean, default: false }, disabled: { type: Boolean, default: false }, actionText: { type: String, default: '删除' }, actionWidth: { type: Number, default: 80 } })
+const emit = defineEmits(['update:modelValue', 'open', 'close', 'action', 'select', 'update:side'])
+const activeSide = ref(props.side)
 const dragging = ref(false)
 const offset = ref(0)
 const resolvedWidth = computed((): number => moriBound(props.actionWidth, 60, 200))
@@ -17,24 +19,29 @@ let startX = 0
 let startY = 0
 let initial = 0
 let vertical = false
-watch((): string => props.modelValue + ':' + resolvedWidth.value, () => { offset.value = props.modelValue ? -resolvedWidth.value : 0 }, { immediate: true })
+function actions(side: string): MoriSwipeAction[] { return side == 'left' ? props.leftActions : props.rightActions.length > 0 ? props.rightActions : [{ value: 'action', label: props.actionText, danger: true }] }
+function sideWidth(side: string): number { return actions(side).length * resolvedWidth.value }
+function resting(): number { return props.modelValue ? (activeSide.value == 'left' ? sideWidth('left') : -sideWidth('right')) : 0 }
+watch(() => props.side, (value: string) => { activeSide.value = value == 'left' ? 'left' : 'right'; cancelDrag() })
+watch((): string => props.modelValue + ':' + sideWidth('left') + ':' + sideWidth('right'), () => { offset.value = resting() }, { immediate: true })
 watch((): boolean => props.disabled, () => cancelDrag())
-function setOpen(value: boolean) { dragging.value = false; offset.value = value ? -resolvedWidth.value : 0; if (value != props.modelValue) { emit('update:modelValue', value); emit(value ? 'open' : 'close') } }
-function open() { if (!props.disabled) setOpen(true) }
+function setOpen(value: boolean, side: string = 'right') { dragging.value = false; const direction = side == 'left' ? 'left' : 'right'; if (value && sideWidth(direction) == 0) return; activeSide.value = direction; offset.value = value ? (direction == 'left' ? sideWidth(direction) : -sideWidth(direction)) : 0; if (value) emit('update:side',direction); if (value != props.modelValue) { emit('update:modelValue', value); emit(value ? 'open' : 'close') } }
+function open(side: string = 'right') { if (!props.disabled) setOpen(true,side) }
 function close() { setOpen(false) }
 function toggle() { if (!props.disabled) setOpen(!props.modelValue) }
 function activate() { if (!props.disabled && props.modelValue) emit('action') }
+function activateAction(side: string,index: number) { const action = actions(side)[index]; if (props.disabled || !props.modelValue || side != activeSide.value || action == null || action.disabled == true) return; emit('action'); emit('select',action.value,side,index) }
 function touchStart(event: UniTouchEvent) { if (props.disabled || event.touches.length != 1) return; startX = event.touches[0].screenX; startY = event.touches[0].screenY; initial = offset.value; dragging.value = true; vertical = false }
-function touchMove(event: UniTouchEvent) { if (!dragging.value || event.touches.length != 1) return; const dx = event.touches[0].screenX - startX; const dy = event.touches[0].screenY - startY; if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { vertical = true; cancelDrag(); return }; if (!vertical) offset.value = moriBound(initial + dx, -resolvedWidth.value, 0) }
-function touchEnd() { if (dragging.value) setOpen(-offset.value >= resolvedWidth.value / 2) }
-function cancelDrag() { dragging.value = false; offset.value = props.modelValue ? -resolvedWidth.value : 0 }
+function touchMove(event: UniTouchEvent) { if (!dragging.value || event.touches.length != 1) return; const dx = event.touches[0].screenX - startX; const dy = event.touches[0].screenY - startY; if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { vertical = true; cancelDrag(); return }; if (!vertical) offset.value = moriBound(initial + dx, -sideWidth('right'), sideWidth('left')) }
+function touchEnd() { if (dragging.value) { const side = offset.value > 0 ? 'left' : 'right'; setOpen(Math.abs(offset.value) >= sideWidth(side) / 2, side) } }
+function cancelDrag() { dragging.value = false; offset.value = resting() }
 defineExpose({ open, close })
 
 </script>
 
 <style lang="scss">
 @import '../../styles/action.scss';
-.mori-swipe-cell { position: relative; overflow: hidden; border-radius: 8px; }.mori-swipe-cell__actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; }.mori-swipe-cell__action { width: 100%; height: 100%; border-radius: 0; }.mori-swipe-cell__body { position: relative; display: flex; flex-direction: row; align-items: center; transition-property: transform; transition-timing-function: ease-in-out; }.mori-swipe-cell__content { flex: 1; min-width: 0; }
+.mori-swipe-cell { position: relative; overflow: hidden; border-radius: 8px; }.mori-swipe-cell__actions { position: absolute; flex-direction: row; top: 0; bottom: 0; display: flex; }.mori-swipe-cell__action { flex: 1; height: 100%; border-radius: 0; }.mori-swipe-cell__body { position: relative; display: flex; flex-direction: row; align-items: center; transition-property: transform; transition-timing-function: ease-in-out; }.mori-swipe-cell__content { flex: 1; min-width: 0; }
 /* #ifdef WEB */
 .mori-swipe-cell { touch-action: pan-y; }
 /* #endif */

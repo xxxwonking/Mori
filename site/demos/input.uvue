@@ -1,0 +1,15 @@
+<template>
+  <view class="input-demo">
+    <mori-input v-model="name" label="你的称呼" placeholder="输入一些内容" clearable hint="输入后可以一键清空" />
+    <mori-input v-model="password" label="密码" type="password" placeholder="试试密码显隐" clearable />
+    <mori-input model-value="mori.example" label="校验反馈" error="请输入完整的邮箱地址" />
+    <mori-input model-value="暂不可编辑" label="禁用状态" disabled />
+    <mori-text :text="name.length > 0 ? '你好，' + name : '等待输入'" tone="muted" :size="12" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const name = ref('')
+const password = ref('')
+</script>
+<style>.input-demo { display: flex; flex-direction: column; gap: 20px; }</style>

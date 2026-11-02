@@ -1,0 +1,8 @@
+<template>
+  <mori-progress :percentage="percent" label="文件上传进度" />
+  <mori-slider v-model="percent" label="调整进度" show-value />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const percent = ref(45)
+</script>

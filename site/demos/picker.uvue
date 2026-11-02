@@ -1,0 +1,13 @@
+<template>
+ <mori-button label="多列联动选择" @click="open" /><mori-text :text="values.length > 0 ? values.join(' / ') : '尚未选择'" />
+ <mori-picker v-model:show="show" v-model:values="values" :columns="columns" title="选择方向与任务" @columnChange="changeColumn" />
+</template>
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriChoiceOption } from '@/uni_modules/mori-ui/selection.uts'
+const show = ref(false), group = ref('design'), values = ref<string[]>([])
+const groups: MoriChoiceOption[] = [{ value: 'design', label: '设计' }, { value: 'development', label: '开发' }]
+const columns = computed((): MoriChoiceOption[][] => [groups, group.value == 'design' ? [{ value: 'layout', label: '页面布局' }, { value: 'icons', label: '图标设计' }] : [{ value: 'component', label: '组件开发' }, { value: 'tests', label: '交互测试' }]])
+function changeColumn(index: number,value: string) { if (index == 0) group.value = value }
+function open() { group.value = values.value.length > 0 ? values.value[0] : 'design'; show.value = true }
+</script>
