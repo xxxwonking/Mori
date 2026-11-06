@@ -28,6 +28,10 @@
         "navigationStyle": "custom"
       }
     }
+    ,{
+      "path": "pages/upload/upload",
+      "style": { "navigationBarTitleText": "图片上传测试" }
+    }
     // #ifdef MORI_PREVIEW
     ,{
       "path": "pages/preview/preview",

@@ -24,6 +24,8 @@
         <view class="mobile-nav"><button v-for="item in navItems" :key="item.id" class="mobile-nav-item" :class="{ 'mobile-nav-item--active': current == item.id }" @click="selectComponent(item.id)"><text class="mobile-nav-text">{{ item.label }}</text></button></view>
 
         <view class="workspace-body">
+          <view style="margin-bottom:12px"><mori-button label="组件全览 · 88 个组件" variant="soft" size="sm" @click="uni.navigateTo({ url: '/pages/catalog/catalog' })" /></view>
+          <view style="margin-bottom:12px"><mori-button label="图片上传测试" variant="soft" size="sm" @click="uni.navigateTo({ url: '/pages/upload/upload' })" /></view>
           <view style="margin-bottom:12px"><mori-button label="体验反馈组件" variant="soft" size="sm" @click="openFeedback" /></view>
           <view style="margin-bottom:16px"><mori-button label="体验表单基础" variant="soft" size="sm" @click="openForms" /></view>
           <view class="page-heading"><view class="page-heading-copy"><view class="page-title-row"><text class="page-title">{{ currentTitle }}</text><text v-if="current != 'guide'" class="page-title-cn">{{ currentChinese }}</text></view><text class="page-description">{{ currentDescription }}</text></view><view class="theme-control"><text class="theme-label">主题色</text><button v-for="theme in themes" :key="theme.name" class="theme-swatch" :class="{ 'theme-swatch--active': themeName == theme.name }" :aria-label="theme.name + '主题'" :style="'background-color:' + theme.color" @click="setTheme(theme.name, theme.color, theme.soft)"><view v-if="themeName == theme.name" class="swatch-dot"></view></button></view></view>

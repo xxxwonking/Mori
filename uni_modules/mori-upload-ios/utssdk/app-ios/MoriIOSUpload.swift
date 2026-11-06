@@ -4,6 +4,7 @@ import PhotosUI
 import UniformTypeIdentifiers
 import AVFoundation
 import DCloudUTSFoundation
+import DCloudUniappRuntime
 
 private protocol MoriCancellable: AnyObject { func cancel() }
 
@@ -101,10 +102,12 @@ private final class MoriPhotoSelection: NSObject, MoriCancellable, PHPickerViewC
             if album && camera {
                 let sheet = UIAlertController(title: "选择照片来源", message: nil, preferredStyle: .actionSheet)
                 sheet.addAction(UIAlertAction(title: "系统相册", style: .default) { [weak self, weak sheet] _ in
-                    sheet?.dismiss(animated: true) { self?.controller = nil; self?.showAlbum() }
+                    guard let self, let sheet else { return }
+                    self.afterSourceSheet(sheet) { self.showAlbum() }
                 })
                 sheet.addAction(UIAlertAction(title: "拍照", style: .default) { [weak self, weak sheet] _ in
-                    sheet?.dismiss(animated: true) { self?.controller = nil; self?.showCamera() }
+                    guard let self, let sheet else { return }
+                    self.afterSourceSheet(sheet) { self.showCamera() }
                 })
                 sheet.addAction(UIAlertAction(title: "取消", style: .cancel) { _ in self.cancel() })
                 present(sheet)
@@ -112,6 +115,24 @@ private final class MoriPhotoSelection: NSObject, MoriCancellable, PHPickerViewC
             else if camera { showCamera() }
             else { finish(error: "不支持的照片来源", cancelled: false) }
         } catch { finish(error: error.localizedDescription, cancelled: false) }
+    }
+    // UIAlertAction dismisses its sheet automatically. A second dismiss can lose its
+    // completion callback; wait for the actual dismissal before presenting another UI.
+    func afterSourceSheet(_ sheet: UIAlertController, attempts: Int = 0, action: @escaping () -> Void) {
+        // Selecting a source is a handoff, not cancellation. UIKit may report the
+        // sheet's automatic dismissal through the adaptive-presentation delegate.
+        sheet.presentationController?.delegate = nil
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+            guard let self, !self.completed else { return }
+            if sheet.viewIfLoaded?.window == nil && !sheet.isBeingDismissed {
+                self.controller = nil
+                action()
+            } else if attempts < 30 {
+                self.afterSourceSheet(sheet, attempts: attempts + 1, action: action)
+            } else {
+                self.finish(error: "照片来源菜单未能关闭，请重试", cancelled: false)
+            }
+        }
     }
     func present(_ viewController: UIViewController) {
         guard !completed else { return }
@@ -126,7 +147,11 @@ private final class MoriPhotoSelection: NSObject, MoriCancellable, PHPickerViewC
         }
         controller = viewController
         host.present(viewController, animated: true)
-        viewController.presentationController?.delegate = self
+        // UIAlertController reports cancellation via its cancel action. Its
+        // dismissal delegate also fires when an ordinary source action is chosen.
+        if !(viewController is UIAlertController) {
+            viewController.presentationController?.delegate = self
+        }
     }
     func showAlbum() {
         var config = PHPickerConfiguration()
@@ -214,7 +239,10 @@ private final class MoriPhotoSelection: NSObject, MoriCancellable, PHPickerViewC
             }
         }
     }
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) { cancel() }
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        guard presentationController.presentedViewController === controller else { return }
+        cancel()
+    }
     func cancel() {
         guard !completed else { return }
         controller?.dismiss(animated: true); controller = nil

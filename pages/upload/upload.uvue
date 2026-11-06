@@ -1,0 +1,43 @@
+<template>
+  <!-- #ifdef APP -->
+  <scroll-view scroll-y class="upload-test-scroll" :style="'background-color:' + moriPalette.ground">
+  <!-- #endif -->
+    <view class="upload-test-page" :style="'background-color:' + moriPalette.ground">
+      <text class="upload-test-title" :style="'color:' + moriPalette.text">图片上传测试</text>
+      <text class="upload-test-copy" :style="'color:' + moriPalette.muted">选择图片后，点击开始上传。最多 3 张，每张不超过 5 MB。使用本地接收服务时，手机与电脑需连接同一 Wi-Fi。</text>
+      <view class="upload-test-field"><mori-input v-model="endpoint" label="上传地址" placeholder="http://电脑局域网地址:8787/upload" :disabled="busy" /></view>
+      <mori-upload ref="upload" v-model="files" :upload-url="endpoint.trim()" :auto-upload="false" :max-count="3" :max-size="5242880" @afterRead="status = '图片已就绪，点击开始上传。'" @success="onSuccess" @error="onError" @cancel="status = '已取消选择。'" />
+      <view class="upload-test-actions"><mori-button label="开始上传" :disabled="!canUpload" :loading="busy" @click="upload?.submit()" /></view>
+      <view class="upload-test-actions"><mori-button label="清空图片" variant="text" @click="upload?.clear(); status = '已清空图片。'" /></view>
+      <text class="upload-test-copy" :style="'color:' + moriPalette.muted">{{ status }}</text>
+      <text v-if="response.length > 0" class="upload-test-copy" :style="'color:' + moriPalette.text">{{ response }}</text>
+      <view class="upload-test-actions"><mori-button label="查看全部组件" variant="soft" @click="uni.navigateTo({ url: '/pages/catalog/catalog' })" /></view>
+    </view>
+  <!-- #ifdef APP -->
+  </scroll-view>
+  <!-- #endif -->
+</template>
+
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriUploadFile } from '../../uni_modules/mori-ui/upload.uts'
+import { moriPalette } from '../../uni_modules/mori-ui/theme.uts'
+const endpoint = ref('')
+const files = ref<MoriUploadFile[]>([])
+const upload = ref<MoriUploadComponentPublicInstance | null>(null)
+const status = ref('请填写上传地址并选择图片。')
+const response = ref('')
+const busy = computed((): boolean => files.value.some((file: MoriUploadFile): boolean => file.status == 'uploading'))
+const canUpload = computed((): boolean => !busy.value && /^https?:\/\//.test(endpoint.value.trim()) && files.value.some((file: MoriUploadFile): boolean => file.status == 'ready' || file.status == 'error'))
+function onSuccess(file: MoriUploadFile, result: string) { status.value = file.name + ' 上传成功。'; response.value = result }
+function onError(message: string) { status.value = message; response.value = '' }
+</script>
+
+<style>
+.upload-test-scroll { flex: 1; }
+.upload-test-page { padding: 24px; }
+.upload-test-title { font-size: 22px; font-weight: 600; margin-bottom: 12px; }
+.upload-test-copy { font-size: 13px; line-height: 21px; margin-bottom: 16px; }
+.upload-test-field { margin-bottom: 24px; }
+.upload-test-actions { margin-top: 16px; margin-bottom: 12px; }
+</style>

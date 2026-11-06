@@ -9,7 +9,7 @@
 | H5 | 通过发行构建 | Chromium 145，360/390/768/1024/1280/1440px | 首版已验证，Safari 尚待测试 |
 | 微信小程序 | 通过发行构建 | 未连接微信开发者工具 / 真机 | 已编译，待运行验证 |
 | Android App | 已配置 uni-app x 蒸汽模式 | 未打包 / 未连接设备 | 待原生编译与真机验证 |
-| iOS App | 已配置 uni-app x 蒸汽模式 | 未打包 / 未连接设备 | 待原生编译与真机验证 |
+| iOS App | 2026-11-02 本地调试副本原生编译通过 | iPhone 16 Pro / iOS 27.2 已安装并启动 | 相册选图及本地服务上传通过；非全组件验收，见文末 |
 | HarmonyOS NEXT | 按组件兼容目标组织源码 | 未配置鸿蒙工具链 / 未连接设备 | 尽力支持，尚未验证 |
 
 | 组件 | H5 交互 | 微信编译 | iOS / Android / 鸿蒙 |
@@ -135,3 +135,10 @@ APP-IOS 新增 mori-upload-ios（PHPicker／临时副本／URLSession），公�
 本次 Windows HBuilderX 5.34、Node 24.21.0 完成官网 H5／VitePress 和微信发行构建。完整单元、配置与文档检查通过；Chromium 145.0.7632.6 的分类回归、Upload 文档与 390px 深色真实选图／中文文件名／删除通过，无页面错误。微信上传产物继续调用 uni.chooseImage／uni.uploadFile，无 iOS 桥接依赖。原始资料为 `.impeccable/review/ios-upload-*`。
 
 iOS 路由、参数、取消、迟到文件清理使用桥接替身；组件文件所有权与重试隔离运行真实 Vue setup。它们不执行 Swift。**没有新增 iOS 原生编译／真机／iCloud／相机／真实上传服务证据**，也没有新增 Android、微信真机、Safari 或鸿蒙运行证据。仍需按 MORI-UP-IOS-01 至 06 实测，不能沿用 H5／微信构建结果给 iOS 标绿。
+
+
+## 2026-11-02：首次 iOS 真机启动与上传复测
+
+macOS / HBuilderX 5.26 / Xcode 27.1，iPhone 16 Pro（iOS 27.2）。本地个人开发签名基座已嵌入 mori-upload-ios，签名验证、安装、启动成功，已获取 Mori 首页的真机截图。因 Xcode 支持范围，调试副本的插件 deploymentTarget 为 15.0；仓库仍为 14.0，不能据此宣称 iOS 14 已验证。
+
+原生编译发现并修复缺少 DCloudUniappRuntime 导入。来源菜单能打开，但点击系统相册后误触发取消；已调整关闭生命周期，重新编译和安装后，用户确认相册选图和上传均成功；原生日志确认 PHPicker 成功回调，电脑收到手机上传的 522,167 字节 PNG。临时 HTTP 接收服务还通过电脑侧接收内容一致、缺少文件拒绝、令牌与大小限制检查。App CSS 属性／选择器及基座重复类警告仍存在。新增手机组件全览与可配置上传地址的测试页；没有完整 88 组件验收、相机／iCloud／HEIC／后台上传或业务服务验证结论。
