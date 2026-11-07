@@ -2,7 +2,9 @@
 
 所有 **88 个组件**的独立详细用法、参数、事件、方法和边界见 [逐组件使用指南](component-guides.md)。本页保留原 13 个组件的 API；新增组件以对应独立页面为准。平台差异与 iOS 上传后续工作见 [适配跟踪](platform-adaptation.md)。
 
-组件按 `uni_modules` / easycom 规则使用。全局主题由 `theme.uts` 管理，初始化方式见 README。
+组件按 `uni_modules` / easycom 规则使用。全局主题由 `theme.uts` 管理，初始化方式见 README。全局语义颜色、实例覆盖及状态优先级见 [主题与组件定制](theme-customization.md)。
+
+`MoriConfig.messages?: MoriMessages` 可增量覆盖 17 项内置操作提示；`moriMessages` 提供响应式只读访问。`resetMoriConfig()` 同时恢复默认提示与主题，完整字段和边界见同一指南；已有组件属性与事件不变。
 
 Upload 的公开属性／事件保持不变；APP-IOS 默认走独立相册与上传模块，复制接入时包含 `mori-upload-ios`。权限配置、临时文件所有权与当前验证边界见 [Upload 指南](components/upload.md)。
 
@@ -10,6 +12,8 @@ Upload 的公开属性／事件保持不变；APP-IOS 默认走独立相册与�
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 所有变体的背景覆盖；solid／soft 默认边框随此背景 |
+| borderColor | string | 空（继承） | 最终边框色，优先于变体和 color |
 | label | string | 空 | 按钮文字，默认 slot 可覆盖 |
 | variant | string | solid | solid / soft / outline / text |
 | size | string | md | sm 28px / md 36px / lg 40px |
@@ -23,6 +27,8 @@ Upload 的公开属性／事件保持不变；APP-IOS 默认走独立相册与�
 
 事件：`click`，仅在未禁用、未加载时触发，不携带业务参数。默认 slot 用于文字内容；图标组件尚未包含在首版中。
 
+outline 默认使用中性 input 边框，显式 color 可覆盖描边；默认配色见 [shadcn 风格与主题](shadcn-style.md)。`soft` 对应灰底次级操作，保留现有 variant 名称。
+
 H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成功失败逻辑由业务提供。
 
 实心按钮会为不透明 `#RGB`、`#RRGGBB` 和逗号格式 `rgb(r,g,b)` 选择对比度更高的黑/白文字，不受当前深浅模式干扰。其他颜色格式（含透明色）请提供 `textColor`，并自行确认实际合成背景的可读性。柔和/描边按钮请成对选择 color 与背景，实例覆盖同样需要考虑对比度。
@@ -31,6 +37,10 @@ H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 输入区域背景；禁用时保留该颜色及禁用透明度 |
+| textColor | string | 空（继承） | 输入值文字色，不改变标签和错误消息 |
+| borderColor | string | 空（继承） | 普通边框色；聚焦和错误状态优先 |
+| placeholderColor | string | 空（继承） | 占位文字色 |
 | v-model | string | 空 | 当前输入值 |
 | label | string | 空 | 字段名称；同时用作无障碍名称 |
 | placeholder | string | 请输入 | 未填写时的提示 |
@@ -57,7 +67,7 @@ H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成
 
 密码类型使用眼睛图标切换显隐；clearable 使用关闭图标清空。图标保留可访问名称与键盘操作，显隐与清空可同时使用。输入组件呈现错误信息，校验规则留给业务。组合表单展示了必填、邮箱格式、同意选项与错误恢复。
 
-H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；控件始终只有一条闭合边框，聚焦变为主题色且宽度不变；错误信息与 aria-invalid 在聚焦时继续保留，失焦后恢复错误边框。DOM 适配集中在 WEB 条件编译的 platform/accessibility.uts，原生与小程序不包含该段代码。
+H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；控件始终只有一条闭合边框，正常聚焦使用中性 ring 或显式 color，宽度不变；错误字段在聚焦和失焦时都保持错误色边框、错误信息与 aria-invalid。DOM 适配集中在 WEB 条件编译的 platform/accessibility.uts，原生与小程序不包含该段代码。
 
 放入 FormItem 时隐藏自身标题和消息，错误与描述由 FormItem 接管；非空的本地 label 可覆盖输入无障碍名称，required 为本地与父级的逻辑或。建议将 label、required、hint、error 统一设置在 FormItem，避免信息不一致。
 
@@ -65,6 +75,9 @@ H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| activeThumbColor | string | 空（继承） | 开启时滑块背景 |
+| inactiveThumbColor | string | 空（继承） | 关闭时滑块背景 |
+| textColor | string | 空（继承） | 外部标签文字色；轨道文字仍自动选择黑白 |
 | v-model | boolean | false | 是否开启 |
 | label | string | 空 | 选项名称，建议始终提供 |
 | description | string | 空 | 次级说明 |
@@ -88,13 +101,16 @@ H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 未选中方框背景 |
+| borderColor | string | 空（继承） | 未选中方框边框 |
+| textColor | string | 空（继承） | 选项文字色 |
 | v-model | boolean | false | 是否选中 |
 | indeterminate | boolean | false | 显示半选短横线；父级管理。 |
 | label | string | 空 | 可点击的说明文字，建议始终提供 |
 | color | string | 空 | 选中填充色；为空继承主题品牌色 |
 | disabled | boolean | false | 禁止切换 |
 
-事件：`update:modelValue(boolean)`、`change(boolean)`。方框为 16px、5px 圆角，选中填充主题色，Lucide 勾图标自动选择黑白；整行可点击，H5 支持 Enter / Space，禁用时退出 Tab 顺序。勾通过 opacity / transform 过渡 160ms，尺寸与行布局保持稳定。此组件保持单项 boolean 模型；数组多选使用 `mori-checkbox-group`。
+事件：`update:modelValue(boolean)`、`change(boolean)`。方框为 16px、4px 圆角，选中填充主题色，Lucide 勾图标自动选择黑白；整行可点击，H5 支持 Enter / Space，禁用时退出 Tab 顺序。勾通过 opacity / transform 过渡 160ms，尺寸与行布局保持稳定。此组件保持单项 boolean 模型；数组多选使用 `mori-checkbox-group`。
 
 ## mori-form
 
@@ -118,6 +134,9 @@ FormItem 负责统一标题、必填态和消息。Input／Textarea 嵌入其中
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 圆形底色，选中时仍保留 |
+| borderColor | string | 空（继承） | 未选中边框色 |
+| textColor | string | 空（继承） | 选项文字色 |
 | v-model | string | 空 | 当前选中值 |
 | value | string | 必填 | 本项值；与 v-model 相等时选中 |
 | label | string | 空 | 显示文字与无障碍名称；空时名称回退到 value |
@@ -132,6 +151,9 @@ FormItem 负责统一标题、必填态和消息。Input／Textarea 嵌入其中
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 透传到所有选项的圆形底色 |
+| borderColor | string | 空（继承） | 透传到所有选项的未选中边框 |
+| textColor | string | 空（继承） | 透传到所有选项的文字色 |
 | v-model | string | 空 | 当前选项值 |
 | options | MoriChoiceOption[] | [] | 选项列表；value 必须是唯一字符串 |
 | label | string | 空 | 独立使用时的标题；FormItem 中优先用父级标题 |
@@ -155,6 +177,9 @@ export type MoriChoiceOption = {
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 透传到所有选项的未选中背景 |
+| borderColor | string | 空（继承） | 透传到所有选项的未选中边框 |
+| textColor | string | 空（继承） | 透传到所有选项的文字色 |
 | v-model | string[] | [] | 已选 value 数组 |
 | options | MoriChoiceOption[] | [] | value 唯一的字符串选项列表 |
 | label | string | 空 | 独立使用时的标题；FormItem 中优先用父级标题 |
@@ -172,6 +197,10 @@ export type MoriChoiceOption = {
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 输入区域背景 |
+| textColor | string | 空（继承） | 输入值文字色 |
+| borderColor | string | 空（继承） | 普通边框色；聚焦和错误状态优先 |
+| placeholderColor | string | 空（继承） | 占位文字色 |
 | v-model | string | 空 | 当前文本 |
 | label | string | 空 | 独立字段标题及无障碍名称 |
 | placeholder | string | 请输入 | 占位提示 |
@@ -226,6 +255,10 @@ Toast 不阻止背景操作，适合简短结果提示；需要用户确认或�
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 面板背景色 |
+| textColor | string | 空（继承） | 标题文字色；插槽内容自行管理 |
+| borderColor | string | 空（继承） | 面板边框色 |
+| overlayColor | string | 空（继承） | 遮罩颜色，空时使用主题 overlay |
 | v-model | boolean | false | 控制显隐，关闭时保留退出过渡 |
 | position | string | bottom | center / bottom / top / left / right |
 | title | string | 空 | 标题及弹层无障碍名称，建议提供 |
@@ -235,9 +268,9 @@ Toast 不阻止背景操作，适合简短结果提示；需要用户确认或�
 | closeOnEscape | boolean | true | H5 按 Escape 请求关闭 |
 | duration | number | 280 | 过渡时长，单位 ms；H5 减少动态效果时为 0 |
 | zIndex | number | 1000 | 层级下限，新打开层始终在已有层之上 |
-| safeAreaInsetBottom | boolean | true | H5／微信通过 env 预留底部安全区；App 需使用方结合页面适配 |
+| safeAreaInsetBottom | boolean | true | 通过 SafeArea 预留底部安全区；H5 使用 env，微信／App 跟随宿主窗口数据 |
 
-默认 slot 放置内容；点击内容不触发遮罩关闭。
+默认 slot 放置内容；点击内容不触发遮罩关闭。正文使用独立 scroll-view，长内容可滚动，标题与 44px 关闭入口保持可见。最大高度响应窗口变化；H5 同时响应未缩放页面的 visualViewport。顶部／侧边弹层自动预留顶部安全区。参见 [移动端接入](mobile-adaptation.md)。
 
 overlay=false 为非模态模式：隐藏遮罩，aria-modal=false，该层不锁定背景滚动或限制焦点，H5 可继续操作背景；若它位于最上层，仍可按 Escape 关闭。其他仍打开的模态层继续持有自己的滚动锁。
 
@@ -259,6 +292,13 @@ overlay=false 为非模态模式：隐藏遮罩，aria-modal=false，该层不�
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 面板背景色 |
+| textColor | string | 空（继承） | 标题及默认消息文字色 |
+| borderColor | string | 空（继承） | 面板边框色 |
+| overlayColor | string | 空（继承） | 遮罩颜色 |
+| confirmColor | string | 空（继承） | 确认按钮主色 |
+| confirmTextColor | string | 空（继承） | 确认按钮文字色 |
+| cancelColor | string | 空（继承） | 取消按钮描边与文字色 |
 | v-model | boolean | false | 是否显示 |
 | title | string | 空 | 标题与无障碍名称 |
 | message | string | 空 | 正文；默认 slot 可替换 |

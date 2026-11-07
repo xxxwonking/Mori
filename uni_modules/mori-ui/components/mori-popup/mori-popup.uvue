@@ -1,23 +1,33 @@
 <template>
-  <view v-if="rendered" class="mori-popup" :class="'mori-popup--' + resolvedPosition" :style="'z-index:' + effectiveZIndex + ';'">
+  <view v-if="rendered" class="mori-popup" :class="'mori-popup--' + resolvedPosition" :style="viewportStyle">
     <view v-if="overlay" class="mori-popup__overlay" :style="maskStyle" aria-hidden="true" @click.stop="handleOverlay" />
-    <view :id="popupId" class="mori-popup__panel" :class="['mori-popup__panel--' + resolvedPosition, { 'mori-popup__panel--safe': safeAreaInsetBottom }]" :style="panelStyle" role="dialog" :aria-modal="overlay" :aria-label="title.length > 0 ? title : '弹出层'" tabindex="-1" @click.stop>
+    <view :id="popupId" class="mori-popup__panel" :class="'mori-popup__panel--' + resolvedPosition" :style="panelStyle" role="dialog" :aria-modal="overlay" :aria-label="title.length > 0 ? title : '弹出层'" tabindex="-1" @click.stop>
+      <mori-safe-area v-if="topSafeArea" position="top" />
       <view v-if="title.length > 0 || closable" class="mori-popup__header">
-        <text v-if="title.length > 0" class="mori-popup__title" :style="'color:' + moriPalette.text">{{ title }}</text>
+        <text v-if="title.length > 0" class="mori-popup__title" :style="'color:' + (textColor.length > 0 ? textColor : moriPalette.text)">{{ title }}</text>
         <view v-else class="mori-popup__title" />
-        <button v-if="closable" class="mori-popup__close" role="button" tabindex="0" aria-label="关闭弹出层" @click="requestClose('close')" @keydown.enter.prevent="requestClose('close')" @keydown.space.prevent="requestClose('close')"><image class="mori-popup__close-icon" :src="'/uni_modules/mori-ui/static/icons/circle-x-' + (moriIsDark ? 'dark' : 'light') + '.svg'" mode="aspectFit" aria-hidden="true" /></button>
+        <button v-if="closable" class="mori-popup__close" role="button" tabindex="0" :aria-label="moriMessages.closePopup" @click="requestClose('close')" @keydown.enter.prevent="requestClose('close')" @keydown.space.prevent="requestClose('close')"><image class="mori-popup__close-icon" :src="'/uni_modules/mori-ui/static/icons/circle-x-' + (getMoriButtonTextColor(backgroundColor.length > 0 ? backgroundColor : moriPalette.surface) == '#ffffff' ? 'dark' : 'light') + '.svg'" mode="aspectFit" aria-hidden="true" /></button>
       </view>
-      <view class="mori-popup__content"><slot /></view>
+      <scroll-view scroll-y class="mori-popup__scroll" :style="'max-height:' + contentMaxHeight + 'px;'">
+        <view class="mori-popup__content"><slot /></view>
+      </scroll-view>
+      <mori-safe-area v-if="safeAreaInsetBottom" />
     </view>
   </view>
 </template>
 
 <script setup lang="uts">
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue'
-import { moriPalette, moriIsDark } from '../../theme.uts'
+import { moriPalette, moriMessages } from '../../theme.uts'
 import { createMoriOverlayId, acquireMoriOverlay, releaseMoriOverlay, isTopMoriOverlay, createMoriOverlayGate, advanceMoriOverlayGate, isCurrentMoriOverlayGate, moriOverlayDuration } from '../../overlay.uts'
 import { activateMoriOverlayAccessibility, releaseMoriOverlayAccessibility, moriOverlayReducedMotion } from '../../platform/overlay-accessibility.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
+import { useMoriViewport } from '../../platform/viewport.uts'
 const props = defineProps({
+  backgroundColor: { type: String, default: '' },
+  textColor: { type: String, default: '' },
+  borderColor: { type: String, default: '' },
+  overlayColor: { type: String, default: '' },
   modelValue: { type: Boolean, default: false },
   position: { type: String, default: 'bottom' },
   title: { type: String, default: '' },
@@ -31,6 +41,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue', 'open', 'opened', 'close', 'closed'])
 const popupId = createMoriOverlayId()
+const viewport = useMoriViewport()
 const rendered = ref(false)
 const shown = ref(false)
 const effectiveZIndex = ref(1000)
@@ -41,7 +52,17 @@ let frameTimer = 0
 let disposed = false
 let requestedClose = false
 const resolvedPosition = computed((): string => ['center', 'bottom', 'top', 'left', 'right'].includes(props.position) ? props.position : 'bottom')
-const maskStyle = computed((): string => 'opacity:' + (shown.value ? '1' : '0') + ';transition-duration:' + transitionDuration.value + 'ms;')
+const topSafeArea = computed((): boolean => ['top', 'left', 'right'].includes(resolvedPosition.value))
+const panelMaxHeight = computed((): number => Math.max(0, resolvedPosition.value == 'left' || resolvedPosition.value == 'right' ? viewport.value.height : Math.min(viewport.value.height * 0.85, viewport.value.height - 40)))
+const contentMaxHeight = computed((): number => Math.max(0, panelMaxHeight.value - (props.title.length > 0 || props.closable ? 56 : 0) - (topSafeArea.value ? viewport.value.safeTop : 0) - (props.safeAreaInsetBottom ? viewport.value.safeBottom : 0) - 2))
+const viewportStyle = computed((): string => {
+  let style = 'z-index:' + effectiveZIndex.value + ';'
+  // #ifdef WEB
+  style += 'top:' + viewport.value.top + 'px;left:' + viewport.value.left + 'px;width:' + viewport.value.width + 'px;height:' + viewport.value.height + 'px;right:auto;bottom:auto;'
+  // #endif
+  return style
+})
+const maskStyle = computed((): string => 'background-color:' + (props.overlayColor.length > 0 ? props.overlayColor : moriPalette.value.overlay) + ';opacity:' + (shown.value ? '1' : '0') + ';transition-duration:' + transitionDuration.value + 'ms;')
 const panelStyle = computed((): string => {
   let transform = 'translateY(0)'
   if (!shown.value) {
@@ -53,7 +74,7 @@ const panelStyle = computed((): string => {
   }
   const opacity = shown.value ? '1' : '0'
   // Keep visibility and travel in step, so the sheet emerges from its screen edge.
-  return 'background-color:' + moriPalette.value.surface + ';color:' + moriPalette.value.text + ';transform:' + transform + ';opacity:' + opacity + ';transition-duration:' + transitionDuration.value + 'ms;transition-timing-function:ease-in-out;'
+  return 'max-height:' + panelMaxHeight.value + 'px;background-color:' + (props.backgroundColor.length > 0 ? props.backgroundColor : moriPalette.value.surface) + ';border-color:' + (props.borderColor.length > 0 ? props.borderColor : moriPalette.value.border) + ';color:' + (props.textColor.length > 0 ? props.textColor : moriPalette.value.text) + ';transform:' + transform + ';opacity:' + opacity + ';transition-duration:' + transitionDuration.value + 'ms;transition-timing-function:ease-in-out;'
 })
 function cancelTimers() { clearTimeout(frameTimer); clearTimeout(transitionTimer) }
 function requestClose(reason: string) {
@@ -109,28 +130,28 @@ onBeforeUnmount(() => { disposed = true; advanceMoriOverlayGate(gate); cancelTim
 .mori-popup--top { justify-content: flex-start; }
 .mori-popup--left { align-items: flex-start; }
 .mori-popup--right { align-items: flex-end; }
-.mori-popup__overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.42); pointer-events: auto; transition-property: opacity; transition-timing-function: ease; }
-.mori-popup__panel { position: relative; width: 100%; max-height: 85vh; pointer-events: auto; transition-property: transform, opacity; transition-timing-function: ease; }
+.mori-popup__overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); pointer-events: auto; transition-property: opacity; transition-timing-function: ease; }
+.mori-popup__panel { position: relative; display: flex; flex-direction: column; width: 100%; min-height: 0; border: 1px solid transparent; overflow: hidden; pointer-events: auto; transition-property: transform, opacity; transition-timing-function: ease; }
 .mori-popup__panel--center { max-width: 360px; border-radius: 12px; }
 .mori-popup__panel--bottom { border-radius: 12px 12px 0 0; }
 .mori-popup__panel--top { border-radius: 0 0 12px 12px; }
 .mori-popup__panel--left, .mori-popup__panel--right { width: 82%; max-width: 360px; height: 100%; max-height: 100%; }
-.mori-popup__header { display: flex; flex-direction: row; align-items: center; padding: 12px 12px 0 16px; }
-.mori-popup__title { flex: 1; font-size: 15px; line-height: 22px; font-weight: 600; }
-.mori-popup__close { width: 36px; height: 36px; padding: 0; margin: 0 0 0 8px; border: 0; background-color: transparent; display: flex; align-items: center; justify-content: center; }
+.mori-popup__header { display: flex; flex-direction: row; align-items: center; height: 56px; flex-shrink: 0; padding: 0 8px 0 16px; }
+.mori-popup__title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; lines: 1; font-size: 15px; line-height: 22px; font-weight: 600; }
+.mori-popup__close { width: 44px; height: 44px; flex-shrink: 0; padding: 0; margin: 0 0 0 8px; border: 0; background-color: transparent; display: flex; align-items: center; justify-content: center; }
 .mori-popup__close-icon { width: 18px; height: 18px; }
 .mori-popup__content { padding: 16px; }
+.mori-popup__scroll { min-height: 0; flex-shrink: 1; }
 /* #ifdef WEB */
 /* The shell must not scroll to a focused child while that child is sliding in. */
 .mori-popup { overflow: clip; }
-.mori-popup__panel { overflow-y: auto; box-sizing: border-box; }
+.mori-popup__panel { box-sizing: border-box; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16); }
+.mori-popup__content { overflow-wrap: anywhere; }
+.mori-popup__title { white-space: nowrap; }
+.mori-popup__scroll :deep(.uni-scroll-view) { overscroll-behavior: contain; }
 .mori-popup__panel:focus { outline: none; }
 .mori-popup__close::after { border: none; }
 .mori-popup__close:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; border-radius: 6px; }
-.mori-popup__panel--safe { padding-bottom: env(safe-area-inset-bottom); }
 @media (prefers-reduced-motion: reduce) { .mori-popup__overlay, .mori-popup__panel { transition: none; } }
-/* #endif */
-/* #ifdef MP-WEIXIN */
-.mori-popup__panel--safe { padding-bottom: env(safe-area-inset-bottom); }
 /* #endif */
 </style>

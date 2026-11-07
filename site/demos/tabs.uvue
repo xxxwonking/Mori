@@ -1,0 +1,13 @@
+<template>
+  <mori-tabs v-model="tab" :items="items" label="订单分类"><mori-text :text="tab == 'all' ? '全部订单' : '已完成订单'" /></mori-tabs>
+  <mori-tabs v-model="custom" :items="customItems" label="自定义分类" color="#312e81" text-color="#4b5c85" background-color="#eef2ff" active-background-color="#c7d2fe" border-color="#818cf8" />
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+import { MoriNavItem } from '@/uni_modules/mori-ui/navigation.uts'
+const tab = ref('all')
+const items: MoriNavItem[] = [{ label: '全部', value: 'all' }, { label: '已完成', value: 'done', badge: '3' }]
+const custom = ref('all')
+const customItems: MoriNavItem[] = [{ label: '全部', value: 'all' }, { label: '停用', value: 'disabled', disabled: true }, { label: '已完成', value: 'done' }]
+</script>

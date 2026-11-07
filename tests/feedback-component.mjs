@@ -9,10 +9,12 @@ const source = readFileSync(new URL('../uni_modules/mori-ui/components/mori-toas
 const descriptor = parse(source).descriptor;
 const feedbackSource = stripTypeScriptTypes(readFileSync(new URL('../uni_modules/mori-ui/feedback.uts', import.meta.url), 'utf8'));
 const feedbackURL = 'data:text/javascript;base64,' + Buffer.from(feedbackSource).toString('base64');
+const contrastURL = 'data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(readFileSync(new URL('../uni_modules/mori-ui/contrast.uts', import.meta.url), 'utf8'))).toString('base64');
 let code = compileScript(descriptor, { id: 'toast-behavior-test' }).content;
 code = code.replace(/from ['"]vue['"]/g, 'from ' + JSON.stringify(import.meta.resolve('vue')))
   .replace('{ MoriToastOptions, createMoriToastTimer }', '{ createMoriToastTimer }')
-  .replace(/import \{ moriIsDark \} from ['"]\.\.\/\.\.\/theme\.uts['"]/, 'const moriIsDark = ref(false)')
+  .replace(/import \{ moriPalette \} from ['"]\.\.\/\.\.\/theme\.uts['"]/, "const moriPalette = { value: { text: '#0a0a0a', surface: '#ffffff', border: '#e5e5e5' } }")
+  .replace(/from ['"]\.\.\/\.\.\/contrast\.uts['"]/, 'from ' + JSON.stringify(contrastURL))
   .replace(/from ['"]\.\.\/\.\.\/feedback\.uts['"]/, 'from ' + JSON.stringify(feedbackURL));
 const { default: Toast } = await import('data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(code)).toString('base64'));
 Toast.render = () => null;

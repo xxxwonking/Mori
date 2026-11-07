@@ -23,10 +23,16 @@ const bio = ref('')
 
 autoHeight 交给平台 textarea 自动增高；默认编辑区 96px。maxlength=-1 不限制，0 不允许输入。showWordLimit 显示 UTF-16 计数，emoji 可能占多个单位。通过 FormItem 的上下文共享错误和标签，建议不要重复填写标签。
 
+正常聚焦使用中性 ring 或显式 color；错误状态始终优先显示红色边框，边框保持 1px。
+
 ## 完整 API
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 输入区域背景 |
+| textColor | string | 空（继承） | 输入值文字色 |
+| borderColor | string | 空（继承） | 普通边框色；聚焦和错误状态优先 |
+| placeholderColor | string | 空（继承） | 占位文字色 |
 | v-model | string | 空 | 当前文本 |
 | label | string | 空 | 独立字段标题及无障碍名称 |
 | placeholder | string | 请输入 | 占位提示 |
@@ -43,6 +49,8 @@ autoHeight 交给平台 textarea 自动增高；默认编辑区 96px。maxlength
 事件：`update:modelValue(value)`、`change(value)` 在用户输入时发出字符串；`focus`／`blur` 无参数；`confirm(value)` 返回当前字符串。控件支持多行输入，不提供 clear、readonly 或自动保存功能。
 
 长度和计数按 UTF-16 code unit 计算，部分字符会计为两个单位。组件限制用户输入，业务代码传入超过 maxlength 的值不会被自动截断，提交时可用 Form 的 maxLength 再校验。FormItem 内使用父级错误与描述关联，并隐藏本地标题／消息；label 非空时仍可覆盖输入的无障碍名称，required 为本地与父级的逻辑或。通常应统一在 FormItem 配置这些字段信息。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

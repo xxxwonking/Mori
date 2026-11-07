@@ -6,6 +6,14 @@ import { componentManifest } from './component-manifest.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 for (const file of ['package.json', 'manifest.json', 'uni_modules/mori-ui/package.json']) JSON.parse(readFileSync(join(root, file), 'utf8'));
 const uiPackage = JSON.parse(readFileSync(join(root, 'uni_modules/mori-ui/package.json'), 'utf8'));
+const license = readFileSync(join(root, 'LICENSE'), 'utf8').replace(/\r\n/g, '\n');
+for (const module of ['mori-ui', 'mori-upload-ios']) {
+  const metadata = JSON.parse(readFileSync(join(root, 'uni_modules', module, 'package.json'), 'utf8'));
+  assert.equal(metadata.license, 'MIT', module + ' must declare its distribution license.');
+  assert.equal(readFileSync(join(root, 'uni_modules', module, 'LICENSE'), 'utf8').replace(/\r\n/g, '\n'), license, module + ' must retain the full project license when copied.');
+  assert.equal(metadata.repository.directory, 'uni_modules/' + module);
+  assert.ok(existsSync(join(root, 'uni_modules', module, 'README.md')), module + ' must include standalone setup instructions.');
+}
 assert.ok(uiPackage.uni_modules.dependencies.includes('mori-upload-ios'), 'Copy/install must include the native iOS upload module.');
 for (const file of ['package.json', 'utssdk/app-ios/config.json']) JSON.parse(readFileSync(join(root, 'uni_modules/mori-upload-ios', file), 'utf8'));
 for (const file of ['README.md', 'utssdk/interface.uts', 'utssdk/app-ios/index.uts', 'utssdk/app-ios/MoriIOSUpload.swift', 'utssdk/app-ios/Info.plist']) {

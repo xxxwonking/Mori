@@ -29,6 +29,9 @@ const options: MoriChoiceOption[] = [{ label: '设计师', value: 'designer' }, 
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 透传到所有选项的圆形底色 |
+| borderColor | string | 空（继承） | 透传到所有选项的未选中边框 |
+| textColor | string | 空（继承） | 透传到所有选项的文字色 |
 | v-model | string | 空 | 当前选项值 |
 | options | MoriChoiceOption[] | [] | 选项列表；value 必须是唯一字符串 |
 | label | string | 空 | 独立使用时的标题；FormItem 中优先用父级标题 |
@@ -47,6 +50,8 @@ export type MoriChoiceOption = {
   disabled?: boolean;
 }
 ```
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

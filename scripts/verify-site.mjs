@@ -31,8 +31,8 @@ try {
   await page.getByRole('button', { name: '切换为深色预览' }).click();
   await heroFrame().locator('.preview-page').waitFor();
   const color = await heroFrame().locator('.preview-page').evaluate(el => getComputedStyle(el).backgroundColor);
-  assert.equal(color, 'rgb(17, 19, 24)');
-  assert.equal(await heroFrame().locator('.preview-title').evaluate(el => getComputedStyle(el).color), 'rgb(232, 237, 245)');
+  assert.equal(color, 'rgb(10, 10, 10)');
+  assert.equal(await heroFrame().locator('.preview-title').evaluate(el => getComputedStyle(el).color), 'rgb(250, 250, 250)');
   await page.getByRole('button', { name: '刷新示例' }).click();
   await heroFrame().getByRole('textbox', { name: '你的称呼', exact: true }).waitFor();
   assert.equal(await heroFrame().getByRole('textbox', { name: '你的称呼', exact: true }).inputValue(), '');

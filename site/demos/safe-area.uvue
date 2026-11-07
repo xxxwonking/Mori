@@ -1,5 +1,10 @@
 <template>
-  <mori-text text="底部安全区" />
-  <view style="background-color:#eaf2ff"><mori-safe-area position="bottom" :size="24" /></view>
-  <mori-text text="蓝色区域演示 24px 自定义占位。实际接入可使用设备安全区高度。" :size="12" tone="muted" />
+  <mori-text text="自动底部安全区" />
+  <view :style="'background-color:' + moriPalette.soft"><mori-safe-area position="bottom" /></view>
+  <mori-text text="自动占位跟随设备，普通浏览器中可以为 0。" :size="12" tone="muted" />
+  <mori-text text="自定义 24px 占位" />
+  <view :style="'background-color:' + moriPalette.border"><mori-safe-area position="bottom" :size="24" /></view>
 </template>
+<script setup lang="uts">
+import { moriPalette } from '@/uni_modules/mori-ui/theme.uts'
+</script>

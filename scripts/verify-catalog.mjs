@@ -122,7 +122,7 @@ try {
   await slider.focus();
   await page.keyboard.press('ArrowRight');
   await expect(slider).toHaveValue('41');
-  await expect(page.locator('.uni-slider-track-value')).toHaveCSS('background-color','rgb(0, 102, 214)');
+  await expect(page.locator('.uni-slider-track-value')).toHaveCSS('background-color','rgb(23, 23, 23)');
   await page.getByRole('switch', { name: '禁用滑块', exact: true }).click();
   await expect(page.getByRole('slider', { name: '音量（禁用）', exact: true })).toBeDisabled();
   await page.getByRole('switch', { name: '禁用滑块', exact: true }).click();
@@ -158,9 +158,9 @@ try {
   await expect(page.getByText('test.png', { exact: true })).toHaveCount(0);
   await capture('catalog-input-desktop-light.png');
   await page.getByRole('button', { name: '深色', exact: true }).click();
-  await expect(page.locator('.uni-slider-track')).toHaveCSS('background-color','rgb(61, 72, 90)');
-  await expect(page.locator('.uni-slider-track-value')).toHaveCSS('background-color','rgb(140, 182, 255)');
-  await expect(page.locator('.uni-slider-thumb-value')).toHaveCSS('background-color','rgb(140, 182, 255)');
+  await expect(page.locator('.uni-slider-track')).toHaveCSS('background-color','rgb(51, 51, 51)');
+  await expect(page.locator('.uni-slider-track-value')).toHaveCSS('background-color','rgb(229, 229, 229)');
+  await expect(page.locator('.uni-slider-thumb-value')).toHaveCSS('background-color','rgb(229, 229, 229)');
   await page.setViewportSize({ width: 390, height: 844 });
   await capture('catalog-input-mobile-dark.png');
   for (const name of ['基础展示', '导航', '反馈', '录入']) {

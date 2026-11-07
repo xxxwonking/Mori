@@ -1,5 +1,5 @@
 <template>
-<view class="mori-navbar" :class="{ 'mori-navbar--fixed': fixed, 'mori-navbar--safe': safeAreaInsetTop }" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view class="mori-navbar__row"><button @keydown.enter.prevent="emit('clickLeft')" @keydown.space.prevent="emit('clickLeft')" :tabindex="0" role="button" v-if="leftText.length > 0 || leftArrow" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" :aria-label="leftText.length > 0 ? leftText : '返回'" @click="emit('clickLeft')"><mori-icon v-if="leftArrow" name="chevron-left" :size="18" /><text>{{ leftText }}</text></button><view v-else class="mori-navbar__side" /><text class="mori-navbar__title" :style="'color:' + moriPalette.text">{{ title }}</text><button @keydown.enter.prevent="emit('clickRight')" @keydown.space.prevent="emit('clickRight')" :tabindex="0" role="button" v-if="rightText.length > 0" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" @click="emit('clickRight')">{{ rightText }}</button><view v-else class="mori-navbar__side"><slot name="right" /></view></view></view>
+<view class="mori-navbar" :class="{ 'mori-navbar--fixed': fixed }" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><mori-safe-area v-if="safeAreaInsetTop" position="top" /><view class="mori-navbar__row"><button @keydown.enter.prevent="emit('clickLeft')" @keydown.space.prevent="emit('clickLeft')" :tabindex="0" role="button" v-if="leftText.length > 0 || leftArrow" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" :aria-label="leftText.length > 0 ? leftText : '返回'" @click="emit('clickLeft')"><mori-icon v-if="leftArrow" name="chevron-left" :size="18" /><text class="mori-navbar__text">{{ leftText }}</text></button><view v-else class="mori-navbar__side" /><text class="mori-navbar__title" :style="'color:' + moriPalette.text">{{ title }}</text><button @keydown.enter.prevent="emit('clickRight')" @keydown.space.prevent="emit('clickRight')" :tabindex="0" role="button" v-if="rightText.length > 0" class="mori-action mori-navbar__side" :style="'color:' + moriPalette.primary" :aria-label="rightText" @click="emit('clickRight')"><text class="mori-navbar__text">{{ rightText }}</text></button><view v-else class="mori-navbar__side"><slot name="right" /></view></view></view>
 </template>
 
 <script setup lang="uts">
@@ -13,9 +13,12 @@ const emit = defineEmits(['clickLeft', 'clickRight'])
 .mori-navbar { width: 100%; border-bottom-width: 1px; border-bottom-style: solid; }
 .mori-navbar__row { display: flex; flex-direction: row; align-items: center; min-height: 44px; }
 .mori-navbar--fixed { position: fixed; left: 0; right: 0; top: 0; z-index: 100; }
-.mori-navbar__side { width: 80px; flex-shrink: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; }
+.mori-navbar__side { width: 80px; max-width: 30%; min-height: 44px; padding: 0 8px; overflow: hidden; flex-shrink: 0; display: flex; flex-direction: row; align-items: center; justify-content: center; }
 .mori-navbar__title { flex: 1; min-width: 0; font-size: 15px; line-height: 22px; font-weight: 600; text-align: center; }
+.mori-navbar__text { min-width: 0; flex-shrink: 1; }
+.mori-navbar__text, .mori-navbar__title { overflow: hidden; text-overflow: ellipsis; lines: 1; }
 /* #ifdef WEB || MP-WEIXIN */
-.mori-navbar--safe { padding-top: env(safe-area-inset-top); }
+.mori-navbar__side { box-sizing: border-box; }
+.mori-navbar__text, .mori-navbar__title { white-space: nowrap; }
 /* #endif */
 </style>

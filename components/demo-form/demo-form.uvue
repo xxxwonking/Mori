@@ -18,7 +18,7 @@
 <script setup lang="uts">
 import { ref, computed, onUnmounted } from 'vue'
 import { moriIsDark } from '../../uni_modules/mori-ui/theme.uts'
-defineProps({ color: { type: String, default: '#0066d6' }, softColor: { type: String, default: '#eaf2ff' } })
+defineProps({ color: { type: String, default: '#171717' }, softColor: { type: String, default: '#f5f5f5' } })
 const name = ref('')
 const email = ref('')
 const accepted = ref(false)
@@ -63,17 +63,17 @@ onUnmounted(() => clearTimeout(timer))
 .demo-form__title { font-size: 20px; font-weight: 600; color: $mori-ink; line-height: 28px; }
 .demo-form__intro { font-size: 12px; line-height: 19px; color: $mori-muted; margin-top: 5px; margin-bottom: 20px; }
 .demo-form__field { margin-bottom: 12px; }
-.demo-form__preference { margin-top: 1px; margin-bottom: 8px; padding-bottom: 10px; border-bottom: 1px solid #e8ecf2; }
+.demo-form__preference { margin-top: 1px; margin-bottom: 8px; padding-bottom: 10px; border-bottom: 1px solid #e5e5e5; }
 .demo-form__submit { margin-top: 12px; }
 .demo-form__error { font-size: 12px; line-height: 18px; color: $mori-danger; margin-top: 4px; }
 .demo-form__footnote { font-size: 11px; color: $mori-muted; text-align: center; margin-top: 14px; line-height: 18px; }
 .demo-form__success { margin-top: 12px; padding: 10px 12px; border-radius: 9px; }
 .demo-form__success-text { font-size: 12px; line-height: 20px; }
-.demo-form--dark { background-color: #1c2028; }
-.demo-form--dark .demo-form__page-name, .demo-form--dark .demo-form__title { color: #e8edf5; }
-.demo-form--dark .demo-form__reset-text, .demo-form--dark .demo-form__intro, .demo-form--dark .demo-form__footnote { color: #afb9ca; }
-.demo-form--dark .demo-form__preference { border-bottom-color: #354154; }
-.demo-form--dark .demo-form__error { color: #f1a39c; }
+.demo-form--dark { background-color: #171717; }
+.demo-form--dark .demo-form__page-name, .demo-form--dark .demo-form__title { color: #fafafa; }
+.demo-form--dark .demo-form__reset-text, .demo-form--dark .demo-form__intro, .demo-form--dark .demo-form__footnote { color: #a3a3a3; }
+.demo-form--dark .demo-form__preference { border-bottom-color: #333333; }
+.demo-form--dark .demo-form__error { color: #f87171; }
 /* #ifdef WEB */
 .demo-form__reset::after { border: none; }
 /* #endif */

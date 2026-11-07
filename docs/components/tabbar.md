@@ -24,7 +24,7 @@ function navigate(value: string) { /* 根据 value 调用 uni.switchTab 或业�
 
 ## 状态与进阶使用
 
-change(value:string) 只在新值不同且条目可用时触发。fixed=true 时页面须预留底部高度；safeAreaInsetBottom 默认为 true。只负责状态与外观，不读取当前路由；需要业务在导航成功后同步 active。不要同时显示系统 tabBar 和固定 MoriTabbar。
+change(value:string) 只在新值不同且条目可用时触发。fixed=true 时页面须预留底部高度；safeAreaInsetBottom 默认为 true。只负责状态与外观，不读取当前路由；需要业务在导航成功后同步 active。不要同时显示系统 tabBar 和固定 MoriTabbar。长标签单行省略，完整名称仍提供给辅助技术；栏目较多时建议使用横向滚动的 Tabs。
 
 ## 属性
 
@@ -35,7 +35,7 @@ change(value:string) 只在新值不同且条目可用时触发。fixed=true 时
 | label | string | "主导航" | 字段、操作或内容的名称；同时用于可访问性。 |
 | fixed | boolean | false | 固定定位；业务须预留内容空间。 |
 | disabled | boolean | false | 禁止用户修改或激活；内容继续展示。 |
-| safeAreaInsetBottom | boolean | true | 按支持端的 CSS 安全区增加底部内边距。 |
+| safeAreaInsetBottom | boolean | true | 通过 SafeArea 预留底部安全区；保留操作行自身的内边距。 |
 
 ## 事件、插槽与方法
 

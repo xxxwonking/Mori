@@ -15,7 +15,7 @@ function activate() { if (props.clickable && !props.disabled) emit('click') }
 .mori-cell__title, .mori-cell__value-text { font-size: 13px; line-height: 20px; }
 .mori-cell__label { font-size: 11px; line-height: 18px; margin-top: 3px; }
 .mori-cell__value { max-width: 55%; margin: 0 8px 0 12px; }
-.mori-cell--disabled { opacity: 0.4; }
+.mori-cell--disabled { opacity: 0.5; }
 /* #ifdef WEB */
 .mori-cell { box-sizing: border-box; overflow-wrap: anywhere; }
 .mori-cell:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; border-radius: 6px; }

@@ -1,25 +1,31 @@
 ---
 name: "Mori UI"
-description: "中性灰与清晰蓝的紧凑移动组件，名称暂定。"
+description: "shadcn 风格的黑白中性紧凑移动组件，名称暂定。"
 colors:
-  primary: "#0066d6"
-  primary-soft: "#eaf2ff"
-  ink: "#1d2430"
-  muted: "#616e82"
-  border: "#d2dae6"
+  primary: "#171717"
+  primary-soft: "#f5f5f5"
+  ink: "#0a0a0a"
+  muted: "#666666"
+  border: "#e5e5e5"
+  input: "#d4d4d4"
+  ring: "#737373"
+  accent: "#f5f5f5"
   surface: "#ffffff"
-  ground: "#f6f7f9"
-  danger: "#b63d37"
-  danger-soft: "#fff2ef"
-  dark-primary: "#8cb6ff"
-  dark-primary-soft: "#243450"
-  dark-ink: "#e8edf5"
-  dark-muted: "#afb9ca"
-  dark-border: "#3d485a"
-  dark-surface: "#1c2028"
-  dark-ground: "#111318"
-  dark-danger: "#f1a39c"
-  dark-danger-soft: "#3c2725"
+  ground: "#fafafa"
+  danger: "#c62828"
+  danger-soft: "#fef2f2"
+  dark-primary: "#e5e5e5"
+  dark-primary-soft: "#262626"
+  dark-ink: "#fafafa"
+  dark-muted: "#a3a3a3"
+  dark-border: "#333333"
+  dark-input: "#404040"
+  dark-ring: "#a3a3a3"
+  dark-accent: "#333333"
+  dark-surface: "#171717"
+  dark-ground: "#0a0a0a"
+  dark-danger: "#f87171"
+  dark-danger-soft: "#3f161b"
   on-primary-black: "#000000"
   video-ground: "#14171c"
 typography:
@@ -155,7 +161,8 @@ typography:
 rounded:
   control: "8px"
   control-sm: "6px"
-  checkbox: "5px"
+  checkbox: "4px"
+  pill: "999px"
   control-round: "28px"
   container: "12px"
   website-frame: "14px"
@@ -245,17 +252,20 @@ components:
   tag-primary:
     backgroundColor: "{colors.primary-soft}"
     textColor: "{colors.primary}"
-    rounded: "5px"
+    rounded: "{rounded.pill}"
     padding: "2px 7px"
   tag-danger:
     backgroundColor: "{colors.danger-soft}"
     textColor: "{colors.danger}"
-    rounded: "5px"
+    rounded: "{rounded.pill}"
     padding: "2px 7px"
   tabs-active:
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.primary}"
-    rounded: "0px"
-    padding: "0 14px"
+    typography: "{typography.control}"
+    rounded: "{rounded.control-sm}"
+    padding: "0 12px"
+    height: "34px"
   calendar-selected:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.surface}"
@@ -411,26 +421,27 @@ components:
 
 ## Overview
 
-**Creative North Star: "中性灰与清晰蓝的紧凑系统控件"**
+**Creative North Star: "黑白中性的紧凑系统控件"**
 
-Mori UI 采用用户确认的中性灰与清晰蓝、系统字体和紧凑尺寸。颜色说明状态，细边框组织字段；按钮与输入默认 36px，避免高大的控件和宽松的内部留白。
+Mori UI 采用用户于 2026-11-06 明确选择的 shadcn 风格与黑白中性主色，取代此前 Apple 灰蓝身份。系统字体、紧凑尺寸、细边界与克制的层次共同组织内容；按钮与输入默认 36px，避免高大的控件和宽松的内部留白。
 
-规范以 theme.uts、tokens.scss 和组件源码为准。组件默认跟随系统／宿主主题，light 或 dark 可停止自动跟随。工作台构图不限制业务页面的组织方式。
+规范以 uni_modules/mori-ui/theme.uts、styles/tokens.scss 和组件源码为准。共享运行时主题覆盖 88 个组件，保留 uni-app x／.uvue／UTS 与现有属性、事件名称。组件默认跟随系统／宿主主题，light 或 dark 可停止自动跟随，auto 恢复跟随。工作台构图不限制业务页面的组织方式。
 
-官网与文档沿用同一灰蓝和系统字体身份；website-* 仅记录 site/.vitepress/theme/ 的展示尺度。官网的大标题、阅读留白和接入按钮不改变 uni_modules/mori-ui/ 的组件默认值；页面策略见 .impeccable/surfaces/website.md。
+官网与文档沿用同一黑白中性和系统字体身份；website-* 仅记录 site/.vitepress/theme/ 的展示尺度。官网的大标题、阅读留白和接入按钮不改变 uni_modules/mori-ui/ 的组件默认值；页面策略见 .impeccable/surfaces/website.md，组件参考映射见 [shadcn 风格与主题](docs/shadcn-style.md)。本规范记录实现，不代表独立视觉复核或原生设备验收通过；实际证据见 docs/progress.md 与 docs/compatibility.md。
 
 **Key Characteristics:**
 
 - 36px 默认按钮与输入、13px 控件文字、12px 标签。
+- 黑白主操作、灰阶表面与细边界；错误继续保留红色语义。
 - 输入只显示一个闭合边框，显隐与清空使用 Lucide 图标。
 - 复选框与开关由组件统一绘制，选中状态平滑过渡。
 - 浅深主题使用语义颜色；实例可覆盖品牌色。
 
 ## Colors
 
-清晰蓝用于操作与选择，灰阶承载内容、表面和边界，红色只用于错误等语义。运行时颜色来自 theme.uts；frontmatter 记录默认值。
+近黑与浅灰分别承担浅色和深色主题的主操作与选择，灰阶承载内容、表面和边界，红色保留错误语义。运行时颜色来自 theme.uts；frontmatter 记录默认值。实例颜色与全局 color／darkColor／softColor／darkSoftColor 覆盖继续有效。
 
-浅色使用 primary、primary-soft、ink、muted、border、surface、ground；深色对应 dark-*。danger 与 danger-soft 保留错误语义。按钮文字、开关状态文字和勾图标对不透明 #RGB / #RRGGBB / rgb() 背景选择黑白前景；特殊颜色格式的实心按钮可用 textColor 覆盖。
+浅色使用 primary、primary-soft、ink、muted、border、surface、ground；深色对应 dark-*。input 是控件边界与默认关闭轨道，ring 是普通输入焦点与非实心 Button 键盘焦点，accent 是描边／文字按钮悬停底色。它们独立于容器 border，也不因全局品牌色覆盖而自动染色；Input／Textarea 的实例 color 仍可覆盖正常焦点色。danger 与 danger-soft 保留错误语义。按钮文字、开关状态文字和勾图标对不透明 #RGB / #RRGGBB / rgb() 背景选择黑白前景；特殊颜色格式的实心按钮可用 textColor 覆盖。
 
 新增组件沿用这些语义：标签与范围选择使用柔和底色，导航强调和数值进度使用主色，徽标与失败状态使用 danger。日历选中端点使用运行时 onPrimary，Badge 与 Notify 按实际背景选择黑白前景；frontmatter 的日历文字仅记录默认浅色结果，深色或自定义品牌时不能固定白字。
 
@@ -466,13 +477,13 @@ VirtualList 使用固定高度的滚动窗口与等高行，上下占位保留�
 
 ## Elevation & Depth
 
-基础按钮和输入使用细边框与表面明度，不加装饰投影。H5 开关滑块保留轻微投影（0 1px 3px rgba(0,0,0,0.14)）。
+基础组件以细边框与表面明度建立层次，H5 在 WEB 条件编译内补充轻投影。实心／描边 Button、Input、Textarea 与选中的 Tabs／SegmentedControl 使用 0 1px 2px rgba(0, 0, 0, 0.05)；Card 使用 0 1px 3px rgba(0, 0, 0, 0.06)；Popover／Toast 使用 0 4px 12px rgba(0, 0, 0, 0.12)；Popup 使用 0 8px 24px rgba(0, 0, 0, 0.16)。Switch 滑块保留 0 1px 3px rgba(0, 0, 0, 0.14)。这些是表面层次，不是输入外置焦点圈；原生端保留语义配色与基础边界。
 
-官网只在首页的真实组件预览框使用柔和投影，浅色为 0 24px 64px rgba(29, 36, 48, .1)，深色为 0 24px 64px rgba(0, 0, 0, .28)。文档预览与二维码浮层使用细边框，分组区使用地色。官网页面默认平滑滚动；prefers-reduced-motion: reduce 下恢复即时滚动，并把页面 CSS 动画与过渡时长降为 .01ms。iframe 内组件继续遵守自己的减少动态效果规则。
+官网只在首页的真实组件预览框使用柔和投影，浅色为 0 24px 64px rgba(0, 0, 0, .1)，深色为 0 24px 64px rgba(0, 0, 0, .28)。文档预览与二维码浮层使用细边框，分组区使用地色。官网页面默认平滑滚动；prefers-reduced-motion: reduce 下恢复即时滚动，并把页面 CSS 动画与过渡时长降为 .01ms。iframe 内组件继续遵守自己的减少动态效果规则。
 
 **The Stable State Rule.** 切换状态不改变控件外部尺寸，动画只改变滑块变换、勾的透明度与缩放以及状态颜色。
 
-Switch 滑块 transform 与轨道颜色过渡 180ms ease。Checkbox 勾的 opacity／scale 和方框颜色过渡 160ms ease。H5 在 prefers-reduced-motion: reduce 下取消这些过渡；原生系统减弱动画偏好的接入尚未验证。
+Switch 滑块 transform／背景色与轨道颜色过渡 180ms ease。Checkbox 勾的 opacity／scale 和方框颜色过渡 160ms ease。Button、Input 与 Textarea 的 H5 颜色过渡为 160ms ease。H5 在 prefers-reduced-motion: reduce 下取消这些过渡；原生系统减弱动画偏好的接入尚未验证。
 
 Transition 默认 180ms ease-in-out，以 fade／slide-up／zoom 改变透明度和变换；Loading 默认 800ms 线性旋转，Skeleton 默认 1.4s 明暗脉冲。Tabs、Progress、Collapse 使用 180ms 状态过渡，Rate 使用 160ms 背景过渡；H5 减少动态效果时关闭这些 CSS 动画与过渡。Slider 的位置直接跟随输入，H5 轨道颜色取消宿主过渡，使主题更新即时生效。ActionSheet、Picker、DatetimePicker 继承 Popup 的 280ms 进出，不另建弹层动效。
 
@@ -482,7 +493,7 @@ ImagePreview 缩放／平移、ImageCropper 参数调整与 Signature 笔迹直�
 
 ## Shapes
 
-普通按钮与输入使用小圆角；sm 再收紧，胶囊按钮必须显式使用 round。复选框是圆角方框，开关是胶囊轨道加圆形滑块。图标来自 Lucide，输入图标 16px、勾图标 12px，使用独立 SVG 文件；随模块保留 THIRD_PARTY_NOTICES.md。
+普通按钮与输入使用小圆角；sm 再收紧，胶囊按钮必须显式使用 round。复选框使用 checkbox 小圆角方框，Tag 使用 pill 胶囊，开关是胶囊轨道加圆形滑块。图标来自 Lucide，输入图标 16px、勾图标 12px，使用独立 SVG 文件；随模块保留 THIRD_PARTY_NOTICES.md。
 
 官网预览框、代码区／二维码浮层、首页分组区和预览切换按钮分别使用 website-frame、website-code、website-section、website-tab 圆角。官网接入按钮、搜索和折叠预览入口复用 control 圆角。三竖线品牌图形保留，不生成另一套品牌形状；这些展示容器不替换组件 Card 的 container 圆角。
 
@@ -492,15 +503,15 @@ ImagePreview 缩放／平移、ImageCropper 参数调整与 Signature 笔迹直�
 
 ### Buttons
 
-solid／soft／outline／text 对应实心、柔和、描边和文字层级。默认 md，三档尺寸见 frontmatter。禁用透明度 0.4，按下透明度 0.8；loading 与 disabled 均阻止事件并退出 Tab 顺序。
+solid／soft／outline／text 对应实心、柔和、描边和文字层级，名称不变。默认 md，三档尺寸见 frontmatter。outline 默认采用 input 中性描边；显式传入 color 才以该颜色绘制描边，全局品牌覆盖仍影响文字。H5 outline／text 悬停使用 accent，其他按钮悬停及按下透明度 0.9；禁用透明度 0.5。键盘焦点为 2px outline，偏移 -3px 收在按钮内，避免容器裁切。solid 按实际填充色自动选择黑白焦点色，深色主题默认浅灰按钮配黑色焦点线；其他变体使用 ring。这一计算独立于 textColor，以保持焦点线与按钮背景的对比。loading 与 disabled 均阻止事件并退出 Tab 顺序。
 
 ### Inputs
 
-字段始终使用一条 1px 连续闭合边框。聚焦只改变边框颜色；错误字段聚焦时仍保留错误文字与 aria-invalid，失焦恢复错误边框。不可叠加外置 outline，也不加粗边框造成布局位移。密码显隐使用 eye／eye-off，清空使用 circle-x；两者可以同时出现，并保留可访问名称和键盘操作。
+字段始终使用一条 1px 连续闭合边框。普通边界用 input，正常聚焦用 ring 或实例 color；错误边框优先于焦点和实例颜色，聚焦期间仍保持 danger、错误文字与 aria-invalid。不可叠加外置 outline，也不加粗边框造成布局位移。密码显隐使用 eye／eye-off，清空使用 circle-x；两者可以同时出现，并保留可访问名称和键盘操作。
 
 ### Switch
 
-自绘轨道与滑块。无字 sm／md／lg 分别为 34×20／38×22／46×26px，滑块比轨道高度小 4px，四周留 2px。activeColor 优先于兼容属性 color，inactiveColor 独立配置；默认关闭色为浅色 #d8dce3、深色 #444b58。
+自绘轨道与滑块。无字 sm／md／lg 分别为 34×20／38×22／46×26px，滑块比轨道高度小 4px，四周留 2px。activeColor 优先于兼容属性 color，inactiveColor 独立配置；默认关闭色使用 input。浅色主题滑块为白色，深色主题按实际轨道背景选择黑白滑块，开启的浅灰轨道使用黑色滑块以保持辨识。
 
 activeText／inactiveText 在轨道内显示，空值不显示。轨道按两种文字中较长者预留宽度，切换不会伸缩；建议用短状态词。外部 label 是选项名称，不替代状态文字。只触发一次受控值更新；禁用时不响应。H5 键盘焦点在轨道周围，操作容器预留空间防止裁切。
 
@@ -514,9 +525,9 @@ activeText／inactiveText 在轨道内显示，空值不显示。轨道按两种
 
 Navbar、Tabs、Tabbar、Pagination 是独立导出组件。Navbar 使用表面色与底部细边框，标题居中，操作位于两侧；内容行至少 44px、标题 15px。固定定位与顶部安全区由使用者显式开启。
 
-Tabs 以主色文字和始终预留的 2px 底边框表达当前项，未选中边框透明；项目横向滚动，操作行至少 40px。Tabbar 使用主色文字与柔和底色，图标和 11px 标签上下排列，项目至少 48px；固定定位默认关闭，底部安全区默认开启。Pagination 沿用 36px 操作按钮，当前页用柔和底色，边界前后页禁用，窄容器可换行。
+Tabs 以柔和灰底分组，选中项使用 surface、primary 文字与 input 边框，未选中边框透明；所有项始终保留 1px 边框和 500 字重。项目横向滚动，单项至少 34px，容器内边距与间距均为 3px；选中不改变字宽或项目尺寸。Tabbar 使用主色文字与柔和底色，图标和 11px 标签上下排列，项目至少 48px；固定定位默认关闭，底部安全区默认开启。Pagination 沿用 36px 操作按钮，当前页用柔和底色，边界前后页禁用，窄容器可换行。
 
-这些组件的禁用项需同时保留行为约束与可访问状态；Tabs 使用左右键跳过禁用项。交互按钮复用共享 reset：至少 36px、13px 文字、禁用透明度 0.4，H5 焦点框收在按钮内；组件的专用行高不改变基础 Button／Input 的默认尺寸。
+这些组件的禁用项需同时保留行为约束与可访问状态；Tabs 使用左右键跳过禁用项。交互按钮复用共享 reset：至少 36px、13px 文字、禁用透明度 0.5，H5 焦点框收在按钮内；组件的专用行高不改变基础 Button／Input 的默认尺寸。
 
 ### Form foundations
 
@@ -526,13 +537,13 @@ Form 的异步校验、嵌套路径与初始值重置继续使用原有字段反
 
 Radio 使用 16px 圆形标记与内点，操作行至少 36px。RadioGroup 只保留一个字符串值；CheckboxGroup 复用已有方框，以数组管理选择，达到数量限制后保留已选项的取消能力。禁用与数量限制必须同时体现在行为和可访问状态上。
 
-Textarea 沿用单一 1px 边框、8px 圆角、13px 文字和 9px 内边距，默认编辑区高 96px；字数显示为 11px。错误和焦点不改变边框宽度，浅深颜色来自全局语义主题。
+Textarea 沿用单一 1px 边框、8px 圆角、13px 文字和 9px 内边距，默认编辑区高 96px；字数显示为 11px。错误和焦点不改变边框宽度，错误边框优先于正常焦点色；浅深颜色来自全局语义主题。Input／Textarea 禁用使用地色与 0.5 透明度。
 
 表单示例页属于工作台：桌面为主表单与说明侧栏，窄屏依次堆叠。页面标题 28px／窄屏 24px、小节标题 15px、表单展示容器 12px 圆角；这些是演示页面层级，不改变可复用控件的尺寸档位。
 
 ### Feedback
 
-Toast 使用紧凑、高对比的浮层，文字 13px，成功／失败以随库 Lucide SVG 辅助表达；加载状态有明确文案。轻提示不拦截页面操作，连续调用替换当前提示并重新计时，持续提示必须能够显式关闭。
+Toast 使用紧凑的中性 surface 表面、正文色与 1px border 边界，H5 补充轻投影；文字 13px，成功／失败以随库 Lucide SVG 辅助表达；加载状态有明确文案。轻提示不拦截页面操作，连续调用替换当前提示并重新计时，持续提示必须能够显式关闭。
 
 Popup 的内容表面、标题和边界继承全局浅深主题，遮罩仅承担模态背景。底部弹层保留底部安全区，侧边层在窄屏内留出退出空间，内容过长时在弹层内滚动。新弹层覆盖旧弹层，退出动画结束才释放其层级与滚动锁；默认 280ms 过渡：位移与透明度统一使用 ease-in-out、同步推进。底部面板从屏幕下沿向上浮现，不允许先到最终位置再淡入；居中面板保留缩放淡入，退出同步淡出。H5 自动聚焦不得滚动弹层外壳，外壳使用 overflow: clip，内容区域仍可滚动。遮罩独立淡入淡出。H5 减少动态效果偏好下取消视觉过渡。
 
@@ -542,7 +553,7 @@ Dialog 复用居中 Popup，标题、正文与操作依次排列。确认／取�
 
 ActionSheet 复用底部 Popup，以细分隔线组织至少 44px 的操作行，危险操作用 danger 文字；说明文字 11px，取消区使用 ground。加载与禁用操作不能触发选择，空列表显示 Empty。
 
-Popover 的触发器使用主色文字与柔和底色；菜单使用 surface、1px border 和 8px 圆角，不添加投影。菜单按触发器的屏幕位置固定放置，边缘至少留 8px，必要时翻到上方，长菜单在内部滚动；H5 视口变化或滚动时关闭。它复用浮层层级和键盘管理，未提供跨端 portal，需避免被业务祖先裁切。
+Popover 的触发器使用主色文字与柔和底色；菜单使用 surface、1px border 和 8px 圆角，H5 使用轻投影。菜单按触发器的屏幕位置固定放置，边缘至少留 8px，必要时翻到上方，长菜单在内部滚动；H5 视口变化或滚动时关闭。它复用浮层层级和键盘管理，未提供跨端 portal，需避免被业务祖先裁切。
 
 Notify 使用顶部通栏，普通通知用 primary、错误用 danger，并自动配对前景；正文 13px，可关闭操作 12px。重复调用替换当前内容与计时；持续通知可显式关闭，不靠动画或颜色单独表达结果。
 
@@ -550,7 +561,7 @@ Notify 使用顶部通栏，普通通知用 primary、错误用 danger，并自�
 
 Text 默认 13px，使用正文／辅助／主色／危险四种语义，允许显式字号与颜色。Icon 默认 18px，延续随库 Lucide SVG 与浅深色资源；带语义的图标有名称，装饰图标不重复朗读。Divider 使用 1px 边界色线条和 12px 辅助文字。
 
-Tag 以 11px 文字和小圆角表达轻量状态，primary／danger／default 分别复用主色柔和底、危险柔和底和中性地色；plain 使用透明底与对应语义描边。关闭按钮仍用图标并保留操作名称。Badge 使用 danger 与自动前景；容器始终预留顶部 6px、右侧 8px，16px 数字标记或 6px 圆点留在边界内，显隐不改变这份占位。
+Tag 以 11px／500 字重文字和胶囊圆角表达轻量状态，primary／danger／default 分别复用主色柔和底、危险柔和底和中性地色；plain 使用透明底与对应语义描边。关闭按钮仍用图标并保留操作名称。Badge 使用 danger 与自动前景；容器始终预留顶部 6px、右侧 8px，16px 数字标记或 6px 圆点留在边界内，显隐不改变这份占位。
 
 Cell 使用 surface 和单一底部分隔线，至少 44px，标题／值 13px、说明 11px；长内容可换行，右侧值不超过 55%。Collapse 使用同一边界色和整行按钮，展开区域承接正文，箭头旋转表达展开状态；禁用项保留可见说明。
 
@@ -584,7 +595,7 @@ Swiper 的标题位于图片内的主题表面上，文字 13px；指示点使�
 
 ### Cards and content status
 
-Card 以一条 1px 边界、主题表面和容器圆角组织内容，无投影；尺寸见 frontmatter。标题使用 card-title 层级，说明 12px，头部间距 4px、头部与内容间距 12px。CellGroup 以 12px 辅助标题与 11px 说明分组，内侧左右留 12px，默认内容圆角 8px；分隔线由内部 Cell 控制。
+Card 以一条 1px 边界、主题表面和容器圆角组织内容，H5 使用轻投影；尺寸见 frontmatter。标题使用 card-title 层级，说明 12px，头部间距 4px、头部与内容间距 12px。CellGroup 以 12px 辅助标题与 11px 说明分组，内侧左右留 12px，默认内容圆角 8px；分隔线由内部 Cell 控制。
 
 Grid 以 24px 图标、13px 标签和可选 11px 说明组成独立入口，1px 边界和 8px 圆角沿用基础形状。Steps 使用圆形序号或完成勾、1px 连接线、13px 标题与 11px 说明，当前步骤用主色，错误步骤用错误语义；支持横向和纵向。Timeline 使用更小的 8px 圆点与纵向细线，正文 13px、时间和说明 12px。
 
@@ -592,7 +603,7 @@ Highlight 在原文内以主色与柔和底标记匹配片段，不注入 HTML�
 
 ### Extended navigation and layout
 
-SegmentedControl 与 Sidebar 在地色容器中以表面色和主色文字突出当前项，控件文字 13px、操作项至少 36px；容器内边距与项间距均为 3px。前者横向均分且可换行，后者纵向、最小宽 92px。两者以方向键循环选择并跳过禁用项；选中不改变边框或外部尺寸。DropdownMenu 用 outline Button 打开底部 Picker，取消保留原值，确认才应用筛选。
+SegmentedControl 在柔和灰底容器中以表面色、主色文字与 input 边框突出当前项，始终保留 1px 边框，H5 选中项有轻投影；横向均分且可换行。Sidebar 沿用地色容器、表面色选中项与主色文字，纵向、最小宽 92px。两者控件文字 13px、操作项至少 36px，容器内边距与项间距均为 3px；方向键循环选择并跳过禁用项，选中不改变外部尺寸。DropdownMenu 用 outline Button 打开底部 Picker，取消保留原值，确认才应用筛选。
 
 ActionBar 以顶部分隔线和主题表面托起摘要及已有按钮，内边距 10px 16px，内容可换行；默认普通流，底部安全区默认开启。Fab 复用 round Button，展开菜单使用表面色、1px 边界和 8px 圆角；BackTop 复用小档 outline Button。Sticky 在 WEB／微信使用 CSS sticky，App 默认普通流，受控 fixed 由业务驱动并提供占位高度。这些组件的布局能力不表示所有目标平台都已运行验收。
 
@@ -644,7 +655,7 @@ FloatingPanel 的初始高度与圆角见 floating-panel，默认停靠高度为
 
 ### Website actions and live preview
 
-官网接入链接使用 website-action-primary／secondary，frontmatter 的 height 记录最小高度；它们是站点链接，不是 Mori Button 的新默认档位。主要链接以蓝色背景强调，次要链接用一条主题边框。浅深主题使用网站的 VitePress 语义变量；深色主操作为浅蓝背景配深色文字。指针悬停改变背景，键盘焦点使用 2px 主色 outline 与 4px 外偏移；该网站焦点样式不进入 iframe，也不替换核心 Input 的单边框规则。
+官网接入链接使用 website-action-primary／secondary，frontmatter 的 height 记录最小高度；它们是站点链接，不是 Mori Button 的新默认档位。主要链接以中性主色背景强调，次要链接用一条主题边框。浅深主题使用网站的 VitePress 语义变量；深色主操作为浅灰背景配深色文字。指针悬停改变背景，键盘焦点使用 2px 主色 outline 与 4px 外偏移；该网站焦点样式不进入 iframe，也不替换核心 Input 的单边框规则。
 
 首页预览切换按钮用柔和底与主色标记当前项，并同步 aria-pressed；分类导航始终预留 2px 底边。预览工具栏提供具名的主题、刷新、二维码和独立打开图标入口。桌面工具入口为 30×32px，手机至少 32×36px；工具栏至少 48px。二维码浮层说明当前链接的可访问范围，生成失败保留文字与独立打开入口。
 
@@ -667,3 +678,25 @@ ComponentPreview 运行真实 H5 iframe，文档路由决定组件，主题与�
 - Don't 用显示、隐藏、清空文字代替已确定的输入操作图标。
 - Don't 恢复 Button／Input 旧的 40px 默认高度；两者 40px 仅作为 lg 档位，PasswordInput 的独立密码格不属于该档位。
 - Don't 把展示页侧栏和手机框推广为所有业务页面的布局规范。
+
+
+## 移动端适配规则
+
+Popup 的标题行固定 56px，关闭按钮命中区为 44×44px，图标仍为 18px。正文使用独立 scroll-view，标题／关闭入口与安全区占位不随正文滚动。底部、顶部与居中面板最大为可用窗口的 85%，并至少留 40px 窗口余量；侧边面板使用窗口高度。H5 跟随未缩放页面的 visualViewport；短内容保持自身高度。
+
+SafeArea 在 WEB 使用 env，微信／App 的自动模式共享响应式 safeAreaInsets，窗口变化后更新；显式 size 保持原值。Navbar 与 Tabbar 复用该占位；Tabbar 的 4px 内边距不被安全区覆盖。Navbar 两侧各 80px、最大 30%，操作高至少 44px；长标题和操作文字单行省略并保留完整可访问名称。Tabbar 长标签单行省略；Checkbox／Radio 标签在 H5 允许长字符串换行。以上不改变基础 Button／Input 的 36px 默认值。
+
+
+## 运行时主题与定制规范（2026-11-07）
+
+通用操作按钮以 `mori-action--disabled` 表达原有 0.5 透明度，状态与 disabled／aria-disabled 保持同一条件；微信／App 不依赖属性选择器。Button 在 WEB／MP-WEIXIN 清除宿主 after 边框，只保留组件的一条边框。QRCode 图片使用明确类约束最大宽度。
+
+17 项内置操作提示由 theme.uts 的 MoriMessages 提供响应式增量覆盖，默认中文；修改不替换业务字段标签、不改变图标及尺寸。清空、显隐、关闭继续使用原有图标，可访问名称随配置更新。resetMoriConfig 同时恢复提示与主题。
+
+Toast 的成功／错误图标根据实际 surface 选择深浅资源，不以 light／dark 模式代替背景判断。已显示的提示应随运行时表面颜色更新，保留原有图标、尺寸与生命周期。
+
+全局 theme.uts 支持 light／dark 的 13 个语义颜色增量覆盖，保留四个旧品牌字段。resetMoriConfig 恢复中性默认和 auto；onPrimary 继续由主色推导。组件实例参数优先于当前主题，输入错误 danger 优先于普通与焦点边框。Button、Input／Textarea、Switch、Checkbox／Radio 及组、Tabs、Popup／Dialog 的覆盖范围与状态规则以 docs/theme-customization.md 为准。
+
+本轮将高频控件的标签、错误与 H5 焦点同步到运行时颜色；不改变 36px／13px／12px、单一 1px 输入边框、选中几何和减少动态效果。定制不解除禁用／加载，不递归改写弹层插槽。官网真实 H5 示例提供品牌／默认及浅／深切换，固定实例颜色保持显式值。
+
+官网的可选品牌演示使用靛蓝；它不改变组件库黑白默认。演示颜色包含 #4338ca、#eef2ff、#172554、#4b5c85、#c7d2fe、#94a3cc、#6366f1、#e0e7ff、#17213b、#0b1228、#263456、#a5b4d8、#33436a、#52638b、#a5b4fc。实例示例另使用 #312e81、#3730a3、#818cf8。显式浅色 Dialog 在深色主题中仍保留浅色面板与取消按钮背景，取消文字／描边优先使用 cancelColor，再使用显式 textColor。

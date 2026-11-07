@@ -1,0 +1,32 @@
+name: 缺陷报告
+description: 提供可复现的组件问题
+body:
+  - type: input
+    id: component
+    attributes:
+      label: 组件与源码版本
+      placeholder: mori-input；提交号或版本
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 运行环境
+      description: 目标平台、系统、浏览器或基础库版本，以及 HBuilderX 版本。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 最小复现
+      description: 提供 .uvue / UTS 示例和操作步骤；请删除业务令牌、个人资料和签名文件。
+      render: vue
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 预期与实际结果
+      description: 区分编译问题、模拟器表现和真机表现。
+    validations:
+      required: true

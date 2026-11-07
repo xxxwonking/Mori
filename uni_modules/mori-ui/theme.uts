@@ -1,40 +1,180 @@
 import { reactive, computed } from 'vue'
 import { getMoriButtonTextColor } from './contrast.uts'
 
+/** Optional semantic colors. Omitted and empty values leave the current value intact. */
+export type MoriThemeColors = {
+  primary?: string;
+  soft?: string;
+  surface?: string;
+  ground?: string;
+  text?: string;
+  muted?: string;
+  border?: string;
+  input?: string;
+  ring?: string;
+  accent?: string;
+  danger?: string;
+  dangerSoft?: string;
+  overlay?: string;
+}
+
+type MoriResolvedColors = {
+  primary: string;
+  soft: string;
+  surface: string;
+  ground: string;
+  text: string;
+  muted: string;
+  border: string;
+  input: string;
+  ring: string;
+  accent: string;
+  danger: string;
+  dangerSoft: string;
+  overlay: string;
+}
+
+/** Shared built-in control labels; application content remains owned by callers. */
+export type MoriMessages = {
+  required?: string;
+  clearInput?: string;
+  showPassword?: string;
+  hidePassword?: string;
+  closePopup?: string;
+  checkbox?: string;
+  checkboxGroup?: string;
+  radioGroup?: string;
+  switchControl?: string;
+  previousMonth?: string;
+  nextMonth?: string;
+  previousPage?: string;
+  nextPage?: string;
+  increase?: string;
+  decrease?: string;
+  closeNotice?: string;
+  closeNotification?: string;
+}
+
+function defaultMessages() {
+  return {
+    required: '必填',
+    clearInput: '清空输入',
+    showPassword: '显示密码',
+    hidePassword: '隐藏密码',
+    closePopup: '关闭弹出层',
+    checkbox: '复选框',
+    checkboxGroup: '多选组',
+    radioGroup: '单选组',
+    switchControl: '开关',
+    previousMonth: '上个月',
+    nextMonth: '下个月',
+    previousPage: '上一页',
+    nextPage: '下一页',
+    increase: '增加',
+    decrease: '减少',
+    closeNotice: '关闭公告',
+    closeNotification: '关闭通知'
+  }
+}
+
 export type MoriConfig = {
+  messages?: MoriMessages;
   theme?: string;
   color?: string;
   darkColor?: string;
   softColor?: string;
   darkSoftColor?: string;
+  light?: MoriThemeColors;
+  dark?: MoriThemeColors;
+}
+
+function defaultColors(dark: boolean): MoriResolvedColors {
+  return {
+    primary: dark ? '#e5e5e5' : '#171717',
+    soft: dark ? '#262626' : '#f5f5f5',
+    surface: dark ? '#171717' : '#ffffff',
+    ground: dark ? '#0a0a0a' : '#fafafa',
+    text: dark ? '#fafafa' : '#0a0a0a',
+    muted: dark ? '#a3a3a3' : '#666666',
+    border: dark ? '#333333' : '#e5e5e5',
+    input: dark ? '#404040' : '#d4d4d4',
+    ring: dark ? '#a3a3a3' : '#737373',
+    accent: dark ? '#333333' : '#f5f5f5',
+    danger: dark ? '#f87171' : '#c62828',
+    dangerSoft: dark ? '#3f161b' : '#fef2f2',
+    overlay: dark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.5)'
+  }
 }
 
 const config = reactive({
   theme: 'auto',
-  color: '#0066d6',
-  darkColor: '#8cb6ff',
-  softColor: '#eaf2ff',
-  darkSoftColor: '#243450',
+  messages: defaultMessages(),
+  light: defaultColors(false),
+  dark: defaultColors(true),
   sourceDark: false
 })
 let initialized = false
 
+export const moriMessages = computed(() => config.messages)
 export const moriThemeMode = computed((): string => config.theme)
 export const moriIsDark = computed((): boolean => config.theme == 'auto' ? config.sourceDark : config.theme == 'dark')
-export const moriPalette = computed(() => ({
-  primary: moriIsDark.value ? config.darkColor : config.color,
-  soft: moriIsDark.value ? config.darkSoftColor : config.softColor,
-  onPrimary: getMoriButtonTextColor(moriIsDark.value ? config.darkColor : config.color),
-  surface: moriIsDark.value ? '#1c2028' : '#ffffff',
-  ground: moriIsDark.value ? '#111318' : '#f6f7f9',
-  text: moriIsDark.value ? '#e8edf5' : '#1d2430',
-  muted: moriIsDark.value ? '#afb9ca' : '#616e82',
-  border: moriIsDark.value ? '#3d485a' : '#d2dae6',
-  danger: moriIsDark.value ? '#f1a39c' : '#b63d37',
-  dangerSoft: moriIsDark.value ? '#3c2725' : '#fff2ef'
-}))
+export const moriPalette = computed(() => {
+  const colors = moriIsDark.value ? config.dark : config.light
+  return {
+    primary: colors.primary,
+    soft: colors.soft,
+    surface: colors.surface,
+    ground: colors.ground,
+    text: colors.text,
+    muted: colors.muted,
+    border: colors.border,
+    input: colors.input,
+    ring: colors.ring,
+    accent: colors.accent,
+    danger: colors.danger,
+    dangerSoft: colors.dangerSoft,
+    overlay: colors.overlay,
+    onPrimary: getMoriButtonTextColor(colors.primary)
+  }
+})
 
-/** Set theme to auto to resume following the host/OS; light/dark stop following. */
+function patchColors(target: MoriResolvedColors, patch: MoriThemeColors) {
+  if (patch.primary != null && patch.primary!.trim().length > 0) target.primary = patch.primary!
+  if (patch.soft != null && patch.soft!.trim().length > 0) target.soft = patch.soft!
+  if (patch.surface != null && patch.surface!.trim().length > 0) target.surface = patch.surface!
+  if (patch.ground != null && patch.ground!.trim().length > 0) target.ground = patch.ground!
+  if (patch.text != null && patch.text!.trim().length > 0) target.text = patch.text!
+  if (patch.muted != null && patch.muted!.trim().length > 0) target.muted = patch.muted!
+  if (patch.border != null && patch.border!.trim().length > 0) target.border = patch.border!
+  if (patch.input != null && patch.input!.trim().length > 0) target.input = patch.input!
+  if (patch.ring != null && patch.ring!.trim().length > 0) target.ring = patch.ring!
+  if (patch.accent != null && patch.accent!.trim().length > 0) target.accent = patch.accent!
+  if (patch.danger != null && patch.danger!.trim().length > 0) target.danger = patch.danger!
+  if (patch.dangerSoft != null && patch.dangerSoft!.trim().length > 0) target.dangerSoft = patch.dangerSoft!
+  if (patch.overlay != null && patch.overlay!.trim().length > 0) target.overlay = patch.overlay!
+}
+
+function patchMessages(patch: MoriMessages) {
+  if (patch.required != null && patch.required!.trim().length > 0) config.messages.required = patch.required!
+  if (patch.clearInput != null && patch.clearInput!.trim().length > 0) config.messages.clearInput = patch.clearInput!
+  if (patch.showPassword != null && patch.showPassword!.trim().length > 0) config.messages.showPassword = patch.showPassword!
+  if (patch.hidePassword != null && patch.hidePassword!.trim().length > 0) config.messages.hidePassword = patch.hidePassword!
+  if (patch.closePopup != null && patch.closePopup!.trim().length > 0) config.messages.closePopup = patch.closePopup!
+  if (patch.checkbox != null && patch.checkbox!.trim().length > 0) config.messages.checkbox = patch.checkbox!
+  if (patch.checkboxGroup != null && patch.checkboxGroup!.trim().length > 0) config.messages.checkboxGroup = patch.checkboxGroup!
+  if (patch.radioGroup != null && patch.radioGroup!.trim().length > 0) config.messages.radioGroup = patch.radioGroup!
+  if (patch.switchControl != null && patch.switchControl!.trim().length > 0) config.messages.switchControl = patch.switchControl!
+  if (patch.previousMonth != null && patch.previousMonth!.trim().length > 0) config.messages.previousMonth = patch.previousMonth!
+  if (patch.nextMonth != null && patch.nextMonth!.trim().length > 0) config.messages.nextMonth = patch.nextMonth!
+  if (patch.previousPage != null && patch.previousPage!.trim().length > 0) config.messages.previousPage = patch.previousPage!
+  if (patch.nextPage != null && patch.nextPage!.trim().length > 0) config.messages.nextPage = patch.nextPage!
+  if (patch.increase != null && patch.increase!.trim().length > 0) config.messages.increase = patch.increase!
+  if (patch.decrease != null && patch.decrease!.trim().length > 0) config.messages.decrease = patch.decrease!
+  if (patch.closeNotice != null && patch.closeNotice!.trim().length > 0) config.messages.closeNotice = patch.closeNotice!
+  if (patch.closeNotification != null && patch.closeNotification!.trim().length > 0) config.messages.closeNotification = patch.closeNotification!
+}
+
+/** Patch only supplied colors. Mode-specific values take precedence over aliases in one call. */
 export function setMoriConfig(options: MoriConfig) {
   if (options.theme != null) {
     if (options.theme != 'auto' && options.theme != 'light' && options.theme != 'dark') {
@@ -45,10 +185,29 @@ export function setMoriConfig(options: MoriConfig) {
     uni.setAppTheme({ theme: config.theme })
     // #endif
   }
-  if (options.color != null) config.color = options.color!
-  if (options.darkColor != null) config.darkColor = options.darkColor!
-  if (options.softColor != null) config.softColor = options.softColor!
-  if (options.darkSoftColor != null) config.darkSoftColor = options.darkSoftColor!
+  patchColors(config.light, { primary: options.color, soft: options.softColor })
+  patchColors(config.dark, { primary: options.darkColor, soft: options.darkSoftColor })
+  if (options.light != null) patchColors(config.light, options.light!)
+  if (options.dark != null) patchColors(config.dark, options.dark!)
+  if (options.messages != null) patchMessages(options.messages!)
+}
+
+/** Restore neutral defaults and follow the latest host appearance without adding listeners. */
+export function resetMoriConfig() {
+  config.messages = defaultMessages()
+  config.light = defaultColors(false)
+  config.dark = defaultColors(true)
+  setMoriConfig({ theme: 'auto' })
+}
+
+/** Only WEB emits a CSS variable; common components never access browser globals. */
+export function moriFocusStyle(): string {
+  // #ifdef WEB
+  return '--mori-focus-ring:' + moriPalette.value.ring + ';'
+  // #endif
+  // #ifndef WEB
+  return ''
+  // #endif
 }
 
 /** Call once in App.uvue onLaunch. A single listener serves all components. */

@@ -4,7 +4,11 @@
 
 先根据改动范围选检查。以下是可复现流程，不要求每个任务重复全部执行。已经取得的平台证据见 [兼容记录](compatibility.md)。
 
+黑白主题回归：先 `npm run site:build`、`npm run site:preview`，再执行 `npm run test:theme`。它核对浅深色按钮层级、悬停／焦点、错误边框、开关滑块对比度、勾图标与标签页固定尺寸，并生成 360／390／1440px 截图。使用 `MORI_SITE_URL` 切换官网地址，`MORI_BROWSER_EXECUTABLE` 切换浏览器；输出为 `.impeccable/review/shadcn-*`。`test:unit` 同时包含 `tests/theme.mjs` 的真实主题、对比度与品牌覆盖检查。
+
 ## 按改动选择检查
+
+主题定制回归：构建并启动官网后执行 `npm run test:customization`。检查 320／390px 的浅深色、全局品牌／恢复默认、实例优先级、Input／Textarea、Switch 独立滑块、Checkbox／Radio、Tabs 键盘与尺寸、Popup／Dialog 配色和加载锁定。弹层截图等待入场完成；输出 `.impeccable/review/customization-*`。支持 `MORI_SITE_URL` 与 `MORI_BROWSER_EXECUTABLE`。`test:unit` 纳入 `tests/customization.mjs`，使用真实组件 setup、真实主题和宿主适配替身验证错误优先级、状态与事件，不代表设备运行。
 
 | 改动 | 建议验证 |
 |---|---|
@@ -58,6 +62,12 @@ npm run test:motion
 ## 微信和原生
 
 `npm run build:weixin` 输出到 `unpackage/dist/build/mp-weixin`。导入微信开发者工具后，使用自己的项目身份与运行配置，逐项操作四组件、主题、图标、文字、禁用及连续切换。
+
+可直接导入上述产物目录。若导入源码根目录，根目录的 `project.config.json` 必须设置 `"miniprogramRoot": "unpackage/dist/build/mp-weixin/"`，保留自己的 AppID，保存后重新编译。不要把 App.uvue 改名或复制成 app.json；app.json 与六个页面由 uni-app x 编译器生成。`project.private.config.json` 是开发者本机配置，不纳入版本控制。
+
+uni-app 构建完成后，还需让微信自己的编译器检查 WXSS。Windows 设置 `WECHAT_DEVTOOLS_HOME` 为已安装开发工具目录，再运行 `npm run check:weixin`；其他安装布局可用 `MORI_WXSS_COMPILER` 指定已安装 wcsc 的绝对路径。该脚本检查真实小程序入口、所有页面文件和全部 WXSS，不下载工具。为支持独立编译器，会在 `.impeccable/review/weixin-wxss-source/` 检查副本中将根目录绝对导入解析为等价相对路径，样式规则和真实产物保持不变。这只验证入口及语法，不验证组件作用域中选择器的实际生效或设备渲染。
+
+命令行微信发行构建会把产物内的 `project.config.json` 归一化为 `miniprogramRoot: "./"`，避免 HBuilderX 复制源码根配置后指向重复嵌套目录。根目录导入与产物目录导入均可使用。若磁盘上的新样式已通过检查，开发工具却仍报告同一旧行／列的错误，重新打开项目或仅清理编译缓存后再编译；不要清除登录、授权或业务存储来解决样式缓存问题。
 
 App 通过 HBuilderX 的运行菜单处理。分别记录 Android、iOS、鸿蒙的编译器／系统／设备与结果，检查软键盘、确认键、密码显隐、光标、安全区、字体缩放、主题切换和 SVG／动画。当前仓库没有已验证的原生自动化脚本或可复用签名。
 
@@ -160,3 +170,27 @@ iOS 上传定向检查：`node tests/upload-ios.mjs` 运行 APP-IOS 的真实 UT
 `node tests/platform-geometry.mjs` 使用仅提供异步查询的微信 UniElement 接口替身，覆盖尺寸失败、窗口变化竞态、取消监听、快速签名、坐标换算及清空／禁用／卸载取消待处理触点。接口替身不等于真机验收。`test:strengthened` 新增自动补全连续输入后立即选中、级联加载中点击当前路径；不能用等待输入稳定来规避竞态。
 
 `node tests/preview-entry.mjs` 核对默认 IDE 页面不引用生成的预览入口，npm 入口显式启用 MORI_PREVIEW。干净检出验证需复制 Git 可见源码（不带被忽略的预览生成文件），直接调用 HBuilderX 编译器且不传 UNI_CUSTOM_CONTEXT；npm 构建继续验证包含 88 示例的分支。
+
+
+## 移动端回归与 CI
+
+先构建官网并启动预览，再执行 `npm run test:mobile`：巡检全部 88 真实示例在 320px 的挂载与页面溢出，检查 320／390／844px 下底部／居中／侧边长内容弹层、正文真实滚动、44px 关闭区域、触控关闭、长导航文字及打开期间旋转。截图标记的浅深主题由实际背景色断言确认。`npm run test:mobile -- --focused` 只跑定向交互，分别写入 mobile-focused-verification.json，不覆盖完整巡检报告。
+
+`tests/viewport.mjs` 已纳入 test:unit，检查实际 SafeArea setup 与共享监听的更新／清理、无效窗口、visualViewport 和缩放；宿主事件为替身，不是键盘真机证明。原始报告及截图在 `.impeccable/review/mobile-*`。
+
+GitHub Actions 在 Ubuntu／Windows、Node 24 上运行 npm ci、check、check:docs、test:unit、test:distribution、test:weixin-styles 和 package:prepare，并保存 7 天候选产物。它不安装 HBuilderX、不执行签名或真机任务；工作流首次运行结果需在推送后确认。
+
+Chromium 145 下底层 CDP 触点滚动后，下一次合成触摸不生成 click，在独立原生 HTML 按钮页同样复现。mobile 脚本把普通触控点击与原始触点滚动分开验证，后者用 Escape 关闭；滑动后立即点击的组合仍需真机，不应通过增加点击次数掩盖它。
+
+## 分发、操作提示与微信样式回归
+
+- `npm run test:distribution`：验证双模块版本、相对依赖与资源、文件哈希，拒绝被修改的文件、遗漏资源、额外依赖和混入的私有文件；同时检查独立接入工程未引用工作台或仓库 node_modules。
+- `npm run test:weixin-styles`：覆盖微信组件 WXSS 禁止的属性／ID／标签／通配选择器，以及 27 个操作控件的禁用条件与样式类一致性。实际构建之后，`npm run check:weixin` 还会检查生成样式并调用本机 wcsc；语法和选择器检查不代表模拟器画面已验收。
+- `npm run test:consumer`：从生成的分发目录复制模块，新建单页 uni-app x 工程，执行 H5／微信构建、88 个 easycom 注册、逐组件样式检查和浏览器交互。检查输入、Switch、Popup、Stepper 禁用、浅深主题、内置提示覆盖／恢复、业务标签保留，以及全部组件挂载后的页面／资源／控制台错误。Form 与 Radio 显式提供必填参数。
+- `tests/theme.mjs`（包含在 test:unit）：验证 MoriMessages 合并、空白值保留、非法主题不部分应用消息配置，以及 resetMoriConfig 恢复默认提示。更新内置图标名称后还需检查实际浏览器的可访问名称。
+
+输出与安装要求见 [分发说明](releasing.md)。本机可用命令分别是 `npm run package:prepare` 和 `npm run package:verify -- <实际目录>`；CI 在 Ubuntu／Windows 执行不依赖 HBuilderX 的两项新增检查并保存候选产物。HBuilderX、浏览器与 wcsc 检查由维护者本机运行。
+
+审查修复回归：`tests/theme.mjs` 在真实 Toast setup 中切换两种模式与黑／白／深灰 surface，并读取选中 SVG 的实际笔画色检查对比度；`tests/feedback-component.mjs` 保留原生命周期检查。`test:distribution` 在临时副本验证运行时文件删除、新增、内容变化拒绝复用，文档单独更新仍允许。`test:consumer` 额外检查浅色模式的黑底提示与深色模式的白底提示，确认图标图片加载成功，截图为 `consumer-toast-dark-surface.png`／`consumer-toast-light-surface.png`。
+
+微信源码根导入时，可复制 `project.config.example.json` 为 `project.config.json`，填写自己的 AppID 并先运行微信构建。个人 project.config.json／project.private.config.json 均不纳入 Git；生成目录的 miniprogramRoot 仍由构建脚本归一化为 ./。

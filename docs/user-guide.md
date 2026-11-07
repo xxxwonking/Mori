@@ -54,11 +54,13 @@ Button 可切换大小、加载和禁用。Input 展示普通、校验、密码�
 
 ## 3. 复制到其他项目
 
+可先运行 `npm run package:prepare` 生成独立分发目录，再从中复制两个模块；`npm run package:verify -- <目录>` 核对文件完整性。维护者可运行 `npm run test:consumer`，在临时新工程中编译全部 88 个组件并验证基础交互，完整流程见 [开源与分发](releasing.md)。
+
 目标应是 **uni-app x** 工程。当前包不能被当作普通 uni-app `.vue` 组件或标准 Web Vue 包直接安装。
 
 复制 `uni_modules/mori-ui` 整个目录，保留 `components`、`styles`、`platform`、`static`、`theme.uts`、`contrast.uts`、`validation.uts`、`form-context.uts`、`selection.uts`、`feedback.uts`、`overlay.uts`、`package.json` 和 `THIRD_PARTY_NOTICES.md`。不需要复制工作台、`demo-form`、`demo-foundation` 或反馈演示页。
 
-同时复制依赖目录 `uni_modules/mori-upload-ios`。它在 APP-IOS 提供系统相册读取、沙盒临时文件与 URLSession 上传；其他平台不调用该原生分支。首次接入或修改 Swift／Info.plist 后重新制作自定义基座或打包，配置与文件生命周期见 [iOS 模块说明](../uni_modules/mori-upload-ios/README.md)。目前该原生实现仍待 iOS 编译和设备验收。
+同时复制依赖目录 `uni_modules/mori-upload-ios`。它在 APP-IOS 提供系统相册读取、沙盒临时文件与 URLSession 上传；其他平台不调用该原生分支。首次接入或修改 Swift／Info.plist 后重新制作自定义基座或打包，配置与文件生命周期见 [iOS 模块说明](../uni_modules/mori-upload-ios/README.md)。2026-11-02 已记录一次 iPhone 相册选择与上传成功；相机、iCloud、HEIC、取消／重试等场景和全组件原生表现仍需单独验收。
 
 业务页面的完整接入示例、权限配置、插件 API 与排障步骤见 [iOS 上传插件使用指南](ios-upload.md)，官网左侧「开始使用」中也可进入。
 
@@ -89,6 +91,12 @@ onLaunch(() => {
 
 ## 4. 全局主题和局部配色
 
+必填说明、清空／显隐密码、关闭和翻页等内置提示可通过 `setMoriConfig({ messages: { ... } })` 统一修改，切换后已挂载组件同步更新。字段表及业务文案的优先级见 [内置操作提示](theme-customization.md#内置操作提示)。
+
+现在支持 light／dark 的完整语义配色、增量更新与 resetMoriConfig 恢复默认；Button、Input／Textarea、Switch、选择控件、Tabs、Popup／Dialog 采用统一实例定制规范。字段、优先级、完整示例见 [主题与组件定制](theme-customization.md)。旧的四个品牌字段继续有效。
+
+默认是 shadcn 风格的黑白中性主题；36px 控件、13px 文字保持不变。完整色板、组件映射与适配差异见 [shadcn 风格与主题](shadcn-style.md)。下面的蓝色配置是可选品牌覆盖，省略它即使用默认黑白配色。
+
 ```ts
 import { setMoriConfig } from '@/uni_modules/mori-ui/theme.uts'
 
@@ -107,6 +115,8 @@ setMoriConfig({
 配置只更新传入项，不自动持久化。需要记住主题选择时，由业务保存，在下次启动读取、校验后调用 `setMoriConfig`。
 
 `moriThemeMode`、`moriIsDark`、`moriPalette` 是只读 computed，可在模板中使用。实例 `color` 等属性覆盖全局颜色；Switch 开启色按 `activeColor → color → 全局 primary` 取值，关闭色用 `inactiveColor` 或当前主题灰色。实例自定义颜色不会自动生成另一套深色值，可结合 `moriIsDark` 分别传入。
+
+`moriPalette.input` 用于控件边框，`ring` 用于正常焦点，`accent` 用于 H5 悬停。Input／Textarea 错误状态优先于焦点色，始终只画一条 1px 边框。Button outline 默认使用中性控件边框；显式 `color` 仍覆盖其描边。仅需跟随全局品牌的组件可以省略 `color`。
 
 自动文字／勾色计算支持不透明 `#RGB`、`#RRGGBB`、逗号格式 `rgb()`。实心 Button 的其他颜色格式可显式设置 `textColor`；有文字的 Switch 和自定义 Checkbox 建议使用上述已支持格式并检查浅深色效果。
 
@@ -341,3 +351,10 @@ Dialog 的 confirm 不会自动关闭。实际异步提交时，在处理函数�
 ## 通用能力补强
 
 本轮新增 16 个组件，总计 88 个。表格、结构化富文本、定高虚拟列表、瀑布流、裁剪、签名、二维码与拖拽等的契约见 [全部指南](component-guides.md)。官网每个文档页提供实际示例；复杂组件的使用范围与原生差异在对应指南明确记录。
+
+
+## 移动端与开源接入
+
+组件以手机为优先场景，保留 36px／13px 紧凑默认值。Popup 正文独立滚动，标题与关闭入口保持可见；Navbar、Tabbar、ActionBar 复用 SafeArea，微信／App 自动模式随窗口变化更新。固定导航正文占位、系统键盘、长内容与字体缩放的接入步骤见 [移动端适配](mobile-adaptation.md)。
+
+项目采用 MIT，复制两个 uni_modules 目录时保留各自 LICENSE 及第三方声明。贡献步骤见 [CONTRIBUTING](../CONTRIBUTING.md)，版本与分发边界见 [开源与分发](releasing.md)。

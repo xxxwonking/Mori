@@ -3,6 +3,21 @@
   "displayName": "Mori Upload iOS",
   "version": "0.1.0",
   "description": "Mori UI 的 iOS 相册、可读临时文件与前台上传适配",
-  "engines": { "HBuilderX": "^5.31" },
-  "uni_modules": { "dependencies": [], "encrypt": [] }
+  "engines": {
+    "HBuilderX": "^5.31"
+  },
+  "uni_modules": {
+    "dependencies": [],
+    "encrypt": []
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xxxwonking/Mori.git",
+    "directory": "uni_modules/mori-upload-ios"
+  },
+  "homepage": "https://github.com/xxxwonking/Mori#readme",
+  "bugs": {
+    "url": "https://github.com/xxxwonking/Mori/issues"
+  }
 }

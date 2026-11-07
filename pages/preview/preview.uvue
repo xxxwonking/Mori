@@ -21,6 +21,10 @@
       </view>
       <text class="preview-note" :style="'color:' + moriPalette.muted">当前为 H5 组件示例，数据仅用于演示。</text>
       <view class="preview-appearance">
+        <mori-button label="品牌配色" size="sm" variant="outline" @click="applyBrand" />
+        <mori-button label="默认配色" size="sm" variant="outline" @click="resetColors" />
+      </view>
+      <view class="preview-appearance">
         <mori-button label="跟随系统" size="sm" variant="text" @click="setMoriConfig({ theme: 'auto' })" />
         <mori-button label="浅色" size="sm" variant="text" @click="setMoriConfig({ theme: 'light' })" />
         <mori-button label="深色" size="sm" variant="text" @click="setMoriConfig({ theme: 'dark' })" />
@@ -34,7 +38,7 @@
 
 <script setup lang="uts">
 import { ref, computed } from 'vue'
-import { moriPalette, setMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
+import { moriPalette, moriThemeMode, setMoriConfig, resetMoriConfig } from '../../uni_modules/mori-ui/theme.uts'
 import { previewItems } from './catalog.uts'
 const current = ref('button')
 const revision = ref(0)
@@ -51,7 +55,18 @@ onLoad((options) => {
   const theme = options['theme']
   if (theme == 'light' || theme == 'dark') setMoriConfig({ theme: theme })
 })
-function reset() { revision.value++ }
+function resetColors() {
+  const mode = moriThemeMode.value
+  resetMoriConfig()
+  setMoriConfig({ theme: mode })
+}
+function applyBrand() {
+  setMoriConfig({
+    light: { primary: '#4338ca', soft: '#eef2ff', surface: '#ffffff', ground: '#f5f7ff', text: '#172554', muted: '#4b5c85', border: '#c7d2fe', input: '#94a3cc', ring: '#6366f1', accent: '#e0e7ff' },
+    dark: { primary: '#a5b4fc', soft: '#263456', surface: '#17213b', ground: '#0b1228', text: '#e0e7ff', muted: '#a5b4d8', border: '#33436a', input: '#52638b', ring: '#a5b4fc', accent: '#33436a' }
+  })
+}
+function reset() { resetColors(); revision.value++ }
 function select(name: string) { current.value = name; showMenu.value = false; revision.value++ }
 </script>
 

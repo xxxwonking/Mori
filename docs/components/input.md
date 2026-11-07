@@ -27,6 +27,10 @@ const name = ref('')
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 输入区域背景；禁用时保留该颜色及禁用透明度 |
+| textColor | string | 空（继承） | 输入值文字色，不改变标签和错误消息 |
+| borderColor | string | 空（继承） | 普通边框色；聚焦和错误状态优先 |
+| placeholderColor | string | 空（继承） | 占位文字色 |
 | v-model | string | 空 | 当前输入值 |
 | label | string | 空 | 字段名称；同时用作无障碍名称 |
 | placeholder | string | 请输入 | 未填写时的提示 |
@@ -53,9 +57,11 @@ const name = ref('')
 
 密码类型使用眼睛图标切换显隐；clearable 使用关闭图标清空。图标保留可访问名称与键盘操作，显隐与清空可同时使用。输入组件呈现错误信息，校验规则留给业务。组合表单展示了必填、邮箱格式、同意选项与错误恢复。
 
-H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；控件始终只有一条闭合边框，聚焦变为主题色且宽度不变；错误信息与 aria-invalid 在聚焦时继续保留，失焦后恢复错误边框。DOM 适配集中在 WEB 条件编译的 platform/accessibility.uts，原生与小程序不包含该段代码。
+H5 将 required/invalid 与描述文本关联到实际可聚焦的 HTML input；控件始终只有一条闭合边框，正常聚焦使用中性 ring 或显式 color，宽度不变；错误字段在聚焦和失焦时都保持错误色边框、错误信息与 aria-invalid。DOM 适配集中在 WEB 条件编译的 platform/accessibility.uts，原生与小程序不包含该段代码。
 
 放入 FormItem 时隐藏自身标题和消息，错误与描述由 FormItem 接管；非空的本地 label 可覆盖输入无障碍名称，required 为本地与父级的逻辑或。建议将 label、required、hint、error 统一设置在 FormItem，避免信息不一致。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

@@ -7,6 +7,8 @@
     <view class="demo-row"><mori-button label="小号" size="sm" /><mori-button label="默认" /><mori-button label="大号" size="lg" /></view>
     <text class="demo-label">状态反馈</text>
     <view class="demo-row"><mori-button label="禁用按钮" disabled /><mori-button label="加载中" loading variant="soft" /></view>
+    <text class="demo-label">单个按钮配色</text>
+    <view class="demo-row"><mori-button label="自定义实心" background-color="#4338ca" border-color="#312e81" /><mori-button label="自定义描边" variant="outline" background-color="#eef2ff" text-color="#3730a3" border-color="#a5b4fc" /></view>
     <mori-button label="体验异步保存" :loading="saving" block @click="save" />
     <text class="demo-status" role="status">{{ message }}</text>
   </view>

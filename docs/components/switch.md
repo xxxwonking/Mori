@@ -27,6 +27,9 @@ activeColor 优先于 color；inactiveColor 独立设置关闭颜色。两种状
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| activeThumbColor | string | 空（继承） | 开启时滑块背景 |
+| inactiveThumbColor | string | 空（继承） | 关闭时滑块背景 |
+| textColor | string | 空（继承） | 外部标签文字色；轨道文字仍自动选择黑白 |
 | v-model | boolean | false | 是否开启 |
 | label | string | 空 | 选项名称，建议始终提供 |
 | description | string | 空 | 次级说明 |
@@ -45,6 +48,8 @@ activeColor 优先于 color；inactiveColor 独立设置关闭颜色。两种状
   active-color="#238653" inactive-color="#dce9e1"
   active-text="开启" inactive-text="关闭" />
 ```
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

@@ -1,5 +1,11 @@
 # 本轮组件参考
 
+## 2026-11-06：shadcn 黑白中性风格
+
+用户明确指定 shadcn 并选择黑白主色。读取官方 new-york-v4 的 Button、Input、Switch、Tabs、Card 源码，采用其操作层级、中性边界、分组选择、轻投影与深色滑块对比策略；链接、语义色板及 Mori 的适配差异统一记录于 [shadcn 风格与主题](shadcn-style.md)。保留现有 UTS／uvue 实现和 API，没有引入 React／Radix／Tailwind 依赖。下面各节记录各历史版本的参考，不覆盖当前视觉选择。
+
+## 历史：紧凑组件与输入修正
+
 根据用户截图修正输入双层焦点、宿主复选框选中皮肤，并补足紧凑尺寸、图标操作和 Switch 定制能力。
 
 - [Vant Switch](https://github.com/youzan/vant/tree/main/packages/vant/src/switch)：参考独立的 activeColor / inactiveColor、固定轨道与 transform 滑块过渡。

@@ -21,6 +21,7 @@
 
 | 编号 | 范围 | 当前处理 | 待跟进 |
 |---|---|---|---|
+| MORI-THEME-01 | 全局语义颜色、高频控件定制 | light／dark 增量配置；实例覆盖及错误／加载规则见主题定制指南；H5 与微信编译证据见 compatibility.md 最新记录 | 在微信、iOS、Android、Safari 与鸿蒙检查系统主题切换、重置、动态背景／文字／占位色、SVG 与焦点；显式浅色弹框在深色模式下仍须保证按钮可读；没有本轮设备证据 |
 | MORI-OVERLAY-01 | Popup / Picker / DatetimePicker / ActionSheet | 复用弹层栈；H5 键盘与滚动锁；要求页面根级挂载 | 微信与原生安全区、键盘遮挡、滚动穿透；H5/原生真正读屏隔离（inert / 下层弹窗隐藏） |
 | MORI-POPOVER-01 | 气泡菜单固定定位 | selectorQuery 测量，边缘限制和上下翻转；H5 滚动/resize 关闭 | 小程序作用域选择器与原生定位；非 H5 页面滚动/旋转由业务关闭；transform 祖先下不支持跨端 portal |
 | MORI-NAV-01 | 固定导航、安全区 | WEB / MP 的 env 安全区；默认导航处于正常流 | 原生状态栏/底部手势区需运行验收与页面 padding；组件不自动占位，不自动跳转 |
@@ -51,7 +52,7 @@
 | TIMER-01 | CountDown／CountTo：时间差驱动与取消任务 | App 切后台／锁屏后恢复的显示；没有后台保活或系统通知 |
 | GESTURE-01 | SwipeCell：方向区分、touchcancel、显式展开按钮 | 真机纵向滚动不误展开，横向展开连续往返，VoiceOver／TalkBack 按钮操作 |
 | STICKY-01 | Sticky：WEB／MP CSS；APP 用 fixed＋height 受控模式 | App 页面滚动接入、状态栏偏移、真实占位；APP 默认不自动吸顶 |
-| SAFE-01 | SafeArea：WEB／MP env，APP safeAreaInsets，size 覆盖 | 刘海、底部手势、横屏与键盘；窗口变化由业务刷新 size，不重复 padding |
+| SAFE-01 | SafeArea：WEB env，微信／APP 响应式 safeAreaInsets，size 覆盖；Navbar／Tabbar／Popup 复用 | 刘海、底部手势、横屏与键盘；共享窗口监听自动刷新，需真机核对宿主坐标，不重复补偿 |
 | SCROLL-02 | BackTop：父级 scrollTop、可选 pageScrollTo | page 与 scroll-view 不同目标；scroll-view 用 autoScroll=false 接管 click |
 | INDEX-01 | IndexBar：独立 scroll-view 与 scroll-into-view | 微信／App 重复定位、更新 sections；不提供滚动自动高亮或索引拖动 |
 
@@ -70,3 +71,8 @@
 | FORM-ASYNC-01 | 模型快照、嵌套路径、请求代数、异步错误、重置 | 微信／原生 Promise 与 JSON 类型编译／运行、真实后端取消和超时 |
 
 uni Canvas API 类型来源为当前 @dcloudio/uni-app-x 安装包；官方说明见 [createCanvasContextAsync](https://doc.dcloud.net.cn/uni-app-x/api/createCanvasContextAsync.html)。本轮不以 H5 / 微信编译成功替代任何设备条目。
+
+
+## 移动端适配验收
+
+MOBILE-01：Popup 正文使用 scroll-view，按可用窗口限制高度并保留标题／关闭入口；H5 监听未缩放页面的 visualViewport。需在实际 iOS Safari／Android 浏览器、微信及 App 验证键盘避让、旋转、顶部／底部安全区、嵌套滚动和缩放，步骤见 [移动端接入](mobile-adaptation.md)。Chromium 模拟与接口替身不改变真机待验收状态。

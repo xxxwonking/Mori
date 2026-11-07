@@ -1,5 +1,11 @@
 # 架构与维护位置
 
+## 分发与独立接入
+
+`scripts/distribution.mjs` 维护双模块的版本、依赖闭合、文件白名单和 SHA-256 清单；`scripts/package.mjs` 提供本地候选生成与核对。`consumer-project.mjs` 仅从候选复制模块并创建独立单页，`build-consumer.mjs` 使用已安装工具链编译，`verify-consumer.mjs` 核对 88 个 easycom 注册并检查真实浏览器行为。临时工程不导入工作台或官网 demo，也不链接仓库 node_modules。
+
+`weixin-style-contract.mjs` 检查组件 WXSS 中不允许的属性、ID、标签和通配选择器，`check-weixin.mjs` 在本机 wcsc 语法检查前调用它。共享操作按钮以明确状态类实现禁用外观，避免属性选择器仅在 H5 生效。内置操作提示和主题共用 theme.uts 的响应式全局配置，MoriMessages 字段只覆盖组件内部操作名称，不翻译业务内容。
+
 ## 代码分层
 
 新增宣传官网位于 `site/`，用 VitePress 构建；文档从 `docs/` 生成，手机示例由独立的 uni-app x H5 构建提供。`pages/preview/preview.uvue` 和 `site/demos/` 均属于演示层，未改变 `uni_modules/mori-ui/` 发布边界。官网 H5 使用 `unpackage/dist/site/h5` 与 `/demo/` base；普通工作台保持原输出路径。细节见 [官网维护指南](website.md)。
@@ -29,6 +35,7 @@
 | `pages/feedback/feedback.uvue` | Toast、Popup、Dialog 的可操作示例，不属于核心包 |
 | `scripts/` / `tests/` | HBuilderX 编译入口、静态预览、浏览器与对比度验证 |
 | `scripts/uni.mjs` / `scripts/hbuilder-env.mjs` | 检测 HBuilderX，创建临时插件布局并启动编译器；不改 IDE 安装 |
+| `scripts/weixin-project.mjs` / `scripts/check-weixin.mjs` | 微信发行构建归一化产物项目根；使用已安装微信编译器检查入口和 WXSS 语法 |
 | `DESIGN.md` / `.impeccable/design.json` | 设计 token／说明，以及文档面板的静态 HTML/CSS 样例 |
 
 `unpackage/`、`node_modules/` 和测试截图是产物或依赖，不应成为手工修复源文件。`.impeccable/design.json` 的组件样例用于文档预览，不是运行组件实现。
@@ -126,3 +133,8 @@ H5 的 `uni-input` 报告的标准化 `tagName` 可能也是 `INPUT`，但它并
 advanced.uts 提供数据／列／描述类型、定高窗口、不可变重排、瀑布流分列与裁剪几何。platform/canvas.uts 封装 uni Canvas 创建及 H5 指针；核心组件不引入浏览器全局。qrcode.uts 使用 vendor/qrcodegen.uts 中保留 MIT 许可的 Nayuki 便携算法，不依赖 Node Buffer。Canvas 导出为 data URL，业务负责保存／上传。官网演示短片 static/mori-demo.webm 由本地 Canvas 生成，无第三方素材。
 
 platform/geometry.uts 为图片预览和 Canvas 提供尺寸测量：WEB 使用 DOM／ResizeObserver，非 WEB 使用 getBoundingClientRectAsync 并响应窗口变化，手势使用缓存宽度。签名每笔异步测量当前位置，排队处理查询期间的触点和结束事件，清空／禁用／卸载取消队列；签名显示与固定输出统一为 5:3。Autocomplete 选择／确认以及 TagInput/ColorPicker 成功提交后重建输入编辑器，沿用 Stepper 清理宿主缓存的模式，避免迟到 input 覆盖新值。
+
+
+## 共享窗口与安全区
+
+platform/viewport.uts 通过 useMoriViewport 维护共享窗口数据。首个组件挂载时订阅、最后一个组件卸载时清理；WEB 使用 resize 与 visualViewport resize/scroll，其他端使用 uni.onWindowResize。无效窗口保留最近有效测量。SafeArea 的 WEB 分支继续使用 env，微信／App 使用响应式 safeAreaInsets。Popup 使用实际可用高度限制 scroll-view，标题与关闭入口在滚动区外；Navbar／Tabbar 组合 SafeArea，避免每个组件各写一套平台分支。

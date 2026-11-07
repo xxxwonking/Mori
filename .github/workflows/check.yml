@@ -1,0 +1,35 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: source-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run check:docs
+      - run: npm run test:unit
+      - run: npm run test:distribution
+      - run: npm run test:weixin-styles
+      - run: npm run package:prepare
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mori-source-candidate-${{ matrix.os }}
+          path: dist/mori-ui-*/
+          retention-days: 7

@@ -6,11 +6,13 @@
 <script setup lang="uts">
 
 import { computed } from 'vue'
+import { useMoriViewport } from '../../platform/viewport.uts'
 const props = defineProps({ position: { type: String, default: 'bottom' }, background: { type: String, default: 'transparent' }, size: { type: Number, default: -1 } })
+const viewport = useMoriViewport()
 const areaStyle = computed((): string => {
-  let height = props.size
-  // #ifdef APP
-  if (height < 0) { const insets = uni.getWindowInfo().safeAreaInsets; if (insets != null) height = props.position == 'top' ? insets.top : insets.bottom }
+  let height = Number.isFinite(props.size) ? props.size : -1
+  // #ifndef WEB
+  if (height < 0) height = props.position == 'top' ? viewport.value.safeTop : viewport.value.safeBottom
   // #endif
   return 'background-color:' + props.background + ';' + (height >= 0 ? 'height:' + height + 'px;' : '')
 })
@@ -19,7 +21,7 @@ const areaStyle = computed((): string => {
 
 <style lang="scss">
 .mori-safe-area { width: 100%; flex-shrink: 0; height: 0; }
-/* #ifdef WEB || MP-WEIXIN */
+/* #ifdef WEB */
 .mori-safe-area--top { height: env(safe-area-inset-top); }.mori-safe-area--bottom { height: env(safe-area-inset-bottom); }
 /* #endif */
 </style>

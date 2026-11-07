@@ -1,10 +1,10 @@
 <template>
-  <mori-popup :model-value="modelValue" position="center" :title="title" :closable="false" :close-on-overlay-click="closeOnOverlayClick && !confirmLoading" :close-on-escape="!confirmLoading" @close="cancel">
+  <mori-popup :model-value="modelValue" position="center" :title="title" :background-color="backgroundColor" :text-color="textColor" :border-color="borderColor" :overlay-color="overlayColor" :closable="false" :close-on-overlay-click="closeOnOverlayClick && !confirmLoading" :close-on-escape="!confirmLoading" @close="cancel">
     <view class="mori-dialog" :aria-busy="confirmLoading">
-      <view class="mori-dialog__body"><slot><text v-if="message.length > 0" class="mori-dialog__message" :style="'color:' + moriPalette.muted">{{ message }}</text></slot></view>
+      <view class="mori-dialog__body"><slot><text v-if="message.length > 0" class="mori-dialog__message" :style="'color:' + (textColor.length > 0 ? textColor : moriPalette.muted)">{{ message }}</text></slot></view>
       <view class="mori-dialog__actions">
-        <view v-if="showCancelButton" class="mori-dialog__action"><mori-button :label="cancelText" variant="outline" block :disabled="confirmLoading" @click="cancel" /></view>
-        <view class="mori-dialog__action" :class="{ 'mori-dialog__action--last': showCancelButton }"><mori-button :label="confirmText" block :loading="confirmLoading" @click="confirm" /></view>
+        <view v-if="showCancelButton" class="mori-dialog__action"><mori-button :label="cancelText" variant="outline" :color="cancelColor.length > 0 ? cancelColor : textColor" :background-color="backgroundColor" block :disabled="confirmLoading" @click="cancel" /></view>
+        <view class="mori-dialog__action" :class="{ 'mori-dialog__action--last': showCancelButton }"><mori-button :label="confirmText" :color="confirmColor" :text-color="confirmTextColor" block :loading="confirmLoading" @click="confirm" /></view>
       </view>
     </view>
   </mori-popup>
@@ -14,6 +14,13 @@
 import { ref, watch, nextTick } from 'vue'
 import { moriPalette } from '../../theme.uts'
 const props = defineProps({
+  backgroundColor: { type: String, default: '' },
+  textColor: { type: String, default: '' },
+  borderColor: { type: String, default: '' },
+  overlayColor: { type: String, default: '' },
+  confirmColor: { type: String, default: '' },
+  confirmTextColor: { type: String, default: '' },
+  cancelColor: { type: String, default: '' },
   modelValue: { type: Boolean, default: false },
   title: { type: String, default: '' },
   message: { type: String, default: '' },

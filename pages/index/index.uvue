@@ -33,7 +33,7 @@
           <view v-if="current == 'guide'" class="guide-content">
             <view class="guide-section"><text class="section-title">把好用的基础，带到下一个项目。</text><text class="guide-paragraph">Mori UI 从按钮和表单出发，为你的多个移动项目提供一致的交互与可调整的视觉。组件位于 uni_modules/mori-ui，可直接复制到 uni-app x 项目。</text><view class="guide-code"><text class="code-text">{{ installCode }}</text></view><text class="guide-paragraph">组件遵循 easycom 目录规范，模板中直接使用 mori-button、mori-input 等标签即可。所有字段都通过 v-model 同步，业务校验由使用方决定。</text></view>
             <view class="guide-section"><text class="section-title">默认跟随系统，也能由你决定。</text><text class="guide-paragraph">在 App.uvue 的 onLaunch 中调用一次 initMoriTheme，再在 manifest 中启用主题能力。然后通过全局 setMoriConfig 设置 auto、light 或 dark；固定主题后，系统变化不会覆盖你的选择。</text><view class="guide-code"><text class="code-text">{{ themeSetupCode }}</text></view><view class="guide-code"><text class="code-text">{{ themeManifestCode }}</text></view><view class="guide-code"><text class="code-text">{{ themeCode }}</text></view><text class="guide-paragraph">全局品牌色支持 color / darkColor，柔和背景支持 softColor / darkSoftColor。所有已显示的组件会立即更新，实例属性可以覆盖全局品牌色。完整接入步骤见项目 README。</text></view>
-            <view class="guide-section"><text class="section-title">兼容状态透明可查</text><text class="guide-paragraph">H5、微信小程序、iOS 和 Android 是正式支持目标；鸿蒙逐项适配。编译通过、浏览器验证、真机验证分别记录，详见项目 docs/compatibility.md。</text><mori-button label="从 Button 开始" size="sm" :color="themeColor" @click="selectComponent('button')" /></view>
+            <view class="guide-section"><text class="section-title">兼容状态透明可查</text><text class="guide-paragraph">H5、微信小程序、iOS 和 Android 是正式支持目标；鸿蒙逐项适配。编译通过、浏览器验证、真机验证分别记录，详见项目 docs/compatibility.md。</text><mori-button label="从 Button 开始" size="sm" @click="selectComponent('button')" /></view>
           </view>
 
           <view v-else class="content-columns">
@@ -46,16 +46,16 @@
                 <view class="specimen-panel">
                   <view class="specimen-toolbar"><text class="specimen-label">{{ current == 'button' ? '基础用法' : current == 'input' ? '输入与反馈' : '选择与偏好' }}</text><view v-if="current == 'button'" class="size-selector"><button v-for="size in sizes" :key="size.value" class="size-option" :class="{ 'size-option--active': selectedSize == size.value }" @click="selectedSize = size.value"><text class="size-option-text">{{ size.label }}</text></button></view><text v-else class="specimen-toolbar-note">可以直接操作</text></view>
 
-                  <view v-if="current == 'button'" class="button-stage"><view class="button-example"><mori-button label="主要按钮" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" :loading="demoLoading" @click="buttonFeedback('主要按钮')" /><text class="example-caption">Solid</text></view><view class="button-example"><mori-button label="柔和按钮" variant="soft" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" @click="buttonFeedback('柔和按钮')" /><text class="example-caption">Soft</text></view><view class="button-example"><mori-button label="描边按钮" variant="outline" :size="selectedSize" :color="themeColor" :soft-color="themeSoft" :disabled="demoDisabled" @click="buttonFeedback('描边按钮')" /><text class="example-caption">Outline</text></view><view class="button-example"><mori-button label="文字按钮" variant="text" :size="selectedSize" :color="themeColor" :disabled="demoDisabled" @click="buttonFeedback('文字按钮')" /><text class="example-caption">Text</text></view></view>
+                  <view v-if="current == 'button'" class="button-stage"><view class="button-example"><mori-button label="主要按钮" :size="selectedSize" :disabled="demoDisabled" :loading="demoLoading" @click="buttonFeedback('主要按钮')" /><text class="example-caption">Solid</text></view><view class="button-example"><mori-button label="柔和按钮" variant="soft" :size="selectedSize" :disabled="demoDisabled" @click="buttonFeedback('柔和按钮')" /><text class="example-caption">Soft</text></view><view class="button-example"><mori-button label="描边按钮" variant="outline" :size="selectedSize" :disabled="demoDisabled" @click="buttonFeedback('描边按钮')" /><text class="example-caption">Outline</text></view><view class="button-example"><mori-button label="文字按钮" variant="text" :size="selectedSize" :disabled="demoDisabled" @click="buttonFeedback('文字按钮')" /><text class="example-caption">Text</text></view></view>
 
-                  <view v-if="current == 'input'" class="input-stage"><view class="input-example"><mori-input v-model="sampleName" label="普通输入" placeholder="试着输入一些内容" :color="themeColor" clearable hint="输入后可一键清空" /></view><view class="input-example"><mori-input v-model="sampleEmail" label="校验反馈" placeholder="name@example.com" :color="themeColor" :error="sampleEmailError" hint="邮箱格式正确" /></view><view class="input-example"><mori-input v-model="samplePassword" label="密码输入" type="password" placeholder="输入密码" :color="themeColor" clearable hint="眼睛图标切换显隐，关闭图标清空内容" /></view><view class="input-example"><mori-input model-value="当前字段不可编辑" label="禁用状态" disabled hint="保持内容可读，禁止修改" /></view></view>
+                  <view v-if="current == 'input'" class="input-stage"><view class="input-example"><mori-input v-model="sampleName" label="普通输入" placeholder="试着输入一些内容" clearable hint="输入后可一键清空" /></view><view class="input-example"><mori-input v-model="sampleEmail" label="校验反馈" placeholder="name@example.com" :error="sampleEmailError" hint="邮箱格式正确" /></view><view class="input-example"><mori-input v-model="samplePassword" label="密码输入" type="password" placeholder="输入密码" clearable hint="眼睛图标切换显隐，关闭图标清空内容" /></view><view class="input-example"><mori-input model-value="当前字段不可编辑" label="禁用状态" disabled hint="保持内容可读，禁止修改" /></view></view>
 
                   <view v-if="current == 'switch'" class="selection-stage">
-                    <mori-switch v-model="sampleSwitch" label="消息通知" description="默认跟随全局主题色" :color="themeColor" />
+                    <mori-switch v-model="sampleSwitch" label="消息通知" description="默认跟随全局主题色" />
                     <view class="selection-divider"></view>
-                    <mori-switch v-model="sampleSwitchOff" label="自动保存" description="轨道内显示开关状态" :color="themeColor" active-text="开" inactive-text="关" />
+                    <mori-switch v-model="sampleSwitchOff" label="自动保存" description="轨道内显示开关状态" active-text="开" inactive-text="关" />
                     <view class="selection-divider"></view>
-                    <mori-switch :model-value="true" label="只读设置" :color="themeColor" active-text="开启" inactive-text="关闭" disabled />
+                    <mori-switch :model-value="true" label="只读设置" active-text="开启" inactive-text="关闭" disabled />
                     <view class="selection-divider"></view>
                     <text class="switch-examples-title">自定义颜色与文字</text>
                     <view class="switch-color-examples"><view v-for="item in switchColors" :key="item.name" class="switch-color-example"><mori-switch v-model="item.enabled" :label="item.name" :active-color="item.active" :inactive-color="item.inactive" active-text="ON" inactive-text="OFF" /></view></view>
@@ -64,15 +64,15 @@
                     <view class="switch-size-examples"><view v-for="item in sizes" :key="item.value" class="switch-size-example"><mori-switch v-model="sampleSwitchSizes" :label="item.label" :size="item.value" /></view></view>
                   </view>
 
-                  <view v-if="current == 'checkbox'" class="selection-stage"><mori-checkbox v-model="sampleCheck" label="接收每月设计灵感" :color="themeColor" /><mori-checkbox v-model="sampleCheckTwo" label="订阅组件更新日志" :color="themeColor" /><mori-checkbox :model-value="true" label="已锁定的选项" :color="themeColor" disabled /><mori-checkbox :model-value="false" label="暂不可选的项目" :color="themeColor" disabled /><view class="selection-summary"><text class="selection-summary-text">已选择 {{ (sampleCheck ? 1 : 0) + (sampleCheckTwo ? 1 : 0) }} 个可选项目</text></view></view>
+                  <view v-if="current == 'checkbox'" class="selection-stage"><mori-checkbox v-model="sampleCheck" label="接收每月设计灵感" /><mori-checkbox v-model="sampleCheckTwo" label="订阅组件更新日志" /><mori-checkbox :model-value="true" label="已锁定的选项" disabled /><mori-checkbox :model-value="false" label="暂不可选的项目" disabled /><view class="selection-summary"><text class="selection-summary-text">已选择 {{ (sampleCheck ? 1 : 0) + (sampleCheckTwo ? 1 : 0) }} 个可选项目</text></view></view>
 
-                  <view v-if="current == 'button'" class="stage-settings"><view class="stage-setting"><mori-switch v-model="demoLoading" label="加载中" size="sm" :color="themeColor" /></view><view class="stage-setting"><mori-switch v-model="demoDisabled" label="禁用状态" size="sm" :color="themeColor" /></view><text class="stage-result">{{ clickMessage.length > 0 ? clickMessage : '点击按钮，感受反馈' }}</text></view>
+                  <view v-if="current == 'button'" class="stage-settings"><view class="stage-setting"><mori-switch v-model="demoLoading" label="加载中" size="sm" /></view><view class="stage-setting"><mori-switch v-model="demoDisabled" label="禁用状态" size="sm" /></view><text class="stage-result">{{ clickMessage.length > 0 ? clickMessage : '点击按钮，感受反馈' }}</text></view>
                   <view v-if="current == 'switch'" class="stage-settings"><text class="stage-result stage-result--full">消息通知 {{ sampleSwitch ? '已开启' : '已关闭' }} · 自动保存 {{ sampleSwitchOff ? '已开启' : '已关闭' }}</text></view>
                 </view>
 
                 <view class="code-panel"><view class="code-panel-top"><text class="code-language">Vue / uni-app x</text><button class="copy-button" @click="copyCode"><text class="copy-button-text">{{ copied ? '已复制' : '复制代码' }}</text></button></view><text class="code-text">{{ currentCode }}</text></view>
 
-                <view v-if="current == 'button'" class="detail-section"><view class="detail-heading"><text class="section-title">每一种状态，都有回应。</text><text class="section-note">明确反馈，安心操作</text></view><view class="state-examples"><view class="state-example"><mori-button label="正在处理" :color="themeColor" loading size="sm" /><text class="state-title">加载状态</text><text class="state-description">避免重复提交</text></view><view class="state-example"><mori-button label="暂不可用" :color="themeColor" disabled size="sm" /><text class="state-title">禁用状态</text><text class="state-description">保留清晰的操作预期</text></view><view class="state-example"><mori-button label="删除内容" color="#b63d37" soft-color="#fff0ed" variant="soft" size="sm" @click="buttonFeedback('危险操作示例')" /><text class="state-title">危险操作</text><text class="state-description">用语义色提示风险</text></view></view></view>
+                <view v-if="current == 'button'" class="detail-section"><view class="detail-heading"><text class="section-title">每一种状态，都有回应。</text><text class="section-note">明确反馈，安心操作</text></view><view class="state-examples"><view class="state-example"><mori-button label="正在处理" loading size="sm" /><text class="state-title">加载状态</text><text class="state-description">避免重复提交</text></view><view class="state-example"><mori-button label="暂不可用" disabled size="sm" /><text class="state-title">禁用状态</text><text class="state-description">保留清晰的操作预期</text></view><view class="state-example"><mori-button label="删除内容" color="#b63d37" soft-color="#fff0ed" variant="soft" size="sm" @click="buttonFeedback('危险操作示例')" /><text class="state-title">危险操作</text><text class="state-description">用语义色提示风险</text></view></view></view>
 
                 <view v-if="current != 'button'" class="detail-section"><text class="section-title">让输入自然发生。</text><text class="detail-paragraph">名称说明用途，状态说明结果。把输入值和校验规则留给业务，组件负责清楚地呈现；在真实表单中组合使用，体验会更完整。</text></view>
 
@@ -112,7 +112,7 @@ const demoDisabled = ref(false)
 const demoLoading = ref(false)
 const clickMessage = ref('')
 const copied = ref(false)
-const themeName = ref('清晰蓝')
+const themeName = ref('中性黑白')
 const themeColor = computed((): string => moriPalette.value.primary)
 const themeSoft = computed((): string => moriPalette.value.soft)
 const sampleName = ref('')
@@ -124,7 +124,7 @@ const sampleCheck = ref(true)
 const sampleCheckTwo = ref(false)
 const navItems = [{ id: 'button', label: '按钮' }, { id: 'input', label: '输入框' }, { id: 'switch', label: '开关' }, { id: 'checkbox', label: '复选框' }, { id: 'guide', label: '指南' }]
 const sizes = [{ value: 'sm', label: '小' }, { value: 'md', label: '中' }, { value: 'lg', label: '大' }]
-const themes = [{ name: '清晰蓝', color: '#0066d6', soft: '#eaf2ff' }, { name: '靛蓝', color: '#465ba3', soft: '#edf0fb' }, { name: '陶土', color: '#a6543c', soft: '#faeee8' }]
+const themes = [{ name: '中性黑白', color: '#171717', soft: '#f5f5f5' }, { name: '靛蓝', color: '#465ba3', soft: '#edf0fb' }, { name: '陶土', color: '#a6543c', soft: '#faeee8' }]
 const appearanceModes = [{ id: 'auto', label: '自动' }, { id: 'light', label: '浅色' }, { id: 'dark', label: '深色' }]
 const currentTitle = computed((): string => current.value == 'button' ? 'Button' : current.value == 'input' ? 'Input' : current.value == 'switch' ? 'Switch' : current.value == 'checkbox' ? 'Checkbox' : '开始使用')
 const currentChinese = computed((): string => current.value == 'button' ? '按钮' : current.value == 'input' ? '输入框' : current.value == 'switch' ? '开关' : '复选框')
@@ -144,8 +144,8 @@ const themeManifestCode = '// manifest.json（合并到已有配置）\n{\n  "ap
 function selectComponent(value: string) { current.value = value; activeTab.value = 'preview'; copied.value = false; clickMessage.value = '' }
 function setTheme(name: string, color: string, soft: string) {
   themeName.value = name
-  const darkColor = name == '靛蓝' ? '#b1bfff' : name == '陶土' ? '#edb29c' : '#8cb6ff'
-  const darkSoftColor = name == '靛蓝' ? '#2a324d' : name == '陶土' ? '#483126' : '#243450'
+  const darkColor = name == '靛蓝' ? '#b1bfff' : name == '陶土' ? '#edb29c' : '#e5e5e5'
+  const darkSoftColor = name == '靛蓝' ? '#2a324d' : name == '陶土' ? '#483126' : '#262626'
   setMoriConfig({ color: color, softColor: soft, darkColor: darkColor, darkSoftColor: darkSoftColor })
 }
 function setAppearance(mode: string) { setMoriConfig({ theme: mode }) }

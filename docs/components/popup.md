@@ -28,6 +28,10 @@ const show = ref(false)
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 面板背景色 |
+| textColor | string | 空（继承） | 标题文字色；插槽内容自行管理 |
+| borderColor | string | 空（继承） | 面板边框色 |
+| overlayColor | string | 空（继承） | 遮罩颜色，空时使用主题 overlay |
 | v-model | boolean | false | 控制显隐，关闭时保留退出过渡 |
 | position | string | bottom | center / bottom / top / left / right |
 | title | string | 空 | 标题及弹层无障碍名称，建议提供 |
@@ -37,9 +41,9 @@ const show = ref(false)
 | closeOnEscape | boolean | true | H5 按 Escape 请求关闭 |
 | duration | number | 280 | 过渡时长，单位 ms；H5 减少动态效果时为 0 |
 | zIndex | number | 1000 | 层级下限，新打开层始终在已有层之上 |
-| safeAreaInsetBottom | boolean | true | H5／微信通过 env 预留底部安全区；App 需使用方结合页面适配 |
+| safeAreaInsetBottom | boolean | true | 通过 SafeArea 预留底部安全区；H5 使用 env，微信／App 跟随宿主窗口数据 |
 
-默认 slot 放置内容；点击内容不触发遮罩关闭。
+默认 slot 放置内容；点击内容不触发遮罩关闭。正文使用独立 scroll-view，长内容可滚动，标题与 44px 关闭入口保持可见。最大高度响应窗口变化；H5 同时响应未缩放页面的 visualViewport。顶部／侧边弹层自动预留顶部安全区。参见 [移动端接入](../mobile-adaptation.md)。
 
 overlay=false 为非模态模式：隐藏遮罩，aria-modal=false，该层不锁定背景滚动或限制焦点，H5 可继续操作背景；若它位于最上层，仍可按 Escape 关闭。其他仍打开的模态层继续持有自己的滚动锁。
 
@@ -56,6 +60,8 @@ overlay=false 为非模态模式：隐藏遮罩，aria-modal=false，该层不�
 实际层级按每次打开的 `max(zIndex, 当前顶层层级 + 2)` 分配。zIndex 是下限，不用于把新弹层放到旧弹层之下。H5 的焦点限制、Escape、视觉顺序使用同一打开顺序；背景滚动在最后一个模态层释放后恢复。
 
 请将 Popup 放在页面顶层，避开 transform、裁切或限制定位的祖先容器。当前不提供 teleport／全局门户；原生／小程序的页面滚动应结合目标平台 page-meta／页面配置处理。H5 焦点与滚动适配不等于原生或小程序设备验证。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

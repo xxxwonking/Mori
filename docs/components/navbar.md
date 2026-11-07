@@ -22,7 +22,7 @@ function save() { /* 校验并保存 */ }
 
 ## 状态与进阶使用
 
-左右操作触发 clickLeft / clickRight，无参数。right slot 在未设置 rightText 时使用。fixed=true 固定到页面顶端，业务必须给正文预留高度；safeAreaInsetTop 默认 false，自定义导航页按端启用。标题居中，长文本应控制长度。
+左右操作触发 clickLeft / clickRight，无参数。right slot 在未设置 rightText 时使用。fixed=true 固定到页面顶端，业务必须给正文预留高度；safeAreaInsetTop 默认 false，自定义导航页按端启用。标题居中，两侧操作至少 44px 高；长标题和操作文字单行省略，按钮保留完整可访问名称。
 
 ## 属性
 
@@ -33,7 +33,7 @@ function save() { /* 校验并保存 */ }
 | leftArrow | boolean | false | 显示返回箭头。 |
 | rightText | string | "" | 右侧操作文字。 |
 | fixed | boolean | false | 固定定位；业务须预留内容空间。 |
-| safeAreaInsetTop | boolean | false | 按支持端的 CSS 安全区增加顶部内边距。 |
+| safeAreaInsetTop | boolean | false | 通过 SafeArea 预留顶部安全区；自定义导航按需开启，避免与系统导航重复。 |
 
 ## 事件、插槽与方法
 

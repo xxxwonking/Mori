@@ -29,6 +29,9 @@ min 限制取消行为，max>0 限制增加行为；达到上限仍可取消已�
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 透传到所有选项的未选中背景 |
+| borderColor | string | 空（继承） | 透传到所有选项的未选中边框 |
+| textColor | string | 空（继承） | 透传到所有选项的文字色 |
 | v-model | string[] | [] | 已选 value 数组 |
 | options | MoriChoiceOption[] | [] | value 唯一的字符串选项列表 |
 | label | string | 空 | 独立使用时的标题；FormItem 中优先用父级标题 |
@@ -41,6 +44,8 @@ min 限制取消行为，max>0 限制增加行为；达到上限仍可取消已�
 事件：`update:modelValue(values: string[])`、`change(values: string[])`。有效操作发出新的、去重的数组，不直接修改传入数组。禁用项及受 min/max 阻止的操作不发出更新；达到 max 后仍可取消已选项。预置值超过 max 时允许逐项减少，不会自动截断业务传入值。请传入非负整数边界，max 非零时应不小于 min；模型值应对应 options。
 
 选择数量限制用于控制操作，提交必选仍应在 Form rules 中配置 required／minLength。FormItem 的 required 标记不自动设置组的 min。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

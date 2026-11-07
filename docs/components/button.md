@@ -28,6 +28,8 @@ async function save() { if (saving.value) return; saving.value = true; try { /* 
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 所有变体的背景覆盖；solid／soft 默认边框随此背景 |
+| borderColor | string | 空（继承） | 最终边框色，优先于变体和 color |
 | label | string | 空 | 按钮文字，默认 slot 可覆盖 |
 | variant | string | solid | solid / soft / outline / text |
 | size | string | md | sm 28px / md 36px / lg 40px |
@@ -41,9 +43,13 @@ async function save() { if (saving.value) return; saving.value = true; try { /* 
 
 事件：`click`，仅在未禁用、未加载时触发，不携带业务参数。默认 slot 用于文字内容；独立图标组件的用法见 [Icon 图标](icon.md)。
 
+outline 默认使用中性 input 边框，显式 color 可覆盖描边；默认配色见 [shadcn 风格与主题](../shadcn-style.md)。`soft` 对应灰底次级操作，保留现有 variant 名称。
+
 H5 支持 Enter / Space 激活。使用 `loading` 处理提交等待；接口成功失败逻辑由业务提供。
 
 实心按钮会为不透明 `#RGB`、`#RRGGBB` 和逗号格式 `rgb(r,g,b)` 选择对比度更高的黑/白文字，不受当前深浅模式干扰。其他颜色格式（含透明色）请提供 `textColor`，并自行确认实际合成背景的可读性。柔和/描边按钮请成对选择 color 与背景，实例覆盖同样需要考虑对比度。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

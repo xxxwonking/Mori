@@ -1,10 +1,10 @@
 <template>
-<view v-if="visible" class="mori-notify" :style="'background-color:' + background + ';color:' + foreground" :role="kind == 'danger' ? 'alert' : 'status'" :aria-live="kind == 'danger' ? 'assertive' : 'polite'"><text class="mori-notify__message">{{ message }}</text><button @keydown.enter.prevent="close" @keydown.space.prevent="close" :tabindex="0" role="button" v-if="closable" class="mori-action mori-notify__close" :style="'color:' + foreground" aria-label="关闭通知" @click="close"><text>关闭</text></button></view>
+<view v-if="visible" class="mori-notify" :style="'background-color:' + background + ';color:' + foreground" :role="kind == 'danger' ? 'alert' : 'status'" :aria-live="kind == 'danger' ? 'assertive' : 'polite'"><text class="mori-notify__message">{{ message }}</text><button @keydown.enter.prevent="close" @keydown.space.prevent="close" :tabindex="0" role="button" v-if="closable" class="mori-action mori-notify__close" :style="'color:' + foreground" :aria-label="moriMessages.closeNotification" @click="close"><text>关闭</text></button></view>
 </template>
 
 <script setup lang="uts">
 import { ref, computed, onBeforeUnmount } from 'vue'
-import { moriPalette } from '../../theme.uts'
+import { moriPalette, moriMessages } from '../../theme.uts'
 import { getMoriButtonTextColor } from '../../contrast.uts'
 import { MoriNotifyOptions } from '../../actions.uts'
 const props = defineProps({ duration: { type: Number, default: 3000 }, closable: { type: Boolean, default: true } })

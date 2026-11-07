@@ -5,7 +5,7 @@
     <mori-loading v-if="loading" text="搜索中" />
     <mori-text v-else-if="error.length > 0" :text="error" tone="danger" />
     <mori-text v-else-if="matches.length == 0" text="没有匹配的建议" tone="muted" />
-    <button v-for="item in matches" v-else :key="item.value" class="mori-action mori-autocomplete__option" role="button" :tabindex="item.disabled == true ? -1 : 0" :aria-disabled="item.disabled == true" :disabled="item.disabled == true" :aria-label="'选择 ' + item.label" :style="'color:' + moriPalette.text" @click="select(item)" @keydown.enter.prevent="select(item)" @keydown.space.prevent="select(item)">{{ item.label }}</button>
+    <button v-for="item in matches" v-else :key="item.value" class="mori-action mori-autocomplete__option" :class="{ 'mori-action--disabled': item.disabled == true }" role="button" :tabindex="item.disabled == true ? -1 : 0" :aria-disabled="item.disabled == true" :disabled="item.disabled == true" :aria-label="'选择 ' + item.label" :style="'color:' + moriPalette.text" @click="select(item)" @keydown.enter.prevent="select(item)" @keydown.space.prevent="select(item)">{{ item.label }}</button>
     <mori-button label="收起建议" size="sm" variant="text" @click="opened = false" />
   </view>
 </view>

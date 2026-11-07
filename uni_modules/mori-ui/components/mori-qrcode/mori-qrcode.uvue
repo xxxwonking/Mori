@@ -1,5 +1,5 @@
 <template>
-<view class="mori-qrcode"><image v-if="image.length > 0" :src="image" :style="'width:' + resolvedSize + 'px;height:' + resolvedSize + 'px'" mode="aspectFit" :aria-label="label" @error="imageError" /><mori-text v-if="error.length > 0" :text="error" tone="danger" /><mori-text v-if="caption.length > 0" :text="caption" tone="muted" /></view>
+<view class="mori-qrcode"><image v-if="image.length > 0" class="mori-qrcode__image" :src="image" :style="'width:' + resolvedSize + 'px;height:' + resolvedSize + 'px'" mode="aspectFit" :aria-label="label" @error="imageError" /><mori-text v-if="error.length > 0" :text="error" tone="danger" /><mori-text v-if="caption.length > 0" :text="caption" tone="muted" /></view>
 </template>
 
 <script setup lang="uts">
@@ -17,5 +17,5 @@ watch(() => props.value, render, { immediate: true })
 
 <style lang="scss">
 @import '../../styles/action.scss';
-.mori-qrcode { display: flex; align-items: center; gap: 8px; }.mori-qrcode image { max-width: 100%; }
+.mori-qrcode { display: flex; align-items: center; gap: 8px; }.mori-qrcode__image { max-width: 100%; }
 </style>

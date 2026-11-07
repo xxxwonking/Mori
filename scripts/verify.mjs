@@ -28,7 +28,7 @@ try {
     await page.emulateMedia({ colorScheme: 'dark' });
     await expect(page.locator('.workbench')).toHaveClass(/workbench--dark/);
     await expect(page.locator('.mori-field').first()).toHaveClass(/mori-field--dark/);
-    await expect(page.locator('.button-stage .mori-button').first()).toHaveCSS('background-color', 'rgb(140, 182, 255)');
+    await expect(page.locator('.button-stage .mori-button').first()).toHaveCSS('background-color', 'rgb(229, 229, 229)');
   });
   await check('Explicit light ignores system changes; auto resumes immediately', async () => {
     await mode('浅色');
@@ -51,7 +51,7 @@ try {
     await page.locator('.theme-swatch[aria-label="靛蓝主题"]').click();
     await expect(page.locator('.button-stage .mori-button').first()).toHaveCSS('background-color', 'rgb(70, 91, 163)');
     await expect(page.locator('.demo-form__submit .mori-button')).toHaveCSS('background-color', 'rgb(70, 91, 163)');
-    await page.locator('.theme-swatch[aria-label="清晰蓝主题"]').click();
+    await page.locator('.theme-swatch[aria-label="中性黑白主题"]').click();
   });
   await check('Button click, keyboard, size, loading and disabled behavior', async () => {
     const button = page.locator('.button-stage .mori-button').first();
@@ -83,7 +83,7 @@ try {
     const descriptionId = await form.locator('input').nth(1).getAttribute('aria-describedby');
     await expect(page.locator('[id="' + descriptionId + '"]')).toContainText('邮箱格式不正确');
     await expect(form.locator('.mori-field__control--focused')).toHaveCSS('outline-style', 'none');
-    await expect(form.locator('.mori-field__control--focused')).toHaveCSS('border-color', 'rgb(0, 102, 214)');
+    await expect(form.locator('.mori-field__control--focused')).toHaveCSS('border-color', 'rgb(198, 40, 40)');
     await capture('desktop-form-error.png');
     await form.locator('input').nth(1).fill('mori@example.com');
     await form.locator('[role="checkbox"]').click();
@@ -124,7 +124,7 @@ try {
     await capture('desktop-input.png');
     await mode('深色');
     await inputs.nth(1).fill('invalid-email');
-    await expect(page.locator('.input-stage .mori-field__control--focused')).toHaveCSS('border-color', 'rgb(140, 182, 255)');
+    await expect(page.locator('.input-stage .mori-field__control--focused')).toHaveCSS('border-color', 'rgb(248, 113, 113)');
     await capture('desktop-input-dark.png');
     await inputs.nth(1).fill('name@example.com');
     await mode('自动');
@@ -167,14 +167,14 @@ try {
     await capture('desktop-switch.png');
     await mode('深色');
     await expect(green.locator('.mori-switch__track')).toHaveCSS('background-color', 'rgb(35, 134, 83)');
-    await expect(switcher.locator('.mori-switch__track')).toHaveCSS('background-color', 'rgb(140, 182, 255)');
+    await expect(switcher.locator('.mori-switch__track')).toHaveCSS('background-color', 'rgb(229, 229, 229)');
     await capture('desktop-switch-dark.png');
     await mode('自动');
     await nav('Checkbox');
     await page.locator('.selection-stage [role="checkbox"]').nth(1).click();
     await expect(page.locator('.selection-summary-text')).toContainText('2');
     const checkboxes = page.locator('.selection-stage [role="checkbox"]');
-    await expect(checkboxes.first().locator('.mori-checkbox__box')).toHaveCSS('background-color', 'rgb(0, 102, 214)');
+    await expect(checkboxes.first().locator('.mori-checkbox__box')).toHaveCSS('background-color', 'rgb(23, 23, 23)');
     await expect(checkboxes.first().locator('.mori-checkbox__box')).toHaveCSS('width', '16px');
     await checkboxes.nth(1).locator('.mori-checkbox__label').click();
     await expect(page.locator('.selection-summary-text')).toContainText('1');
@@ -188,7 +188,7 @@ try {
     await page.locator('.page-title').click();
     await capture('desktop-checkbox.png');
     await mode('深色');
-    await expect(checkboxes.first().locator('.mori-checkbox__box')).toHaveCSS('background-color', 'rgb(140, 182, 255)');
+    await expect(checkboxes.first().locator('.mori-checkbox__box')).toHaveCSS('background-color', 'rgb(229, 229, 229)');
     await capture('desktop-checkbox-dark.png');
     await mode('自动');
     await page.locator('.section-tab').filter({ hasText: 'API 参考' }).click();

@@ -1,0 +1,28 @@
+<template>
+  <view class="popup-demo-actions">
+    <mori-button label="自定义弹层" variant="outline" @click="customShow = true" />
+    <mori-button label="打开详情" @click="open('bottom', false)" />
+    <mori-button label="打开长内容" variant="outline" @click="open('bottom', true)" />
+    <mori-button label="居中长内容" variant="outline" @click="open('center', true)" />
+    <mori-button label="侧边长内容" variant="outline" @click="open('right', true)" />
+  </view>
+  <mori-popup v-model="customShow" title="自定义弹层" background-color="#eef2ff" text-color="#312e81" border-color="#a5b4fc" overlay-color="rgba(15, 23, 42, 0.65)"><text :style="'color:#312e81'">背景、标题、边框和遮罩可独立定制。插槽内容由业务控制配色。</text></mori-popup>
+  <mori-popup v-model="show" :position="position" :title="longContent ? '长内容与手机窗口适配' : '详情'">
+    <mori-text text="这里放业务内容。" />
+    <template v-if="longContent">
+      <mori-input v-model="name" label="备注" placeholder="试试聚焦输入和旋转屏幕" clearable />
+      <mori-cell v-for="index in 24" :key="index" :title="'内容条目 ' + index" label="内容在弹层内滚动，标题和关闭入口保持可见。" />
+      <mori-checkbox v-model="checked" label="我已阅读全部内容" />
+      <mori-button label="完成阅读" block @click="show = false" />
+    </template>
+  </mori-popup>
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const customShow = ref(false)
+const show = ref(false), longContent = ref(false), position = ref('bottom'), name = ref(''), checked = ref(false)
+function open(value: string, long: boolean) { position.value = value; longContent.value = long; show.value = true }
+</script>
+<style>
+.popup-demo-actions { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+</style>

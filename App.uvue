@@ -8,11 +8,11 @@ onLaunch(() => { initMoriTheme() })
 html, body, uni-page-body { min-height: 100%; }
 body { margin: 0; }
 * { box-sizing: border-box; }
-::selection { background: #d7e7ff; color: #123a6a; }
+::selection { background: #e5e5e5; color: #171717; }
 ::-webkit-scrollbar { width: 6px; height: 4px; }
-::-webkit-scrollbar-thumb { background: #cdd4df; border-radius: 6px; }
+::-webkit-scrollbar-thumb { background: #a3a3a3; border-radius: 6px; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
-  outline: 2px solid #0066d6;
+  outline: 2px solid #737373;
   outline-offset: 3px;
 }
 button { cursor: pointer; }

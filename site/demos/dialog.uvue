@@ -1,8 +1,13 @@
 <template>
   <mori-button label="打开确认弹框" @click="show = true" />
+  <mori-button label="自定义确认弹框" variant="outline" @click="customShow = true" />
+  <mori-dialog v-model="customShow" title="保存修改？" message="这里演示定制配色与提交等待。" background-color="#eef2ff" text-color="#312e81" border-color="#a5b4fc" confirm-color="#4338ca" cancel-color="#3730a3" :confirm-loading="saving" @confirm="save" />
   <mori-dialog v-model="show" title="保存修改？" message="确认后将保存本地演示状态。" @confirm="show = false" />
 </template>
 <script setup lang="uts">
-import { ref } from 'vue'
-const show = ref(false)
+import { ref, onUnmounted } from 'vue'
+const show = ref(false), customShow = ref(false), saving = ref(false)
+let timer = 0
+function save() { saving.value = true; timer = setTimeout(() => { customShow.value = false; saving.value = false }, 900) }
+onUnmounted(() => { clearTimeout(timer) })
 </script>

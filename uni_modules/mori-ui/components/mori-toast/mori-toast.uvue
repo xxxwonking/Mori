@@ -10,7 +10,8 @@
 
 <script setup lang="uts">
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { moriIsDark } from '../../theme.uts'
+import { moriPalette } from '../../theme.uts'
+import { getMoriButtonTextColor } from '../../contrast.uts'
 import { MoriToastOptions, createMoriToastTimer } from '../../feedback.uts'
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -26,10 +27,15 @@ const currentType = ref(props.type)
 const currentDuration = ref(props.duration)
 const currentPosition = ref(props.position)
 const timer = createMoriToastTimer((callback: () => void, delay: number): number => setTimeout(callback, delay), (id: number) => clearTimeout(id))
-const foreground = computed((): string => moriIsDark.value ? '#1d2430' : '#ffffff')
-const contentStyle = computed((): string => 'background-color:' + (moriIsDark.value ? '#e8edf5' : '#1c2028') + ';')
-const spinnerStyle = computed((): string => 'border-color:' + (moriIsDark.value ? '#afb9ca' : '#616e82') + ';border-top-color:' + foreground.value + ';')
-const iconSource = computed((): string => '/uni_modules/mori-ui/static/icons/' + (currentType.value == 'success' ? 'check-' : 'circle-x-') + (moriIsDark.value ? 'dark' : 'light') + '.svg')
+const foreground = computed((): string => moriPalette.value.text)
+const contentStyle = computed((): string => 'background-color:' + moriPalette.value.surface + ';border-color:' + moriPalette.value.border + ';')
+const spinnerStyle = computed((): string => 'border-color:' + moriPalette.value.border + ';border-top-color:' + foreground.value + ';')
+const iconSource = computed((): string => {
+  const lightInk = getMoriButtonTextColor(moriPalette.value.surface) == '#ffffff'
+  // Check variants name the ink; circle-x variants name the surface.
+  const icon = currentType.value == 'success' ? 'check-' + (lightInk ? 'light' : 'dark') : 'circle-x-' + (lightInk ? 'dark' : 'light')
+  return '/uni_modules/mori-ui/static/icons/' + icon + '.svg'
+})
 function restart() { if (visible.value) timer.restart(currentDuration.value, close) }
 function close() {
   timer.cancel()
@@ -64,12 +70,12 @@ defineExpose({ show, close })
 .mori-toast { position: fixed; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); z-index: 2000; display: flex; flex-direction: row; justify-content: center; pointer-events: none; }
 .mori-toast--top { top: 72px; transform: translateY(0); }
 .mori-toast--bottom { top: auto; bottom: 72px; transform: translateY(0); }
-.mori-toast__content { max-width: 320px; padding: 12px 16px; border-radius: 8px; display: flex; flex-direction: row; align-items: center; }
+.mori-toast__content { max-width: 320px; border: 1px solid transparent; padding: 12px 16px; border-radius: 8px; display: flex; flex-direction: row; align-items: center; }
 .mori-toast__message { font-size: 13px; line-height: 20px; flex-shrink: 1; }
 .mori-toast__icon { width: 20px; height: 20px; flex-shrink: 0; margin-right: 8px; }
 .mori-toast__spinner { width: 18px; height: 18px; border: 2px solid; border-radius: 18px; flex-shrink: 0; margin-right: 8px; }
 /* #ifdef WEB */
-.mori-toast__content { box-sizing: border-box; overflow-wrap: anywhere; }
+.mori-toast__content { box-sizing: border-box; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); overflow-wrap: anywhere; }
 .mori-toast--top { top: max(72px, calc(env(safe-area-inset-top) + 24px)); }
 .mori-toast--bottom { bottom: max(72px, calc(env(safe-area-inset-bottom) + 24px)); }
 .mori-toast__spinner { box-sizing: border-box; animation: mori-toast-spin 800ms linear infinite; }

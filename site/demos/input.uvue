@@ -4,6 +4,8 @@
     <mori-input v-model="password" label="密码" type="password" placeholder="试试密码显隐" clearable />
     <mori-input model-value="mori.example" label="校验反馈" error="请输入完整的邮箱地址" />
     <mori-input model-value="暂不可编辑" label="禁用状态" disabled />
+    <mori-input v-model="custom" label="自定义输入区域" background-color="#eef2ff" text-color="#312e81" placeholder-color="#4b5c85" border-color="#a5b4fc" color="#4338ca" placeholder="独立背景、文字与边框" clearable />
+    <mori-textarea v-model="customNote" label="多行输入同样支持定制" background-color="#eef2ff" text-color="#312e81" placeholder-color="#4b5c85" border-color="#a5b4fc" color="#4338ca" placeholder="填写备注" />
     <mori-text :text="name.length > 0 ? '你好，' + name : '等待输入'" tone="muted" :size="12" />
   </view>
 </template>
@@ -11,5 +13,7 @@
 import { ref } from 'vue'
 const name = ref('')
 const password = ref('')
+const custom = ref('')
+const customNote = ref('')
 </script>
 <style>.input-demo { display: flex; flex-direction: column; gap: 20px; }</style>

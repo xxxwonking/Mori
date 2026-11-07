@@ -26,7 +26,11 @@
 
 ## 好用，藏在细节里
 
-**Mori UI** 偏爱清晰的蓝色、安静的灰阶和熟悉的系统字体。以 Apple 风格为设计参考，把空间留给内容，让输入、选择和确认各有分寸。
+**Mori UI** 采用 shadcn 风格的黑白中性配色和系统字体，以细边框、紧凑圆角和清楚的操作层级组织组件。默认 36px 控件与实例品牌色覆盖继续保留，详见 [主题与样式](docs/shadcn-style.md)。
+
+本页封面与图库保留早期灰蓝版本的历史展示；当前组件外观以官网真实预览和上述主题说明为准。
+
+开源接入可用 `npm run package:prepare` 生成双模块分发候选，或运行 `npm run test:consumer` 验证复制到新 uni-app x 工程后的 H5／微信构建和基础交互。版本与发布步骤见 [开源与分发](docs/releasing.md)；内置操作提示也支持 [全局配置](docs/theme-customization.md#内置操作提示)。
 
 - **紧凑的尺寸** — 按钮与输入默认 **36px** 高，控件文字 **13px**，小圆角收住边界。
 - **连贯的反馈** — 开关 **180ms** 平移，复选框 **160ms** 渐变；切换状态保持尺寸稳定。
@@ -338,3 +342,12 @@ Mori/
 基于 [uni-app x](https://doc.dcloud.net.cn/uni-app-x/) 和 [Vue](https://vuejs.org/) 构建；交互设计参考 [Vant](https://vant-ui.github.io/vant/) 与 [Wot Design Uni](https://wot-design-uni.cn/)。输入与选择图标来自 [Lucide](https://lucide.dev/)，授权说明随模块保存在 [THIRD_PARTY_NOTICES.md](uni_modules/mori-ui/THIRD_PARTY_NOTICES.md)。
 
 <p align="center"><sub>Mori UI · 把基础打磨好，让每个项目都有好的开始。</sub></p>
+
+
+## 移动端与开源
+
+Mori UI 使用 [MIT 许可证](LICENSE)。核心组件与 iOS 适配模块均保留可独立复制的许可文件；第三方图标与二维码算法的许可见 [第三方声明](uni_modules/mori-ui/THIRD_PARTY_NOTICES.md)。
+
+- [移动端接入与验收](docs/mobile-adaptation.md)：窄屏、触控、弹层、安全区与键盘。
+- [参与贡献](CONTRIBUTING.md) · [安全问题](SECURITY.md) · [变更记录](CHANGELOG.md) · [分发说明](docs/releasing.md)。
+- PR 自动检查覆盖目录、文档和单元测试；HBuilderX 构建和设备验收单独记录。当前尚未正式发布组件包。

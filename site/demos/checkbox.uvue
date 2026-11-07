@@ -1,0 +1,10 @@
+<template>
+  <mori-checkbox v-model="accepted" label="我已阅读使用说明" />
+  <mori-checkbox v-model="custom" label="自定义选择框" color="#4338ca" background-color="#eef2ff" border-color="#818cf8" />
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+const accepted = ref(false)
+const custom = ref(false)
+</script>

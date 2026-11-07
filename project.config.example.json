@@ -1,0 +1,8 @@
+{
+  "description": "Mori UI source-root import; build mp-weixin before compiling in WeChat DevTools.",
+  "miniprogramRoot": "unpackage/dist/build/mp-weixin/",
+  "projectname": "mori-ui",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "setting": { "es6": true, "minified": true }
+}

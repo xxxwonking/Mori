@@ -28,6 +28,9 @@ const choice = ref('design')
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 圆形底色，选中时仍保留 |
+| borderColor | string | 空（继承） | 未选中边框色 |
+| textColor | string | 空（继承） | 选项文字色 |
 | v-model | string | 空 | 当前选中值 |
 | value | string | 必填 | 本项值；与 v-model 相等时选中 |
 | label | string | 空 | 显示文字与无障碍名称；空时名称回退到 value |
@@ -37,6 +40,8 @@ const choice = ref('design')
 | tabIndex | number | 0 | H5 键盘 Tab 顺序；通常由 RadioGroup 管理 |
 
 事件：`update:modelValue(value: string)`、`change(value: string)`。再次点击已选项不会取消选中或重复发出更新；禁用时不更新。多个选项推荐使用 RadioGroup，以获得组语义和方向键操作。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

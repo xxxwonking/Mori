@@ -137,11 +137,13 @@ try {
       if (panel) {
         const style = getComputedStyle(panel);
         const rect = panel.getBoundingClientRect();
-        values.push({ time: performance.now() - start, y: new DOMMatrix(style.transform).m42, opacity: Number(style.opacity), height: panel.clientHeight, top: rect.top, bottom: rect.bottom, viewportHeight: innerHeight, shellScroll: panel.parentElement.scrollTop });
+        // translateY(100%) uses the border box, including the panel's visible 1px border.
+        values.push({ time: performance.now() - start, y: new DOMMatrix(style.transform).m42, opacity: Number(style.opacity), height: rect.height, layoutHeight: panel.offsetHeight, top: rect.top, bottom: rect.bottom, viewportHeight: innerHeight, shellScroll: panel.parentElement.scrollTop });
       }
     }
     return values;
   });
+  writeFileSync(new URL('feedback-motion-samples.json', out), JSON.stringify(frames, null, 2));
   expect(frames.some(frame => frame.y > 1 && frame.y < frame.height - 1)).toBe(true);
   expect(frames[0].opacity).toBe(0);
   expect(frames.filter(frame => frame.opacity > 0.05 && frame.opacity < 0.95).length).toBeGreaterThanOrEqual(3);
@@ -151,7 +153,9 @@ try {
   expect(frames.at(-1).bottom).toBeCloseTo(frames.at(-1).viewportHeight, 0);
   expect(frames.every(frame => frame.shellScroll === 0)).toBe(true);
   for (const frame of frames) expect(Math.abs(frame.opacity - (1 - frame.y / frame.height))).toBeLessThan(0.02);
-  expect(frames.every(frame => frame.y >= -0.1 && frame.y <= frame.height + 0.1 && frame.height === frames[0].height)).toBe(true);
+  // Chromium can differ by 0.000061px when subtracting transformed rectangle edges.
+  // Keep exact layout-height stability and reject even 0.01px of rendered size drift.
+  expect(frames.every(frame => frame.y >= -0.1 && frame.y <= frame.height + 0.1 && frame.layoutHeight === frames[0].layoutHeight && Math.abs(frame.height - frames[0].height) < 0.01)).toBe(true);
   expect(frames.at(-1).y).toBeCloseTo(0);
   for (let i = 1; i < frames.length; i++) {
     expect(frames[i].y).toBeLessThanOrEqual(frames[i - 1].y + 0.1);

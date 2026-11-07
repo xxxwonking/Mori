@@ -31,6 +31,8 @@ const props = defineProps({
   color: { type: String, default: '' },
   softColor: { type: String, default: '' },
   textColor: { type: String, default: '' },
+  backgroundColor: { type: String, default: '' },
+  borderColor: { type: String, default: '' },
   block: { type: Boolean, default: false },
   round: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
@@ -38,14 +40,20 @@ const props = defineProps({
 })
 const emit = defineEmits(['click'])
 const resolvedColor = computed((): string => props.color.length > 0 ? props.color : moriPalette.value.primary)
-const foreground = computed((): string => props.textColor.length > 0 ? props.textColor : props.variant == 'solid' ? getMoriButtonTextColor(resolvedColor.value) : resolvedColor.value)
+const foreground = computed((): string => props.textColor.length > 0 ? props.textColor : props.variant == 'solid' ? getMoriButtonTextColor(props.backgroundColor.length > 0 ? props.backgroundColor : resolvedColor.value) : resolvedColor.value)
 const buttonStyle = computed((): string => {
   let background = resolvedColor.value
   let border = resolvedColor.value
   if (props.variant == 'soft') { background = props.softColor.length > 0 ? props.softColor : moriPalette.value.soft; border = background }
-  if (props.variant == 'outline') { background = moriPalette.value.surface }
+  if (props.variant == 'outline') { background = moriPalette.value.surface; border = props.color.length > 0 ? resolvedColor.value : moriPalette.value.input }
   if (props.variant == 'text') { background = 'transparent'; border = 'transparent' }
-  return 'background-color:' + background + ';border-color:' + border + ';color:' + foreground.value + ';'
+  if (props.backgroundColor.length > 0) { background = props.backgroundColor; if (props.variant == 'solid' || props.variant == 'soft') border = background }
+  if (props.borderColor.length > 0) border = props.borderColor
+  let webStyle = ''
+  // #ifdef WEB
+  webStyle = '--mori-button-hover:' + (props.backgroundColor.length > 0 ? background : moriPalette.value.accent) + ';--mori-button-ring:' + (props.variant == 'solid' || props.backgroundColor.length > 0 ? getMoriButtonTextColor(background) : moriPalette.value.ring) + ';'
+  // #endif
+  return 'background-color:' + background + ';border-color:' + border + ';color:' + foreground.value + ';' + webStyle
 })
 const labelStyle = computed((): string => 'color:' + foreground.value + ';font-size:' + (props.size == 'sm' ? '12px' : props.size == 'lg' ? '14px' : '13px') + ';')
 function handleClick() {
@@ -73,12 +81,18 @@ function handleClick() {
 .mori-button--lg { height: 40px; padding: 0 18px; line-height: 38px; }
 .mori-button--block { width: 100%; }
 .mori-button--round { border-radius: 28px; }
-.mori-button--disabled { opacity: 0.4; }
-.mori-button--pressed { opacity: 0.8; }
+.mori-button--disabled { opacity: 0.5; }
+.mori-button--pressed { opacity: 0.9; }
 /* #ifdef WEB */
-.mori-button { transition: background-color 160ms ease, opacity 160ms ease, transform 160ms ease; }
-.mori-button::after { border: none; }
-.mori-button:not([disabled]):active { transform: translateY(1px); }
+.mori-button { box-sizing: border-box; cursor: pointer; font-family: inherit; transition: background-color 160ms ease, border-color 160ms ease, opacity 160ms ease; }
+.mori-button--solid, .mori-button--outline { box-shadow: $mori-shadow-xs; }
+.mori-button:focus-visible { outline: 2px solid var(--mori-button-ring); outline-offset: -3px; }
+.mori-button:not([disabled]):hover { opacity: 0.9; }
+.mori-button--outline:not([disabled]):hover, .mori-button--text:not([disabled]):hover { background-color: var(--mori-button-hover) !important; opacity: 1; }
+.mori-button[disabled] { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) { .mori-button { transition: none; } }
+/* #endif */
+/* #ifdef WEB || MP-WEIXIN */
+.mori-button::after { border: none; }
 /* #endif */
 </style>

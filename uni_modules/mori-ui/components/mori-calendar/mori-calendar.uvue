@@ -1,15 +1,15 @@
 <template>
   <view class="mori-calendar" :aria-label="title">
     <view class="mori-calendar__header">
-      <button @keydown.enter.prevent="moveMonth(-1)" @keydown.space.prevent="moveMonth(-1)" :aria-disabled="disabled || !canPrev" :tabindex="(disabled || !canPrev) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.text" :disabled="disabled || !canPrev" aria-label="上个月" @click="moveMonth(-1)"><mori-icon name="chevron-left" :size="16" /></button>
+      <button @keydown.enter.prevent="moveMonth(-1)" @keydown.space.prevent="moveMonth(-1)" :aria-disabled="disabled || !canPrev" :tabindex="(disabled || !canPrev) ? -1 : 0" role="button" class="mori-action" :class="{ 'mori-action--disabled': disabled || !canPrev }" :style="'color:' + moriPalette.text" :disabled="disabled || !canPrev" :aria-label="moriMessages.previousMonth" @click="moveMonth(-1)"><mori-icon name="chevron-left" :size="16" /></button>
       <text class="mori-calendar__month" :style="'color:' + moriPalette.text">{{ year }} 年 {{ month }} 月</text>
-      <button @keydown.enter.prevent="moveMonth(1)" @keydown.space.prevent="moveMonth(1)" :aria-disabled="disabled || !canNext" :tabindex="(disabled || !canNext) ? -1 : 0" role="button" class="mori-action" :style="'color:' + moriPalette.text" :disabled="disabled || !canNext" aria-label="下个月" @click="moveMonth(1)"><mori-icon name="chevron-right" :size="16" /></button>
+      <button @keydown.enter.prevent="moveMonth(1)" @keydown.space.prevent="moveMonth(1)" :aria-disabled="disabled || !canNext" :tabindex="(disabled || !canNext) ? -1 : 0" role="button" class="mori-action" :class="{ 'mori-action--disabled': disabled || !canNext }" :style="'color:' + moriPalette.text" :disabled="disabled || !canNext" :aria-label="moriMessages.nextMonth" @click="moveMonth(1)"><mori-icon name="chevron-right" :size="16" /></button>
     </view>
     <view class="mori-calendar__grid">
       <text v-for="weekday in weekdays" :key="weekday" class="mori-calendar__weekday" :style="'color:' + moriPalette.muted">{{ weekday }}</text>
       <view v-for="blank in offset" :key="'blank-' + blank" class="mori-calendar__blank" />
       <view v-for="day in days" :key="day.date" class="mori-calendar__cell">
-        <button @keydown.enter.prevent="select(day.date)" @keydown.space.prevent="select(day.date)" :aria-disabled="disabled || day.disabled" :tabindex="(disabled || day.disabled) ? -1 : 0" role="button" class="mori-action mori-calendar__day" :disabled="disabled || day.disabled" :aria-label="day.date + (day.text.length > 0 ? ' ' + day.text : '')" :aria-pressed="day.selected" :style="dayStyle(day)" @click="select(day.date)"><text>{{ day.day }}</text><text v-if="day.text.length > 0" class="mori-calendar__mark">{{ day.text }}</text></button>
+        <button @keydown.enter.prevent="select(day.date)" @keydown.space.prevent="select(day.date)" :aria-disabled="disabled || day.disabled" :tabindex="(disabled || day.disabled) ? -1 : 0" role="button" class="mori-action mori-calendar__day" :class="{ 'mori-action--disabled': disabled || day.disabled }" :disabled="disabled || day.disabled" :aria-label="day.date + (day.text.length > 0 ? ' ' + day.text : '')" :aria-pressed="day.selected" :style="dayStyle(day)" @click="select(day.date)"><text>{{ day.day }}</text><text v-if="day.text.length > 0" class="mori-calendar__mark">{{ day.text }}</text></button>
       </view>
     </view>
     <text v-if="message.length > 0" class="mori-calendar__message" role="status" :style="'color:' + moriPalette.danger">{{ message }}</text>
@@ -19,7 +19,7 @@
 
 <script setup lang="uts">
 import { ref, computed, watch, PropType } from 'vue'
-import { moriPalette } from '../../theme.uts'
+import { moriPalette, moriMessages } from '../../theme.uts'
 import { MoriCalendarDay, MoriCalendarMark, moriPad, moriToday, parseMoriDate, formatMoriDate, moriDateAllowed, selectMoriDate, validMoriCalendarValue } from '../../calendar.uts'
 const props = defineProps({
   modelValue: { type: Array as PropType<string[]>, default: (): string[] => [] },

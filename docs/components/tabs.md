@@ -29,6 +29,11 @@ items 的 value 必须唯一。change(value:string) 仅在值变化时触发；c
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| color | string | 空（继承） | 选中项文字色 |
+| textColor | string | 空（继承） | 未选中项文字色 |
+| backgroundColor | string | 空（继承） | 分组底色 |
+| activeBackgroundColor | string | 空（继承） | 选中项背景色 |
+| borderColor | string | 空（继承） | 选中项边框色 |
 | modelValue | string | "" | 当前受控值，使用 v-model 绑定；类型和提交时机见本页用法。 |
 | items | Array（见用法） | [] | 条目数组，value 必须唯一；结构见示例。 |
 | label | string | "标签页" | 字段、操作或内容的名称；同时用于可访问性。 |
@@ -41,6 +46,8 @@ items 的 value 必须唯一。change(value:string) 仅在值变化时触发；c
 没有公开实例方法。
 
 插槽：`default`，具体位置见基础用法及状态说明。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

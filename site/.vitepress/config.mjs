@@ -26,10 +26,13 @@ export default defineConfig({
     sidebar: [
       { text: '开始使用', items: [
         { text: '介绍与接入', link: '/user-guide' },
+        { text: '主题与组件定制', link: '/theme-customization' },
+        { text: '移动端适配', link: '/mobile-adaptation' },
         { text: 'iOS 上传插件', link: '/ios-upload' },
         { text: '组件总览', link: '/component-guides' },
         { text: '平台兼容性', link: '/compatibility' },
-        { text: '能力与边界', link: '/component-coverage' }
+        { text: '能力与边界', link: '/component-coverage' },
+        { text: '开源与分发', link: '/releasing' }
       ] },
       ...groups.map(group => ({ text: group, collapsed: false, items: componentManifest.filter(c => c.group === group).map(c => ({ text: `${english(c.name)} ${c.title}`, link: `/components/${c.name}` })) }))
     ],

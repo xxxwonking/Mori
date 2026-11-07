@@ -1,5 +1,5 @@
 <template>
-<view class="mori-tabbar" :class="{ 'mori-tabbar--fixed': fixed, 'mori-tabbar--safe': safeAreaInsetBottom }" role="navigation" :aria-label="label" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><button @keydown.enter.prevent="select(item.value)" @keydown.space.prevent="select(item.value)" :aria-disabled="disabled || item.disabled == true" :tabindex="(disabled || item.disabled == true) ? -1 : 0" role="button" v-for="item in items" :key="item.value" class="mori-action mori-tabbar__item" :disabled="disabled || item.disabled == true" :aria-current="item.value == modelValue ? 'page' : 'false'" :style="'color:' + (item.value == modelValue ? moriPalette.primary : moriPalette.muted) + ';background-color:' + (item.value == modelValue ? moriPalette.soft : 'transparent')" @click="select(item.value)"><mori-badge :content="item.badge != null ? item.badge! : ''"><mori-icon v-if="item.icon != null" :name="item.icon!" :size="19" /></mori-badge><text class="mori-tabbar__label">{{ item.label }}</text></button></view>
+<view class="mori-tabbar" :class="{ 'mori-tabbar--fixed': fixed }" role="navigation" :aria-label="label" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border"><view class="mori-tabbar__row"><button @keydown.enter.prevent="select(item.value)" @keydown.space.prevent="select(item.value)" :aria-disabled="disabled || item.disabled == true" :tabindex="(disabled || item.disabled == true) ? -1 : 0" :aria-label="item.label" role="button" v-for="item in items" :key="item.value" class="mori-action mori-tabbar__item" :class="{ 'mori-action--disabled': disabled || item.disabled == true }" :disabled="disabled || item.disabled == true" :aria-current="item.value == modelValue ? 'page' : 'false'" :style="'color:' + (item.value == modelValue ? moriPalette.primary : moriPalette.muted) + ';background-color:' + (item.value == modelValue ? moriPalette.soft : 'transparent')" @click="select(item.value)"><mori-badge :content="item.badge != null ? item.badge! : ''"><mori-icon v-if="item.icon != null" :name="item.icon!" :size="19" /></mori-badge><text class="mori-tabbar__label">{{ item.label }}</text></button></view><mori-safe-area v-if="safeAreaInsetBottom" /></view>
 </template>
 
 <script setup lang="uts">
@@ -13,11 +13,12 @@ function select(value: string) { const item = props.items.find((entry: MoriNavIt
 
 <style lang="scss">
 @import '../../styles/action.scss';
-.mori-tabbar { display: flex; flex-direction: row; width: 100%; border-top-width: 1px; border-top-style: solid; padding: 4px 0; }
+.mori-tabbar { width: 100%; min-width: 0; border-top-width: 1px; border-top-style: solid; }
+.mori-tabbar__row { display: flex; flex-direction: row; width: 100%; padding: 4px 0; }
 .mori-tabbar--fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; }
 .mori-tabbar__item { flex: 1; min-width: 0; flex-direction: column; min-height: 48px; padding: 4px 2px; margin: 0 2px; }
-.mori-tabbar__label { font-size: 11px; line-height: 18px; margin-top: 3px; }
+.mori-tabbar__label { font-size: 11px; line-height: 18px; margin-top: 3px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; lines: 1; }
 /* #ifdef WEB || MP-WEIXIN */
-.mori-tabbar--safe { padding-bottom: env(safe-area-inset-bottom); }
+.mori-tabbar__label { white-space: nowrap; }
 /* #endif */
 </style>

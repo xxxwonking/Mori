@@ -3,7 +3,7 @@
     <text v-if="field == null && label.length > 0" class="mori-checkbox-group__label" :style="'color:' + moriPalette.text">{{ label }}</text>
     <view class="mori-checkbox-group__options" :class="{ 'mori-checkbox-group__options--horizontal': direction == 'horizontal' }">
       <view v-for="option in options" :key="option.value" class="mori-checkbox-group__option" :class="{ 'mori-checkbox-group__option--horizontal': direction == 'horizontal' }">
-        <mori-checkbox :model-value="modelValue.indexOf(option.value) >= 0" :label="option.label" :color="color" :disabled="isOptionDisabled(option)" @change="toggleValue(option)" />
+        <mori-checkbox :model-value="modelValue.indexOf(option.value) >= 0" :label="option.label" :color="color" :background-color="backgroundColor" :border-color="borderColor" :text-color="textColor" :disabled="isOptionDisabled(option)" @change="toggleValue(option)" />
       </view>
     </view>
   </view>
@@ -11,7 +11,7 @@
 
 <script setup lang="uts">
 import { computed, PropType } from 'vue'
-import { moriPalette } from '../../theme.uts'
+import { moriPalette, moriMessages } from '../../theme.uts'
 import { MoriChoiceOption, toggleMoriChoice } from '../../selection.uts'
 import { useMoriField } from '../../form-context.uts'
 const props = defineProps({
@@ -19,6 +19,9 @@ const props = defineProps({
   options: { type: Array as PropType<MoriChoiceOption[]>, default: (): MoriChoiceOption[] => [] },
   label: { type: String, default: '' },
   color: { type: String, default: '' },
+  backgroundColor: { type: String, default: '' },
+  borderColor: { type: String, default: '' },
+  textColor: { type: String, default: '' },
   disabled: { type: Boolean, default: false },
   direction: { type: String, default: 'vertical' },
   min: { type: Number, default: 0 },
@@ -26,7 +29,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue', 'change'])
 const field = useMoriField()
-const accessibleLabel = computed((): string => props.label.length > 0 ? props.label : field != null ? field.label.value : '多选组')
+const accessibleLabel = computed((): string => props.label.length > 0 ? props.label : field != null ? field.label.value : moriMessages.value.checkboxGroup)
 const fieldInvalid = computed((): boolean => field != null ? field.error.value.length > 0 : false)
 const descriptionId = computed((): string => field != null ? field.descriptionId.value : '')
 function isOptionDisabled(option: MoriChoiceOption): boolean {

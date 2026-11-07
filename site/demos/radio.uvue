@@ -1,0 +1,11 @@
+<template>
+  <mori-radio v-model="choice" value="design" label="设计师" />
+  <mori-radio v-model="choice" value="dev" label="开发者" />
+  <mori-radio v-model="custom" value="custom" label="自定义单选框" color="#4338ca" background-color="#eef2ff" border-color="#818cf8" />
+</template>
+
+<script setup lang="uts">
+import { ref } from 'vue'
+const choice = ref('design')
+const custom = ref('')
+</script>

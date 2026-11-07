@@ -5,6 +5,7 @@
     <mori-switch v-model="enabled" label="自动保存" active-text="开" inactive-text="关" />
     <mori-divider />
     <mori-switch :model-value="true" label="禁用状态" disabled />
+    <mori-switch v-model="custom" label="自定义轨道与滑块" active-color="#4338ca" inactive-color="#c7d2fe" active-thumb-color="#ffffff" inactive-thumb-color="#312e81" active-text="开" inactive-text="关" />
     <mori-text :text="notification ? '消息通知已开启' : '消息通知已关闭'" :size="12" tone="muted" />
   </view>
 </template>
@@ -12,5 +13,6 @@
 import { ref } from 'vue'
 const notification = ref(true)
 const enabled = ref(false)
+const custom = ref(true)
 </script>
 <style>.switch-demo { display: flex; flex-direction: column; gap: 16px; }</style>

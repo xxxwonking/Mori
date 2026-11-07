@@ -29,6 +29,13 @@ confirm 不自动关闭，失败时保持 show=true 并显示业务错误。conf
 
 | 属性 | 类型 | 默认值 | 说明 |
 |---|---|---|---|
+| backgroundColor | string | 空（继承） | 面板背景色 |
+| textColor | string | 空（继承） | 标题及默认消息文字色 |
+| borderColor | string | 空（继承） | 面板边框色 |
+| overlayColor | string | 空（继承） | 遮罩颜色 |
+| confirmColor | string | 空（继承） | 确认按钮主色 |
+| confirmTextColor | string | 空（继承） | 确认按钮文字色 |
+| cancelColor | string | 空（继承） | 取消按钮描边与文字色 |
 | v-model | boolean | false | 是否显示 |
 | title | string | 空 | 标题与无障碍名称 |
 | message | string | 空 | 正文；默认 slot 可替换 |
@@ -41,6 +48,8 @@ confirm 不自动关闭，失败时保持 show=true 并显示业务错误。conf
 Dialog 组合居中的 Popup，默认 slot 可自定义正文。`confirm` 只通知业务，**不会自动关闭**；业务成功后将模型设为 false，失败则保留弹窗并展示业务反馈。异步工作开始时设 confirmLoading=true，结束后恢复。
 
 取消按钮和允许的 Popup 关闭入口触发一次 `cancel`，随后请求 `update:modelValue(false)`。confirmLoading 时禁止重复 confirm、取消、Escape 和遮罩关闭；父级仍可主动修改模型。没有全局函数、Promise 调用或自动提交行为。
+
+定制优先级、全局浅深色与状态约束见 [主题与组件定制](../theme-customization.md)。
 
 ## 平台与验证边界
 

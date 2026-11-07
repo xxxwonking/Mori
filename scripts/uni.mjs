@@ -3,6 +3,7 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createHBuilderEnvironment, resolveCompilerRuntime } from './hbuilder-env.mjs';
+import { normalizeWeixinProject } from './weixin-project.mjs';
 import './site-prepare.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,6 +36,10 @@ const child = spawn(runtime, args, {
   env: { ...process.env, UNI_CUSTOM_CONTEXT: JSON.stringify(customContext), HX_APP_ROOT: toolchain.root, UNI_INPUT_DIR: root, UNI_OUTPUT_DIR: output, UNI_HBUILDERX_PLUGINS: plugins, HX_PLUGIN_PATHS: JSON.stringify(pluginPaths), UNI_PROJECT_TYPE: 'hbuilder', RUN_BY_HBUILDERX: 'true', UNI_APP_X: 'true', UNI_CLI_CONTEXT: join(plugins, 'uniapp-cli-vite') }
 });
 child.on('error', error => { toolchain.cleanup(); console.error(error.message); process.exitCode = 1; });
-child.on('exit', code => { toolchain.cleanup(); process.exitCode = code ?? 1; });
+child.on('exit', code => {
+  toolchain.cleanup();
+  process.exitCode = code ?? 1;
+  if (code === 0 && mode === 'build' && platform === 'mp-weixin') normalizeWeixinProject(output);
+});
 process.on('SIGINT', () => child.kill('SIGINT'));
 process.on('SIGTERM', () => child.kill('SIGTERM'));

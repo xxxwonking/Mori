@@ -5,8 +5,8 @@ const source = readFileSync(new URL('../uni_modules/mori-ui/contrast.uts', impor
 const module = await import('data:text/javascript;base64,' + Buffer.from(stripTypeScriptTypes(source)).toString('base64'));
 const foreground = module.getMoriButtonTextColor;
 assert.equal(foreground('#326b4a'), '#ffffff', 'A fixed dark brand color needs white text in either theme.');
-assert.equal(foreground('#0066d6'), '#ffffff', 'The default accessible blue uses white text.');
-assert.equal(foreground('#8cb6ff'), '#000000', 'The default dark accent uses dark text.');
+assert.equal(foreground('#0066d6'), '#ffffff', 'A custom accessible blue uses white text.');
+assert.equal(foreground('#8cb6ff'), '#000000', 'A custom dark accent uses dark text.');
 assert.equal(foreground('#95cba6'), '#000000', 'The light dark-mode accent needs dark text.');
 assert.equal(foreground('#fff'), '#000000');
 assert.equal(foreground('#000'), '#ffffff');

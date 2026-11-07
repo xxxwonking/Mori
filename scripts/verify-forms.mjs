@@ -72,7 +72,7 @@ try {
   await expect(page.locator('.forms-page')).toHaveClass(/forms-page--dark/);
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await expect(form.locator('.mori-textarea__control')).toHaveCSS('background-color', 'rgb(28, 32, 40)');
+  await expect(form.locator('.mori-textarea__control')).toHaveCSS('background-color', 'rgb(23, 23, 23)');
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: fileURLToPath(new URL('forms-mobile-dark.png', out)) });
   await page.getByRole('button', { name: '保存资料', exact: true }).scrollIntoViewIfNeeded();

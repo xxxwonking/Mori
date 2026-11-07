@@ -1,6 +1,6 @@
 # Mori Upload iOS
 
-Mori UI 的 iOS 系统相册、临时文件和前台上传适配。配合 `mori-ui` 使用，由 `APP-IOS` 条件编译接入；组件属性、事件和实例方法不变。原生实现已提供，尚无 iOS 编译或真机验收证据。
+Mori UI 的 iOS 系统相册、临时文件和前台上传适配。配合 `mori-ui` 使用，由 `APP-IOS` 条件编译接入；组件属性、事件和实例方法不变。2026-11-02 已在 iPhone 16 Pro 上验证原生编译、相册选图与前台上传；该记录不代表相机、iCloud、HEIC、全部异常场景或全部组件已经通过，详情见 [兼容记录](https://github.com/xxxwonking/Mori/blob/master/docs/compatibility.md)。
 
 完整业务页面示例、服务端协议、直接调用 API 与排障见 [iOS 上传插件使用指南](https://github.com/xxxwonking/Mori/blob/master/docs/ios-upload.md)。以下说明随模块分发，便于复制后查阅。
 
@@ -28,3 +28,8 @@ Mori UI 的 iOS 系统相册、临时文件和前台上传适配。配合 `mori-
 原生验收需在可构建 iOS 的环境制作自定义基座，接入真实设备和测试服务，检查本地照片、仅在 iCloud 的照片、HEIC、中文路径、拍照权限拒绝／允许、取消读取、删除上传中项目、重试和卸载。记录设备、系统、工具链、网络响应与临时文件清理结果。当前 Windows 环境无 Xcode、iOS SDK、签名或设备。
 
 实现依据：[UTS 原生混编](https://doc.dcloud.net.cn/uni-app-x/plugin/uts-plugin-hybrid.html)、[iOS 插件配置](https://doc.dcloud.net.cn/uni-app-x/plugin/uts-for-ios.html)、[UTSiOS](https://doc.dcloud.net.cn/uni-app-x/uts/utsios.html)、[PHPicker](https://developer.apple.com/documentation/photosui/phpickerviewcontroller)、[文件表示读取](https://developer.apple.com/documentation/foundation/nsitemprovider/loadfilerepresentation(fortypeidentifier:completionhandler:))。
+
+
+## 许可证
+
+本模块采用 [MIT 许可证](LICENSE)，复制或分发时保留完整许可声明。项目贡献与版本流程见主仓库的 CONTRIBUTING.md 和 docs/releasing.md。

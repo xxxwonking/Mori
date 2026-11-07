@@ -1,0 +1,10 @@
+<template>
+  <mori-navbar title="编辑资料" left-arrow left-text="返回" right-text="保存" @clickLeft="message = '返回操作'" @clickRight="message = '保存操作'" />
+  <mori-text text="长标题与长操作名称" tone="muted" />
+  <mori-navbar title="这是一段用于检查窄屏适配的较长页面标题" left-arrow left-text="返回上一页面" right-text="保存全部修改" @clickLeft="message = '长文字返回操作'" @clickRight="message = '长文字保存操作'" />
+  <mori-text :text="message" />
+</template>
+<script setup lang="uts">
+import { ref } from 'vue'
+const message = ref('左右按钮仍可操作')
+</script>
