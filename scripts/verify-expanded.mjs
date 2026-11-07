@@ -9,6 +9,9 @@ const out=new URL('../.impeccable/review/',import.meta.url);mkdirSync(out,{recur
 const category=name=>page.getByRole('tab',{name,exact:true}).click();
 const capture=async (name,fullPage=true)=>{await page.evaluate(()=>window.scrollTo(0,0));await page.waitForFunction(()=>Array.from(document.images).every(img=>img.complete));await page.screenshot({path:fileURLToPath(new URL(name,out)),fullPage})};
 const dialog=()=>page.getByRole('dialog');
+const wheelColumns=()=>dialog().locator('uni-picker-view-column');
+// Real wheel input must update the host picker, its change event, and dependent columns.
+const wheel=async (column,index)=>{const target=wheelColumns().nth(column);let current=await target.evaluate(element=>element.current);while(current!==index){const direction=index>current?1:-1;current+=direction;await target.hover();await page.mouse.wheel(0,direction*40);await expect.poll(()=>target.evaluate(element=>element.current)).toBe(current);}};
 try {
  await page.goto((process.env.MORI_BASE_URL||'http://127.0.0.1:5173')+'/#/pages/catalog/catalog');
  await category('媒体内容');
@@ -48,18 +51,27 @@ try {
  await capture('expanded-navigation-desktop.png');passed.push('grid, segmented keyboard and disabled skip, sidebar, dropdown cancel/confirm, steps, FAB, controlled back-top');
  await category('选择录入');
  await page.getByRole('button',{name:'选择地区',exact:true}).click();
- await dialog().getByRole('button',{name:'浙江',exact:true}).click();
- await expect(dialog().getByRole('button',{name:'宁波',exact:true})).toHaveAttribute('aria-disabled','true');
- await dialog().getByRole('button',{name:'杭州',exact:true}).click();await dialog().getByRole('button',{name:'西湖区',exact:true}).click();
- await dialog().getByRole('button',{name:'取消',exact:true}).click();await expect(page.getByText('已确认路径：未选择',{exact:true})).toBeVisible();
- await page.getByRole('button',{name:'选择地区',exact:true}).click();await dialog().getByRole('button',{name:'江苏',exact:true}).click();await dialog().getByRole('button',{name:'南京',exact:true}).click();await dialog().getByRole('button',{name:'确认',exact:true}).click();await expect(page.getByText('已确认路径：js / nj',{exact:true})).toBeVisible();
+ await expect(wheelColumns()).toHaveCount(3);
+ await expect(dialog().getByRole('radio')).toHaveCount(0);
+ await wheel(1,1);
+ await expect(dialog().getByText('海曙区',{exact:true})).toBeVisible();
+ await expect(dialog().getByText('西湖区',{exact:true})).toHaveCount(0);
+ await dialog().getByRole('button',{name:'取消',exact:true}).click();await expect(page.getByText('已选地区：未选择',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'选择地区',exact:true}).click();await wheel(0,1);
+ await expect(dialog().getByText('南京市',{exact:true})).toBeVisible();
+ await expect(dialog().getByText('玄武区',{exact:true})).toBeVisible();
+ await expect.poll(()=>wheelColumns().nth(1).evaluate(element=>element.current)).toBe(0);
+ await wheel(0,0);await expect(dialog().getByText('西湖区',{exact:true})).toBeVisible();
+ await wheel(0,1);await expect(dialog().getByText('玄武区',{exact:true})).toBeVisible();
+ await wheel(2,1);await dialog().getByRole('button',{name:'确认',exact:true}).click();await expect(page.getByText('已选地区：江苏省 / 南京市 / 秦淮区',{exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'选择地区',exact:true}).click();await expect.poll(()=>wheelColumns().nth(2).evaluate(element=>element.current)).toBe(1);await dialog().getByRole('button',{name:'取消',exact:true}).click();
  await page.getByRole('checkbox',{name:'苹果',exact:true}).click();await page.getByRole('checkbox',{name:'梨',exact:true}).click();await expect(page.getByRole('checkbox',{name:'桃',exact:true})).toHaveAttribute('aria-disabled','true');await page.getByRole('checkbox',{name:'苹果',exact:true}).click();await page.getByRole('checkbox',{name:'桃',exact:true}).click();await expect(page.getByText('树选择：pear, peach',{exact:true})).toBeVisible();
  const keyboard=page.getByRole('group',{name:'数字键盘',exact:true});
  for(const digit of ['0','1','2','3','4','5','6'])await keyboard.getByRole('button',{name:digit,exact:true}).click();
  await expect(page.getByRole('button',{name:'密码输入，已输入 6 位，共 6 位',exact:true})).toBeVisible();await expect(page.locator('.mori-password-input__dot')).toHaveCount(6);
  await keyboard.getByRole('button',{name:'删除一位',exact:true}).click();await expect(page.locator('.mori-password-input__dot')).toHaveCount(5);
  await keyboard.getByRole('button',{name:'完成',exact:true}).click();await expect(page.getByText('已确认 5 位',{exact:true})).toBeVisible();await page.getByRole('button',{name:'重新打开键盘',exact:true}).click();await keyboard.getByRole('button',{name:'清空输入',exact:true}).click();await expect(page.locator('.mori-password-input__dot')).toHaveCount(0);
- await capture('expanded-choice-desktop.png');passed.push('cascader disabled path and cancel/commit, tree max/select/unselect, keyboard leading zero/length/delete/confirm/clear');
+ await capture('expanded-choice-desktop.png');passed.push('three-column demo region linkage, descendant reset, cancel/commit/reopen, tree max/select/unselect, keyboard leading zero/length/delete/confirm/clear');
  await category('列表交互');
  await expect(page.getByText('条目 3',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'下一次模拟失败',exact:true}).click();
@@ -82,9 +94,15 @@ try {
   await capture('expanded-'+key+'-mobile-dark.png');
  }
  await page.setViewportSize({width:360,height:780});
- await category('选择录入');await page.getByRole('button',{name:'选择地区',exact:true}).click();await dialog().getByRole('button',{name:'浙江',exact:true}).click();
- await expect(dialog()).toBeVisible();await capture('expanded-cascader-360.png',false);await page.keyboard.press('Escape');
- passed.push('390px dark all groups, 360px cascader, no document horizontal overflow');
+ await category('选择录入');await page.getByRole('button',{name:'选择地区',exact:true}).click();await wheel(0,0);
+ await expect(wheelColumns()).toHaveCount(3);
+ await expect(dialog().locator('.mori-picker__wheel-label')).toHaveText(['省','市','区']);
+ await expect(dialog().locator('.mori-picker__wheel-text').first()).toHaveCSS('font-size','13px');
+ const regionColumns=await wheelColumns().evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top}}));
+ expect(regionColumns.every(r=>r.left>=0&&r.right<=360)).toBe(true);
+ expect(Math.max(...regionColumns.map(r=>r.top))-Math.min(...regionColumns.map(r=>r.top))).toBeLessThan(2);
+ await expect(dialog()).toBeVisible();await capture('expanded-region-360.png',false);await page.keyboard.press('Escape');
+ passed.push('390px dark all groups, 360px three-column region, no document horizontal overflow');
  expect(errors).toEqual([]);
  writeFileSync(new URL('expanded-verification.json',out),JSON.stringify({generated:new Date().toISOString(),browser:browser.version(),passed,errors},null,2));
  console.log('PASS',passed.length,'expanded browser groups; no page errors.');

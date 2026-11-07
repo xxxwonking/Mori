@@ -3,6 +3,7 @@
   <scroll-view scroll-y class="catalog-scroll" :style="'background-color:' + moriPalette.ground">
   <!-- #endif -->
   <view class="catalog-page" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
+    <demo-page-inset />
     <view class="catalog-header">
       <mori-button label="返回工作台" variant="text" @click="goBack" />
       <view class="catalog-themes"><mori-button label="浅色" variant="text" size="sm" @click="setMoriConfig({ theme: 'light' })" /><mori-button label="深色" variant="text" size="sm" @click="setMoriConfig({ theme: 'dark' })" /><mori-button label="跟随系统" variant="text" size="sm" @click="setMoriConfig({ theme: 'auto' })" /></view>

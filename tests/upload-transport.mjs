@@ -1,9 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
-let source=readFileSync(new URL('../uni_modules/mori-ui/platform/upload.uts',import.meta.url),'utf8').replace(/\s*\/\/ #ifdef APP-IOS[\s\S]*?\/\/ #endif/g,'').replace(/^import .+\n/,'');
+const rawSource=readFileSync(new URL('../uni_modules/mori-ui/platform/upload.uts',import.meta.url),'utf8');
+
+async function verifyTransport(lineEnding) {
+// Exercise both checkout formats on every runner, regardless of core.autocrlf.
+const source=rawSource.replace(/\r?\n/g,lineEnding).replace(/\s*\/\/ #ifdef APP-IOS[\s\S]*?\/\/ #endif/g,'').replace(/^import [^\r\n]+\r?\n/,'');
 let options, progressListener, aborted=0;
 globalThis.uni={ uploadFile(value){options=value;return {onProgressUpdate(fn){progressListener=fn},abort(){aborted++}}},chooseImage(value){options=value},previewImage(){} };
+try {
 const {startMoriUpload,chooseMoriImages}=await import('data:text/javascript;base64,'+Buffer.from(stripTypeScriptTypes(source)).toString('base64'));
 const events=[];
 const file={url:'file:///照片%20原图.heic',name:'photo.heic'};
@@ -17,5 +22,9 @@ events.length=0;stop=start();stop();progressListener({progress:99});options.succ
 chooseMoriImages(20,['album'],files=>events.push(['files',files]),(message,cancelled)=>events.push(['chooseError',cancelled]));
 assert.equal(options.count,9);options.fail({errCode:1101001,errMsg:'cancel'});assert.deepEqual(events.at(-1),['chooseError',true]);
 options.success({tempFiles:[{path:file.url,size:60}]});assert.equal(events.at(-1)[1][0].path,file.url);assert.equal(events.at(-1)[1][0].type,'');
-delete globalThis.uni;
-console.log('PASS upload adapter request shape, status codes, cancellation, opaque paths and picker cancellation (mock transport, not a backend/device test)');
+} finally { delete globalThis.uni; }
+}
+
+await verifyTransport('\n');
+await verifyTransport('\r\n');
+console.log('PASS LF/CRLF upload adapter loading, request shape, status codes, cancellation, opaque paths and picker cancellation (mock transport, not a backend/device test)');

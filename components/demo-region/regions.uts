@@ -1,0 +1,29 @@
+import { MoriTreeNode } from '../../uni_modules/mori-ui/extended-input.uts'
+
+// Small demonstration dataset, not a complete or authoritative administrative division list.
+export const demoRegions: MoriTreeNode[] = [
+  { value: 'zj', label: '浙江省', children: [
+    { value: 'hz', label: '杭州市', children: [{ value: 'xh', label: '西湖区' }, { value: 'gs', label: '拱墅区' }] },
+    { value: 'nb', label: '宁波市', children: [{ value: 'hs', label: '海曙区' }, { value: 'yz', label: '鄞州区' }] }
+  ] },
+  { value: 'js', label: '江苏省', children: [
+    { value: 'nj', label: '南京市', children: [{ value: 'xw', label: '玄武区' }, { value: 'qh', label: '秦淮区' }] },
+    { value: 'sz', label: '苏州市', children: [{ value: 'gusu', label: '姑苏区' }, { value: 'wz', label: '吴中区' }] }
+  ] },
+  { value: 'gd', label: '广东省', children: [
+    { value: 'gz', label: '广州市', children: [{ value: 'th', label: '天河区' }, { value: 'yx', label: '越秀区' }] },
+    { value: 'shenzhen', label: '深圳市', children: [{ value: 'ns', label: '南山区' }, { value: 'ft', label: '福田区' }] }
+  ] }
+]
+
+/** Keep valid ancestors; choose the first available child for a changed branch. */
+export function resolveDemoRegionPath(path: string[]): MoriTreeNode[] {
+  const selected: MoriTreeNode[] = []
+  let options = demoRegions
+  for (let level = 0; level < 3; level++) {
+    const item = options.find((node: MoriTreeNode): boolean => node.value == path[level]) ?? options[0]
+    selected.push(item)
+    options = item.children ?? []
+  }
+  return selected
+}

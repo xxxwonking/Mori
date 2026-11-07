@@ -25,6 +25,8 @@ const items: MoriNavItem[] = [{ label: '全部', value: 'all' }, { label: '已�
 
 items 的 value 必须唯一。change(value:string) 仅在值变化时触发；clickTab(value:string) 在每次有效点击触发。条目可 disabled，整组也可 disabled。H5 左右箭头跳过禁用项并循环。组件不发请求、不自动构造内容面板，也不把空 modelValue 自动改成第一项；初始值由业务给定。
 
+条目超过容器宽度时可横向滚动；H5／微信的内容轨道按实际内容展开，选中项通过 scroll-into-view 滚入可视区域。
+
 ## 属性
 
 | 属性 | 类型 | 默认值 | 说明 |

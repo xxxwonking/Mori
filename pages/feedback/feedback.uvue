@@ -4,6 +4,7 @@
   <!-- #endif -->
   <view class="feedback-page" :class="{ 'feedback-page--dark': moriIsDark }" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
     <view class="feedback-shell">
+      <demo-page-inset />
       <view class="feedback-header"><button class="feedback-back" :style="'color:' + moriPalette.primary" @click="back">返回组件实验室</button><view class="feedback-themes"><mori-button label="自动" variant="text" size="sm" @click="appearance('auto')" /><mori-button label="浅色" variant="text" size="sm" @click="appearance('light')" /><mori-button label="深色" variant="text" size="sm" @click="appearance('dark')" /></view></view>
       <view class="feedback-intro"><text class="feedback-title">反馈组件</text><text class="feedback-subtitle" :style="'color:' + moriPalette.muted">轻提示传递结果，弹出层承载内容，对话框确认决定。</text></view>
       <view class="feedback-content" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border">

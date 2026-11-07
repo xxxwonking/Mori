@@ -330,3 +330,7 @@ Dialog 组合居中的 Popup，默认 slot 可自定义正文。`confirm` 只通
 
 
 2026-11-02 行为修正：Autocomplete 选择／确认后丢弃旧输入，Cascader 当前层级的路径按钮保留加载／错误状态；Signature 在非 WEB 触点等待异步绘制时暂缓导出。详见对应独立指南，公开属性与事件名称不变。
+
+2026-11-07 微信运行修正：Notify 使用宿主窗口与胶囊测量避开顶部系统区域；SafeArea 补充 safeArea 到窗口坐标的回退。Tabs 内容轨道按内容宽度展开，支持横向浏览全部分类。公开属性、事件和 ref 方法保持不变，详见对应组件指南。
+
+Picker 增加 `columnLabels: string[] = []` 和 `mode: string = 'list'`。地区演示使用 `mode="wheel"` 展示省／市／区三列宿主滚轮，切换祖先后更新后续选项，取消不提交；既有多列列表保持默认。数据仅供展示，详情见 [Picker](components/picker.md)；通用 Cascader 继续支持逐级列表与按需加载。

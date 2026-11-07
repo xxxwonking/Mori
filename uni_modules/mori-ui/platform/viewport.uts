@@ -1,8 +1,8 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 /** Window coordinates, not screen coordinates. Browser APIs stay in this adapter. */
-export type MoriViewport = { width: number; height: number; top: number; left: number; safeTop: number; safeBottom: number }
-const viewport = ref<MoriViewport>({ width: 375, height: 667, top: 0, left: 0, safeTop: 0, safeBottom: 0 })
+export type MoriViewport = { width: number; height: number; top: number; left: number; safeTop: number; safeBottom: number; navigationBottom: number }
+const viewport = ref<MoriViewport>({ width: 375, height: 667, top: 0, left: 0, safeTop: 0, safeBottom: 0, navigationBottom: 0 })
 let subscribers = 0
 
 function updateViewport() {
@@ -12,6 +12,25 @@ function updateViewport() {
     const insets = info.safeAreaInsets
     let safeTop = insets == null || !Number.isFinite(insets.top) ? 0 : Math.max(0, insets.top)
     let safeBottom = insets == null || !Number.isFinite(insets.bottom) ? 0 : Math.max(0, insets.bottom)
+    // #ifdef MP-WEIXIN
+    // Some hosts expose screen-coordinate safeArea instead of safeAreaInsets.
+    const windowTop = Number.isFinite(info.screenTop) ? Math.max(0, info.screenTop) : 0
+    if (insets == null && info.safeArea != null) {
+      safeTop = Number.isFinite(info.safeArea.top) ? Math.max(0, info.safeArea.top - windowTop) : 0
+      safeBottom = Number.isFinite(info.safeArea.bottom) ? Math.max(0, windowTop + height - info.safeArea.bottom) : 0
+    }
+    // #endif
+    let navigationBottom = safeTop
+    // #ifdef MP-WEIXIN
+    // Custom page headers sit below both the status bar and the native capsule.
+    try {
+      const menu = uni.getMenuButtonBoundingClientRect()
+      const bottom = menu.bottom - windowTop
+      if (Number.isFinite(bottom) && Number.isFinite(menu.top) && menu.height > 0 && bottom > safeTop && bottom < height) {
+        navigationBottom = bottom + Math.max(0, menu.top - windowTop - safeTop)
+      }
+    } catch (_) { /* Hosts without a capsule still reserve the safe area. */ }
+    // #endif
     // #ifdef WEB
     width = window.innerWidth; height = window.innerHeight
     // Follow a keyboard/browser toolbar resize, but leave pinch zoom to the browser.
@@ -20,9 +39,9 @@ function updateViewport() {
       width = visual.width; height = visual.height; top = visual.offsetTop; left = visual.offsetLeft
     }
     // Web safe areas are resolved by CSS env() on mori-safe-area.
-    safeTop = 0; safeBottom = 0
+    safeTop = 0; safeBottom = 0; navigationBottom = 0
     // #endif
-    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) viewport.value = { width, height, top, left, safeTop, safeBottom }
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) viewport.value = { width, height, top, left, safeTop, safeBottom, navigationBottom }
   } catch (_) { /* Keep the last usable window during host transitions. */ }
 }
 

@@ -20,6 +20,7 @@
       </view>
 
       <view class="workspace">
+        <demo-page-inset />
         <view class="topbar"><view class="topbar-title-wrap"><text class="topbar-mobile-brand">mori UI</text><text class="topbar-title">组件实验室</text><text class="version-label">0.1.0</text></view><view class="topbar-right"><text class="appearance-label">外观</text><view class="appearance-options"><button v-for="mode in appearanceModes" :key="mode.id" class="appearance-option" :class="{ 'appearance-option--active': moriThemeMode == mode.id }" @click="setAppearance(mode.id)"><text class="appearance-option-text">{{ mode.label }}</text></button></view></view></view>
         <view class="mobile-nav"><button v-for="item in navItems" :key="item.id" class="mobile-nav-item" :class="{ 'mobile-nav-item--active': current == item.id }" @click="selectComponent(item.id)"><text class="mobile-nav-text">{{ item.label }}</text></button></view>
 

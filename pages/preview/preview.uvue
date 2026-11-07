@@ -3,6 +3,7 @@
   <scroll-view scroll-y class="preview-scroll">
   <!-- #endif -->
   <view class="preview-page" :style="'background-color:' + moriPalette.ground + ';color:' + moriPalette.text">
+    <demo-page-inset />
     <view class="preview-heading" :style="'background-color:' + moriPalette.surface + ';border-color:' + moriPalette.border">
       <mori-button :label="showMenu ? '返回示例' : '组件目录'" variant="text" size="sm" @click="showMenu = !showMenu" />
       <text class="preview-title">{{ title }}</text>
@@ -19,7 +20,7 @@
       <view class="preview-example" :style="'background-color:' + moriPalette.surface">
         <site-preview-content :key="current + revision.toString()" :current="current" />
       </view>
-      <text class="preview-note" :style="'color:' + moriPalette.muted">当前为 H5 组件示例，数据仅用于演示。</text>
+      <text class="preview-note" :style="'color:' + moriPalette.muted">当前为组件示例，数据仅用于演示。</text>
       <view class="preview-appearance">
         <mori-button label="品牌配色" size="sm" variant="outline" @click="applyBrand" />
         <mori-button label="默认配色" size="sm" variant="outline" @click="resetColors" />

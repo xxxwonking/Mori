@@ -54,6 +54,10 @@ Button 可切换大小、加载和禁用。Input 展示普通、校验、密码�
 
 ## 3. 复制到其他项目
 
+微信工作台的自定义导航页已统一预留状态栏与胶囊区域。业务页面可复用 SafeArea 处理安全区，但它不包含胶囊高度；自定义导航需另外考虑胶囊边界。Notify 自动避开顶部系统区域；Tabs 条目较多时可横向滚动，选中项会滚入视野。
+
+组件全览 → 选择录入中的地区示例通过 Picker 的 `mode="wheel"` 同时显示省／市／区三列原生滚轮，使用 `columns`、`values`、`columnLabels` 和 `columnChange` 更新联动选项。切换前列后重置后续列，取消不提交，确认后保存完整地区。`components/demo-region/regions.uts` 维护 3 省、6 市、12 区的少量展示数据；不随核心模块分发，不可作为完整或权威行政区数据。替换成业务数据时保留每条路径的三级结构和唯一 value。
+
 可先运行 `npm run package:prepare` 生成独立分发目录，再从中复制两个模块；`npm run package:verify -- <目录>` 核对文件完整性。维护者可运行 `npm run test:consumer`，在临时新工程中编译全部 88 个组件并验证基础交互，完整流程见 [开源与分发](releasing.md)。
 
 目标应是 **uni-app x** 工程。当前包不能被当作普通 uni-app `.vue` 组件或标准 Web Vue 包直接安装。

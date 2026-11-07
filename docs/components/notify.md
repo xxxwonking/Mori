@@ -25,6 +25,8 @@ const notify = ref<MoriNotifyInstance | null>(null)
 
 show({message,type?,duration?}) 显示通知；type=danger 使用错误色，其他值使用主色。duration=0 持续显示，close() 主动关闭；closable 控制关闭按钮。重复 show 替换且重新计时，close 事件无参数且每次显示最多触发一次。此组件采用 ref API，没有 v-model。固定 z-index=2200，更高自定义层可能覆盖它。
 
+微信自动放在状态栏与胶囊区域下方，App 避开顶部安全区，窗口变化时更新；宿主导航已经占用的高度不重复保留。H5 继续用 env 安全区。放置于页面顶层，避免带 transform 或裁切的祖先改变固定定位。
+
 ## 属性
 
 | 属性 | 类型 | 默认值 | 说明 |

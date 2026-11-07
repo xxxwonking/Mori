@@ -25,7 +25,7 @@ const options: MoriChoiceOption[] = [{ label: '站内消息', value: 'message' }
 
 ## 状态与进阶使用
 
-每次打开从 modelValue 初始化临时选择；点取消/遮罩/Escape 不提交。confirm(value:string) 仅在有效且未禁用/加载时触发，随后请求 show=false；取消发 cancel。外部 modelValue 在打开期间改变会替换草稿。loading 显示等待，空列表显示空状态且禁止确认。ref.confirm()/cancel() 复用同一规则。多列以并排选项列呈现，通过 columns / values 开启联动，不提供滚轮。
+每次打开从 modelValue 初始化临时选择；点取消/遮罩/Escape 不提交。confirm(value:string) 仅在有效且未禁用/加载时触发，随后请求 show=false；取消发 cancel。外部 modelValue 在打开期间改变会替换草稿。loading 显示等待，空列表显示空状态且禁止确认。ref.confirm()/cancel() 复用同一规则。多列通过 columns / values 开启联动，默认并排列表，mode="wheel" 使用宿主 picker-view 滚轮。
 
 ## 属性
 
@@ -33,6 +33,8 @@ const options: MoriChoiceOption[] = [{ label: '站内消息', value: 'message' }
 |---|---|---|---|
 | values | string[] | [] | 多列已提交值，使用 v-model:values。 |
 | columns | MoriChoiceOption[][] | [] | 非空启用多列。 |
+| mode | string | 'list' | 多列展示：list 或 wheel；单列仍保持列表。 |
+| columnLabels | string[] | [] | 各列可见标题，例如省、市、区；列表模式同时用作可访问名称。缺省时滚轮不显示列标题，列表保留原列名。 |
 | linkage | boolean | true | 选择前列后清空后续草稿。 |
 | modelValue | string | "" | 当前受控值，使用 v-model 绑定；类型和提交时机见本页用法。 |
 | show | boolean | false | 弹层显示状态，使用 v-model:show 绑定。 |
@@ -45,13 +47,15 @@ const options: MoriChoiceOption[] = [{ label: '站内消息', value: 'message' }
 
 ## 事件、插槽与方法
 
-公开事件：`update:modelValue`、`update:show`、`confirm`、`cancel`。事件载荷和触发时机见本页状态说明；模型更新事件由对应的 v-model 接收。
+公开事件：`update:modelValue`、`update:values`、`update:show`、`columnChange`、`confirmColumns`、`confirm`、`cancel`。事件载荷和触发时机见本页状态与多列联动说明；模型更新事件由对应的 v-model 接收。
 
 模板 ref 暴露：`confirm, cancel`。仅在挂载后调用，使用可空 ref 和 `?.`；参数、返回行为见本页状态说明。
 
 没有插槽。
 
 ## 多列联动
+
+`columnLabels` 可为并排列提供名称。滚轮模式的列名只显示一行；滚轮高 200px，中央选中行 40px，过滤禁用选项，缺省草稿选择每列首个可用值，空列仍禁止确认。宿主发出 pickstart／pickend 时，滚动期间禁止确认。工作台地区演示使用“省／市／区”三列滚轮，维护少量浙江、江苏、广东地区数据（仅供展示，不是完整行政区数据库）；切换前列选择后续列的首个选项，取消不提交，确认后保存完整路径。演示数据位于 `components/demo-region/regions.uts`，不随组件模块分发。
 
 columns: MoriChoiceOption[][] 非空时启用多列；values: string[] 使用 v-model:values 绑定，原 modelValue 继续是单列 string。linkage 默认 true，选择前列会清空后续草稿；columnChange(index,value,draftValues) 供父级替换后续 columns。确认所有列均选择有效项后发出 confirmColumns(values)，单列仍为 confirm(value)。业务异步加载时绑定 loading，取消不提交 values。
 

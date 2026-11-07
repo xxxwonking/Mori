@@ -1,0 +1,27 @@
+<template>
+  <view class="demo-region">
+    <mori-button label="选择地区" variant="outline" @click="open" />
+    <mori-text :text="'已选地区：' + confirmedLabel" tone="muted" />
+    <mori-text text="省、市、区三级联动；少量地区数据仅供展示。" tone="muted" :size="12" />
+    <mori-picker v-model:show="show" v-model:values="draft" :columns="columns" :column-labels="['省', '市', '区']" mode="wheel" title="选择地区" @columnChange="changeColumn" @confirmColumns="confirm" />
+  </view>
+</template>
+<script setup lang="uts">
+import { ref, computed } from 'vue'
+import { MoriChoiceOption } from '../../uni_modules/mori-ui/selection.uts'
+import { MoriTreeNode } from '../../uni_modules/mori-ui/extended-input.uts'
+import { demoRegions, resolveDemoRegionPath } from './regions.uts'
+const show = ref(false)
+const confirmed = ref<string[]>([])
+const draft = ref<string[]>([])
+const selected = computed((): MoriTreeNode[] => resolveDemoRegionPath(draft.value))
+const confirmedLabel = computed((): string => confirmed.value.length == 0 ? '未选择' : resolveDemoRegionPath(confirmed.value).map((node: MoriTreeNode): string => node.label).join(' / '))
+function choices(nodes: MoriTreeNode[]): MoriChoiceOption[] { return nodes.map((node: MoriTreeNode): MoriChoiceOption => ({ value: node.value, label: node.label })) }
+const columns = computed((): MoriChoiceOption[][] => [choices(demoRegions), choices(selected.value[0].children ?? []), choices(selected.value[1].children ?? [])])
+function open() { draft.value = resolveDemoRegionPath(confirmed.value).map((node: MoriTreeNode): string => node.value); show.value = true }
+function changeColumn(index: number, value: string, values: string[]) { draft.value = resolveDemoRegionPath(values).map((node: MoriTreeNode): string => node.value) }
+function confirm(values: string[]) { confirmed.value = values.slice() }
+</script>
+<style>
+.demo-region { display: flex; flex-direction: column; gap: 12px; }
+</style>

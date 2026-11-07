@@ -5,11 +5,11 @@ import { createRenderer, h, nextTick } from 'vue';
 import { parse, compileScript } from '@vue/compiler-sfc';
 
 const data = source => 'data:text/javascript;base64,' + Buffer.from(source).toString('base64');
-function branch(source, web) {
+function branch(source, web, weixin = false) {
   const enabled = [true];
   return source.split(/\r?\n/).filter(line => {
-    const start = line.match(/^\s*\/\/ #(ifdef|ifndef) WEB/);
-    if (start) { enabled.push(enabled.at(-1) && (start[1] === 'ifdef' ? web : !web)); return false; }
+    const start = line.match(/^\s*\/\/ #(ifdef|ifndef) (WEB|MP-WEIXIN)/);
+    if (start) { const active = start[2] === 'WEB' ? web : weixin; enabled.push(enabled.at(-1) && (start[1] === 'ifdef' ? active : !active)); return false; }
     if (/^\s*\/\/ #endif/.test(line)) { enabled.pop(); return false; }
     return enabled.at(-1);
   }).join('\n');
@@ -27,7 +27,7 @@ const native = await import(nativeUrl);
 const mount = use => { let state; const app = renderer.createApp({ setup() { state = use(); return () => null; } }); app.mount({}); return { app, state }; };
 const a = mount(native.useMoriViewport), b = mount(native.useMoriViewport);
 assert.equal(nativeListeners.size, 1, 'multiple consumers share a host subscription');
-assert.deepEqual(a.state.value, { width: 390, height: 844, top: 0, left: 0, safeTop: 47, safeBottom: 34 });
+assert.deepEqual(a.state.value, { width: 390, height: 844, top: 0, left: 0, safeTop: 47, safeBottom: 34, navigationBottom: 47 });
 
 // The real SafeArea setup must update on rotation, without requiring a size prop.
 const componentSource = branch(readFileSync(new URL('../uni_modules/mori-ui/components/mori-safe-area/mori-safe-area.uvue', import.meta.url), 'utf8'), false).replace('lang="uts"', 'lang="ts"');
@@ -45,6 +45,43 @@ for (const cb of nativeListeners) cb();
 assert.equal(a.state.value.height, 390, 'transient invalid windows keep the last usable measurement');
 a.app.unmount(); assert.equal(nativeListeners.size, 1);
 b.app.unmount(); safeApp.unmount(); assert.equal(nativeListeners.size, 0);
+
+// WeChat can omit safeAreaInsets; its native capsule is taller than the status bar.
+info = { windowWidth: 390, windowHeight: 844, screenHeight: 844, safeArea: { top: 47, bottom: 810 } };
+let menu = { top: 51, bottom: 83, height: 32 };
+uni.getMenuButtonBoundingClientRect = () => menu;
+const weixin = await import(moduleUrl(branch(source, false, true)));
+const wx = mount(weixin.useMoriViewport);
+const notifySource = branch(readFileSync(new URL('../uni_modules/mori-ui/components/mori-notify/mori-notify.uvue', import.meta.url), 'utf8'), false, true).replace('lang="uts"', 'lang="ts"');
+const notifyCode = compileScript(parse(notifySource).descriptor, { id: 'notify-window' }).content
+  .replace(/^import \{ MoriNotifyOptions \}[^\n]+\n/m, '')
+  .replace("'../../platform/viewport.uts'", JSON.stringify(moduleUrl(branch(source, false, true))))
+  .replace("'../../theme.uts'", JSON.stringify(data('export const moriPalette={value:{primary:"#171717",danger:"#c62828"}}; export const moriMessages={value:{closeNotification:"关闭通知"}};')))
+  .replace("'../../contrast.uts'", JSON.stringify(moduleUrl(readFileSync(new URL('../uni_modules/mori-ui/contrast.uts', import.meta.url), 'utf8'))));
+const Notify = (await import(moduleUrl(notifyCode))).default;
+Notify.render = () => null;
+const notifyApp = renderer.createApp({ render: () => h(Notify) }); notifyApp.mount({});
+const notifyStyle = () => notifyApp._instance.subTree.component.setupState.notificationStyle;
+assert.match(notifyStyle(), /top:87px/);
+assert.equal(wx.state.value.safeTop, 47);
+assert.equal(wx.state.value.safeBottom, 34);
+assert.equal(wx.state.value.navigationBottom, 87);
+info = { windowWidth: 390, windowHeight: 757, screenTop: 87, safeArea: { top: 47, bottom: 810 } };
+for (const cb of nativeListeners) cb();
+assert.equal(wx.state.value.safeTop, 0, 'host navigation already occupies the status bar');
+assert.equal(wx.state.value.navigationBottom, 0, 'do not reserve the native capsule twice');
+assert.equal(wx.state.value.safeBottom, 34);
+assert.match(notifyStyle(), /top:0px/);
+info = { windowWidth: 844, windowHeight: 390, safeAreaInsets: { top: 0, bottom: 21 } };
+menu = { top: 8, bottom: 40, height: 32 };
+for (const cb of nativeListeners) cb();
+assert.equal(wx.state.value.navigationBottom, 48);
+assert.equal(wx.state.value.safeBottom, 21);
+assert.match(notifyStyle(), /top:48px/);
+uni.getMenuButtonBoundingClientRect = () => { throw new Error('unavailable'); };
+for (const cb of nativeListeners) cb();
+assert.equal(wx.state.value.navigationBottom, 0);
+wx.app.unmount(); notifyApp.unmount(); assert.equal(nativeListeners.size, 0);
 
 const events = () => {
   const callbacks = new Map();

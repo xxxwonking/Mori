@@ -163,6 +163,12 @@ try {
   await expect(page.locator('.uni-slider-thumb-value')).toHaveCSS('background-color','rgb(229, 229, 229)');
   await page.setViewportSize({ width: 390, height: 844 });
   await capture('catalog-input-mobile-dark.png');
+  const categoryScroll = page.locator('.mori-tabs').first().locator('.uni-scroll-view > .uni-scroll-view');
+  expect(await categoryScroll.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+  await categoryScroll.evaluate(el => { el.scrollLeft = el.scrollWidth; });
+  await expect(page.getByRole('tab', { name: '列表交互', exact: true })).toBeInViewport();
+  await category('列表交互');
+  await expect(page.getByRole('tab', { name: '列表交互', exact: true })).toHaveAttribute('aria-selected', 'true');
   for (const name of ['基础展示', '导航', '反馈', '录入']) {
     await category(name);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

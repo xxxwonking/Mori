@@ -61,6 +61,15 @@ c.api.resetFields();await nextTick();assert.equal(c.props.value.model.profile.na
 const third=c.api.validateAsync();c.api.clearValidate();resolveOld('late');assert.equal((await third).stale,true);assert.deepEqual(c.state.errors,[]);
 c.props.value={model:{name:'x'},rules:[{name:'name',validator:()=>{throw Error('bad rule')}}]};await nextTick();await assert.rejects(c.api.validateAsync(),/bad rule/);assert.equal(c.state.validating,false);c.app.unmount();
 const Picker=await component('picker');c=mount(Picker,{show:true,values:['a','b'],columns:[[{value:'a',label:'A'},{value:'x',label:'X'}],[{value:'b',label:'B'}]]});c.state.setColumn(0,'x');assert.deepEqual(c.state.columnDraft,['x','']);c.api.confirm();assert.equal(c.props.value.show,true);c.props.value={...c.props.value,columns:[c.props.value.columns[0],[{value:'y',label:'Y'}]]};await nextTick();c.state.setColumn(1,'y');c.api.confirm();await nextTick();assert.deepEqual(c.props.value.values,['x','y']);c.app.unmount();
+// Native wheel events use numeric indices; disabled choices must never be committed.
+c=mount(Picker,{mode:'wheel',show:true,values:[],columns:[[{value:'disabled',label:'Disabled',disabled:true},{value:'a',label:'A'},{value:'x',label:'X'}],[{value:'b',label:'B'},{value:'y',label:'Y'}]]});
+assert.deepEqual(c.state.columnDraft,['a','b']);assert.deepEqual(c.state.wheelIndexes,[0,0]);
+c.state.changeWheel({detail:{value:[1,1]}});assert.deepEqual(c.state.columnDraft,['x','b']);
+assert.deepEqual(c.events.find(e=>e[0]==='columnChange').slice(1),[0,'x',['x','']]);
+c.state.changeWheel({detail:{value:[1,1]}});assert.deepEqual(c.state.columnDraft,['x','y']);
+c.state.wheelMoving=true;c.api.confirm();assert.equal(c.props.value.show,true);c.state.wheelMoving=false;
+c.api.cancel();await nextTick();assert.deepEqual(c.props.value.values,[],'wheel cancellation keeps the committed selection');
+c.props.value={...c.props.value,show:true,disabled:true};await nextTick();c.state.changeWheel({detail:{value:[1,1]}});assert.deepEqual(c.state.columnDraft,['a','b']);c.app.unmount();
 const Cascader=await component('cascader');let finish;
 c=mount(Cascader,{show:true,options:[{value:'a',label:'A',leaf:false}],loadChildren:()=>new Promise(r=>finish=r)});c.state.select('a');c.state.back(1);assert.equal(c.state.pending,true,'current breadcrumb must preserve its in-flight load');finish([{value:'b',label:'B'}]);await nextTick();await nextTick();assert.equal(c.state.levelOptions[0].value,'b');c.app.unmount();
 c=mount(Cascader,{show:true,options:[{value:'a',label:'A',leaf:false}],loadChildren:()=>new Promise(r=>finish=r)});c.state.select('a');c.state.back(0);finish([{value:'b',label:'B'}]);await nextTick();await nextTick();assert.deepEqual(c.state.draft,[]);assert.deepEqual(c.state.loaded,[],'returning to an ancestor still discards late children');c.app.unmount();

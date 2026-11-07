@@ -3,7 +3,7 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createHBuilderEnvironment, resolveCompilerRuntime } from './hbuilder-env.mjs';
-import { normalizeWeixinProject } from './weixin-project.mjs';
+import { stageWeixinBuild } from './weixin-project.mjs';
 import './site-prepare.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,6 +24,7 @@ const meta = JSON.parse(readFileSync(join(plugins, 'uniapp-cli-vite/package.json
 console.log(`Mori UI · ${mode} ${platform} · HBuilderX compiler ${meta.version}`);
 console.log('App 蒸汽模式建议使用 HBuilderX 5.31+；浏览器/小程序构建不代表原生验证。');
 const output = join(root, 'unpackage/dist', process.env.MORI_SITE_BUILD === 'true' && platform === 'h5' ? 'site' : mode === 'dev' ? 'dev' : 'build', platform);
+const staged = mode === 'build' && platform === 'mp-weixin' ? stageWeixinBuild(output) : null;
 const args = [compiler, ...(mode === 'build' ? ['build'] : []), '-p', platform, ...(mode === 'dev' && platform === 'h5' ? ['--host', '127.0.0.1', '--port', '5173'] : [])];
 const runtime = resolveCompilerRuntime(hx, platform);
 console.log(`Compiler Node: ${runtime}`);
@@ -33,13 +34,15 @@ const child = spawn(runtime, args, {
   cwd: root,
   stdio: 'inherit',
   windowsHide: true,
-  env: { ...process.env, UNI_CUSTOM_CONTEXT: JSON.stringify(customContext), HX_APP_ROOT: toolchain.root, UNI_INPUT_DIR: root, UNI_OUTPUT_DIR: output, UNI_HBUILDERX_PLUGINS: plugins, HX_PLUGIN_PATHS: JSON.stringify(pluginPaths), UNI_PROJECT_TYPE: 'hbuilder', RUN_BY_HBUILDERX: 'true', UNI_APP_X: 'true', UNI_CLI_CONTEXT: join(plugins, 'uniapp-cli-vite') }
+  env: { ...process.env, UNI_CUSTOM_CONTEXT: JSON.stringify(customContext), HX_APP_ROOT: toolchain.root, UNI_INPUT_DIR: root, UNI_OUTPUT_DIR: staged?.path ?? output, UNI_HBUILDERX_PLUGINS: plugins, HX_PLUGIN_PATHS: JSON.stringify(pluginPaths), UNI_PROJECT_TYPE: 'hbuilder', RUN_BY_HBUILDERX: 'true', UNI_APP_X: 'true', UNI_CLI_CONTEXT: join(plugins, 'uniapp-cli-vite') }
 });
-child.on('error', error => { toolchain.cleanup(); console.error(error.message); process.exitCode = 1; });
+child.on('error', error => { toolchain.cleanup(); staged?.cleanup(); console.error(error.message); process.exitCode = 1; });
 child.on('exit', code => {
   toolchain.cleanup();
   process.exitCode = code ?? 1;
-  if (code === 0 && mode === 'build' && platform === 'mp-weixin') normalizeWeixinProject(output);
+  try { if (code === 0) staged?.commit(); }
+  catch (error) { console.error(error.message); process.exitCode = 1; }
+  finally { staged?.cleanup(); }
 });
 process.on('SIGINT', () => child.kill('SIGINT'));
 process.on('SIGTERM', () => child.kill('SIGTERM'));

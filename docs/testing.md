@@ -61,6 +61,14 @@ npm run test:motion
 
 ## 微信和原生
 
+微信发行构建先在旁路临时目录编译，成功并确认 app.json 后再替换导入目录，失败保留上一版；不会在数分钟的编译过程中提前清空可用入口。成功后等待开发工具重新编译，再验证，不能用仍运行的旧页面判定新代码。
+
+如果出现样式字符串变成文本、正常 Tabs 全部禁用、Dialog 面板背景／位置同时异常，核对运行时绑定数据与当前 WXML 是否一致。本机曾出现 Tabs 模板把 item.m 当 disabled，但旧脚本的 item.m 实际为颜色字符串。完整构建后，清理开发工具的「编译缓存」和「文件缓存」，关闭并重开该项目，再对照新产物验证；不清理登录、授权或业务存储。CLI 对应 `cache --clean compile --project <工程目录>`、`cache --clean file --project <工程目录>`。
+
+`tests/viewport.mjs` 增加微信胶囊、safeArea 回退、宿主导航去重、窗口旋转、API 不可用，以及真实 Notify setup 的位置更新。`test:catalog` 检查 H5 横向滚动范围、滚到末项再点击；它不替代微信触摸手势验收。`tests/uni-environment.mjs` 检查旁路构建失败保留旧入口与成功替换；上传适配器测试同时运行 LF／CRLF 源码，防止 Windows 检出行尾改变模块加载。
+
+`tests/demo-region.mjs`（包含在 test:unit）检查展示数据的所有分支均为三级、value 唯一及更换父级后替换旧子级。`test:expanded` 使用浏览器滚轮输入触发宿主 picker-view 的真实 change，检查省／市切换和反向联动、取消／确认／重开，以及 360px 下三列同时展示、单行列名与 13px 选项；不通过修改组件状态代替滚动。原 Cascader 的禁用／懒加载逻辑继续由单元测试及独立组件预览覆盖。
+
 `npm run build:weixin` 输出到 `unpackage/dist/build/mp-weixin`。导入微信开发者工具后，使用自己的项目身份与运行配置，逐项操作四组件、主题、图标、文字、禁用及连续切换。
 
 可直接导入上述产物目录。若导入源码根目录，根目录的 `project.config.json` 必须设置 `"miniprogramRoot": "unpackage/dist/build/mp-weixin/"`，保留自己的 AppID，保存后重新编译。不要把 App.uvue 改名或复制成 app.json；app.json 与六个页面由 uni-app x 编译器生成。`project.private.config.json` 是开发者本机配置，不纳入版本控制。

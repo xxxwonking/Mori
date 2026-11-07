@@ -1,0 +1,17 @@
+<template>
+  <mori-safe-area position="top" :size="insetSize" />
+</template>
+
+<script setup lang="uts">
+import { computed } from 'vue'
+import { useMoriViewport } from '../../uni_modules/mori-ui/platform/viewport.uts'
+const viewport = useMoriViewport()
+const insetSize = computed((): number => {
+  // #ifdef WEB
+  return -1
+  // #endif
+  // #ifndef WEB
+  return viewport.value.navigationBottom
+  // #endif
+})
+</script>
