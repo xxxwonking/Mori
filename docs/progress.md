@@ -546,3 +546,5 @@ Windows HBuilderX 5.34／Node 24.21.0 的新独立工程 `mori-consumer-QyBpxM` 
 - 最终微信官方自动化接口读到通知 top=87px，胶囊 bottom=83px；回放编译事件绑定确认三列、13px 文本、省／市更新子级及确认完整路径。此方法不是物理触摸。截图接口再次超时，最终 Popup 绑定已是 translateY(0)／opacity 1，但渲染查询仍为 translateY(404px)／opacity 0；原因未定，不把最终微信弹层位置、滚轮手势或全库视觉验收标为通过。
 
 原始结果在忽略目录 `.impeccable/review/`：`wheel-final-unit.log`、`h5-wheel-final-build.log`、`weixin-wheel-final-build.log`、`h5-wheel-final-expanded.log`、`expanded-region-360.png`、`region-wheel-light.png`、`weixin-wheel-final.json` 和 `weixin-wheel-geometry.json`。API、用法与设计已同步；这些本机构建不是正式发布，也没有新增手机／Safari／鸿蒙验收。下一步推送后核对 Windows／Ubuntu 远程检查；微信最后一版的可见滚轮与滑动后确认仍需可靠渲染通道或用户设备反馈。
+
+提交结果：实现提交 `9992999` 已推送到 `origin/master`，目录／文档检查通过（88 指南、94 示例结构、692 个本地链接）。[Source checks 42349112232](https://github.com/xxxwonking/Mori/actions/runs/42349112232) 的 Windows／Ubuntu 两个任务均成功，包含完整单元、分发／选择器检查与候选包生成，原 Windows CRLF 失败已闭环。此处只补记远程结果，不重跑已通过的 UI 构建；下一步仍是最终微信滚轮可见效果与真实滑动确认，不将 CI 成功外推为平台视觉验收。
